@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="gcm_defaultSenderId" translatable="false">558791117368</string>
+    <string name="google_api_key" translatable="false">AIzaSyBq4Yo38IBIFuIjV6vaxIUpyYmI_UZeH_E</string>
+    <string name="google_app_id" translatable="false">1:558791117368:android:d4e5119d4e3826f7ec34cd</string>
+    <string name="google_crash_reporting_api_key" translatable="false">AIzaSyBq4Yo38IBIFuIjV6vaxIUpyYmI_UZeH_E</string>
+    <string name="google_storage_bucket" translatable="false">nunkkam-cedfd.appspot.com</string>
+    <string name="project_id" translatable="false">nunkkam-cedfd</string>
+</resources>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="button_background">#009D90</color>
+    <color name="button_text">#D9D9D9</color>
+    <color name="white">#FFFFFFFF</color>
+    <dimen name="button_height">57.5dp</dimen>
+    <dimen name="button_radius">10dp</dimen>
+    <dimen name="button_text_size">16sp</dimen>
+    <dimen name="button_width">332dp</dimen>
+    <string name="app_name">nunkkam</string>
+    <string name="gcm_defaultSenderId" translatable="false">558791117368</string>
+    <string name="google_api_key" translatable="false">AIzaSyBq4Yo38IBIFuIjV6vaxIUpyYmI_UZeH_E</string>
+    <string name="google_app_id" translatable="false">1:558791117368:android:d4e5119d4e3826f7ec34cd</string>
+    <string name="google_crash_reporting_api_key" translatable="false">AIzaSyBq4Yo38IBIFuIjV6vaxIUpyYmI_UZeH_E</string>
+    <string name="google_storage_bucket" translatable="false">nunkkam-cedfd.appspot.com</string>
+    <string name="project_id" translatable="false">nunkkam-cedfd</string>
+    <style name="Base.Theme.Nunkkam" parent="Theme.Material3.DayNight.NoActionBar">
+        
+        
+    </style>
+    <style name="ButtonStyle" parent="Widget.MaterialComponents.Button">
+        <item name="android:textColor">@color/button_text</item>
+        <item name="android:backgroundTint">@color/button_background</item>
+        <item name="cornerRadius">@dimen/button_radius</item>
+    </style>
+    <style name="Theme.Nunkkam" parent="Base.Theme.Nunkkam"/>
+</resources>
