@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <Button
+        android:id="@+id/startBlinkActivityButton"
+        style="@style/ButtonStyle"
+        android:layout_width="@dimen/button_width"
+        android:layout_height="@dimen/button_height"
+        android:minWidth="@dimen/button_width"
+        android:minHeight="@dimen/button_height"
+        android:textSize="@dimen/button_text_size"
+        android:text="START BLINK"
+        android:textStyle="bold"
+        android:layout_centerInParent="true" />
+</RelativeLayout>
