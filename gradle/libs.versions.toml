@@ -13,6 +13,8 @@ mediapipe = "0.10.14"
 camerax = "1.2.0-alpha02"
 google = "4.4.2"
 firebase = "33.1.2"
+anychart = "1.1.2"
+#anychart 버전 명시
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -30,6 +32,9 @@ androidx-camera-lifecycle = { group = "androidx.camera", name = "camera-lifecycl
 androidx-camera-view = { group = "androidx.camera", name = "camera-view", version.ref = "camerax" }
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebase" }
 firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics" }
+anychart = { group = "com.github.AnyChart", name = "AnyChart-Android", version.ref = "anychart" }
+#anychart 라이브러리 가져올 곳 명시
+
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
