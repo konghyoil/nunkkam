@@ -11,7 +11,7 @@
 
     <CalendarView
         android:id="@+id/calendarView"
-        android:background="@color/mint"
+        android:background="@color/button_background"
 
         android:dateTextAppearance="@style/CalendarDataTextStyle"
         android:weekDayTextAppearance="@style/CalendarWeeksTextStyle"

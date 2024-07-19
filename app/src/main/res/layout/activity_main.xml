@@ -12,10 +12,58 @@
         style="@style/ButtonStyle"
         android:layout_width="@dimen/button_width"
         android:layout_height="@dimen/button_height"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="333dp"
+        android:layout_marginEnd="49dp"
         android:minWidth="@dimen/button_width"
         android:minHeight="@dimen/button_height"
-        android:textSize="@dimen/button_text_size"
         android:text="START BLINK"
-        android:textStyle="bold"
-        android:layout_centerInParent="true" />
+        android:textSize="@dimen/button_text_size"
+        android:textStyle="bold" />
+
+    <Button
+        android:id="@+id/startTimerActivityButton"
+        style="@style/ButtonStyle"
+        android:layout_width="@dimen/button_width"
+        android:layout_height="@dimen/button_height"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="41dp"
+        android:layout_marginTop="412dp"
+        android:minWidth="@dimen/button_width"
+        android:minHeight="@dimen/button_height"
+        android:text="START TIMER"
+        android:textSize="@dimen/button_text_size"
+        android:textStyle="bold" />
+
+    <Button
+        android:id="@+id/startCalendarActivityButton"
+        style="@style/ButtonStyle"
+        android:layout_width="@dimen/button_width"
+        android:layout_height="@dimen/button_height"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="43dp"
+        android:layout_marginTop="479dp"
+        android:minWidth="@dimen/button_width"
+        android:minHeight="@dimen/button_height"
+        android:text="START CHART"
+        android:textSize="@dimen/button_text_size"
+        android:textStyle="bold" />
+
+    <Button
+        android:id="@+id/startChartActivityButton"
+        style="@style/ButtonStyle"
+        android:layout_width="@dimen/button_width"
+        android:layout_height="@dimen/button_height"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="44dp"
+        android:layout_marginTop="551dp"
+        android:minWidth="@dimen/button_width"
+        android:minHeight="@dimen/button_height"
+        android:text="START CALENDAR"
+        android:textSize="@dimen/button_text_size"
+        android:textStyle="bold" />
 </RelativeLayout>

@@ -21,11 +21,48 @@ class MainActivity : AppCompatActivity() {
 //        startBlinkActivityButton.setOnClickListener {
 //            startBlinkActivity() // 버튼 클릭 시 BlinkActivity 시작
 //        }
-    }
 
-    // BlinkActivity를 시작하는 함수
+        // TimerActivity를 시작하는 버튼 설정
+        val startTimerActivityButton: Button = findViewById(R.id.startTimerActivityButton)
+        startTimerActivityButton.setOnClickListener {
+            startTimerActivity() // 버튼 클릭 시 TimerActivity 시작
+        }
+
+        // TimerActivity를 시작하는 버튼 설정
+        val startCalendarActivityButton: Button = findViewById(R.id.startCalendarActivityButton)
+        startTimerActivityButton.setOnClickListener {
+            startCarlendarActivity() // 버튼 클릭 시 TimerActivity 시작
+        }
+
+        // TimerActivity를 시작하는 버튼 설정
+        val startChartActivityButton: Button = findViewById(R.id.startChartActivityButton)
+        startTimerActivityButton.setOnClickListener {
+            startCarlendarActivity() // 버튼 클릭 시 TimerActivity 시작
+        }
+
+
+    }
+//     BlinkActivity를 시작하는 함수
 //    private fun startBlinkActivity() {
 //        val intent = Intent(this, BlinkActivity::class.java) // BlinkActivity로 이동하기 위한 Intent 생성
+//        startActivity(intent) // BlinkActivity 시작
+//    }
+
+//         BlinkActivity를 시작하는 함수
+    private fun startTimerActivity() {
+        val intent = Intent(this, TimerActivity::class.java) // BlinkActivity로 이동하기 위한 Intent 생성
+        startActivity(intent) // BlinkActivity 시작
+    }
+
+    //         BlinkActivity를 시작하는 함수
+    private fun startCarlendarActivity() {
+        val intent = Intent(this, CalendarActivity::class.java) // BlinkActivity로 이동하기 위한 Intent 생성
+        startActivity(intent) // BlinkActivity 시작
+    }
+
+    //         BlinkActivity를 시작하는 함수
+//    private fun startChartActivity() {
+//        val intent = Intent(this, ChartActivity::class.java) // BlinkActivity로 이동하기 위한 Intent 생성
 //        startActivity(intent) // BlinkActivity 시작
 //    }
 }

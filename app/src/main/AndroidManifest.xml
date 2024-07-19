@@ -29,6 +29,9 @@
             </intent-filter>
         </activity>
         <activity android:name=".BlinkActivity" />
+        <activity android:name=".TimerActivity" /> <!-- TimerActivity 선언 -->
+<!--        <activity android:name=".ChartActivity" /> &lt;!&ndash; TimerActivity 선언 &ndash;&gt;-->
+        <activity android:name=".CalendarActivity" /> <!-- TimerActivity 선언 -->
     </application>
 
 </manifest>
