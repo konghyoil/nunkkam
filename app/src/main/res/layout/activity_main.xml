@@ -14,8 +14,8 @@
         android:layout_height="@dimen/button_height"
         android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
-        android:layout_marginTop="333dp"
-        android:layout_marginEnd="49dp"
+        android:layout_marginTop="342dp"
+        android:layout_marginEnd="34dp"
         android:minWidth="@dimen/button_width"
         android:minHeight="@dimen/button_height"
         android:text="START BLINK"
@@ -38,7 +38,7 @@
         android:textStyle="bold" />
 
     <Button
-        android:id="@+id/startCalendarActivityButton"
+        android:id="@+id/startChartActivityButton"
         style="@style/ButtonStyle"
         android:layout_width="@dimen/button_width"
         android:layout_height="@dimen/button_height"
@@ -53,7 +53,7 @@
         android:textStyle="bold" />
 
     <Button
-        android:id="@+id/startChartActivityButton"
+        android:id="@+id/startCalendarActivityButton"
         style="@style/ButtonStyle"
         android:layout_width="@dimen/button_width"
         android:layout_height="@dimen/button_height"

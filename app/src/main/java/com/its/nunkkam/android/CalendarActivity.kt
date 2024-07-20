@@ -1,4 +1,4 @@
-package com.its.nunkkam.android
+package com.its.nunkkam.android // 패키지 선언: 이 코드가 속한 패키지를 지정
 
 import android.annotation.SuppressLint
 import android.os.Bundle
