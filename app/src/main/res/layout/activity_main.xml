@@ -66,4 +66,18 @@
         android:text="START CALENDAR"
         android:textSize="@dimen/button_text_size"
         android:textStyle="bold" />
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="START BLINK"
+        android:layout_centerInParent="true"/>
+
+    <Button
+        android:id="@+id/startChartActivityButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="VIEW CHARTS"
+        android:layout_below="@id/startBlinkActivityButton"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="16dp"/>
+
 </RelativeLayout>
