@@ -37,7 +37,7 @@ class ChartActivity : AppCompatActivity() {
 
         // 데이터 설정
         val data = listOf(
-            ValueDataEntry("나", 12),
+            ValueDataEntry("나", 7),
             ValueDataEntry("평균", 15)
         )
 

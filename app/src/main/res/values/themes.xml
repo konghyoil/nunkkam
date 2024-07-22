@@ -14,15 +14,8 @@
         <item name="cornerRadius">@dimen/button_radius</item>
     </style>
 
-    <style name="CalendarDataTextStyle" parent="android:TextAppearance.DeviceDefault.Large">
-        <item name="android:textColor">@color/white</item>
 
-    </style>
 
-    <style name="CalendarWeeksTextStyle" parent="android:TextAppearance.DeviceDefault.Large">
-        <item name="android:textColor">@color/white</item>
-
-    </style>
 
     <!-- 캘린더 스타일 -->
     <style name="CalendarDataTextStyle" parent="android:TextAppearance.DeviceDefault.Large">
