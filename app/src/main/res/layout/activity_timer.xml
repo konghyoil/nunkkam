@@ -39,43 +39,48 @@
         android:id="@+id/pause_button"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="일시정지"
-        android:visibility="gone"
-        android:backgroundTint="#FFA000"
-        android:textColor="#FFFFFF"
-        app:layout_constraintTop_toBottomOf="@id/timer_text"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/reset_button"
         android:layout_marginTop="30dp"
+        android:backgroundTint="#FFA000"
+        android:text="일시정지"
+        android:textColor="#FFFFFF"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintHorizontal_bias="0.4"
+        app:layout_constraintTop_toBottomOf="@id/timer_text"
         app:layout_constraintWidth_percent="0.4" />
+<!--    app:layout_constraintEnd_toStartOf="@id/reset_button"-->
+
 
     <Button
         android:id="@+id/restart_button"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="계속"
-        android:visibility="gone"
-        android:backgroundTint="#FFA000"
-        android:textColor="#FFFFFF"
-        app:layout_constraintTop_toBottomOf="@id/timer_text"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/reset_button"
         android:layout_marginTop="30dp"
+        android:backgroundTint="#FFA000"
+        android:text="계속"
+        android:textColor="#FFFFFF"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintHorizontal_bias="0.4"
+        app:layout_constraintTop_toBottomOf="@id/timer_text"
         app:layout_constraintWidth_percent="0.4" />
+<!--    app:layout_constraintEnd_toStartOf="@id/reset_button"-->
 
     <Button
         android:id="@+id/reset_button"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="초기화"
-        android:visibility="gone"
-        android:backgroundTint="#D32F2F"
-        android:textColor="#FFFFFF"
-        app:layout_constraintTop_toBottomOf="@id/timer_text"
-        app:layout_constraintStart_toEndOf="@id/pause_button"
-        app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="30dp"
+        android:backgroundTint="#D32F2F"
+        android:text="초기화"
+        android:textColor="#FFFFFF"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.6"
+        app:layout_constraintTop_toBottomOf="@id/timer_text"
         app:layout_constraintWidth_percent="0.4" />
+
+<!--    app:layout_constraintStart_toEndOf="@id/pause_button"-->
 
     <Button
         android:id="@+id/result_button"

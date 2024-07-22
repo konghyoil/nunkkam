@@ -29,8 +29,8 @@
         </activity>
         <activity android:name=".BlinkActivity" />
         <activity android:name=".TimerActivity" /> <!-- TimerActivity 선언 -->
-        <activity android:name=".ChartActivity" /> <!-- TimerActivity 선언 -->
-        <activity android:name=".CalendarActivity" /> <!-- TimerActivity 선언 -->
+        <activity android:name=".ChartActivity" /> <!-- ChartActivity 선언 -->
+        <activity android:name=".CalendarActivity" /> <!-- CalendarActivity 선언 -->
     </application>
 
 </manifest>
