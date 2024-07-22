@@ -35,7 +35,6 @@ class CalendarActivity : AppCompatActivity() {
         val calendar = Calendar.getInstance()
         val dateFormat = java.text.SimpleDateFormat("yyyy-M-d", java.util.Locale.getDefault())
 
-
         calendar.add(Calendar.YEAR, -1)// 1년 전 날짜를 계산
         val oneYearAgo = calendar.timeInMillis
         calendarView.minDate = oneYearAgo// 최소 달력 날짜 설정
