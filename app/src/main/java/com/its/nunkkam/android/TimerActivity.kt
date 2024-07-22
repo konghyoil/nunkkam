@@ -2,7 +2,7 @@ package com.its.nunkkam.android // 패키지 선언: 이 코드가 속한 패키
 
 import android.os.Bundle
 import android.widget.TextView
-import androidx.activity.enableEdgeToEdge
+//import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -69,8 +69,8 @@ class TimerActivity : ComponentActivity() {
             // 결과 확인 로직 구현
         }
     }
-
-    private fun initializeTimerLayout() {
+//
+    private fun initializeTimerLayout() { // 타이머 레이아웃 초기화 함수 -> 타이머 초기화면으로 사용
         // 타이머 레이아웃 설정
         timerTextView = findViewById(R.id.timer_text)
         pauseButton = findViewById(R.id.pause_button)
@@ -101,7 +101,7 @@ class TimerActivity : ComponentActivity() {
         }
     }
 
-    private fun adjustConstraints() {
+    private fun adjustConstraints() { // Pause Button 실행 시 Reset Button 위치 조정 함수
         val constraintLayout = findViewById<ConstraintLayout>(R.id.timer)
         val constraintSet = ConstraintSet()
         constraintSet.clone(constraintLayout)

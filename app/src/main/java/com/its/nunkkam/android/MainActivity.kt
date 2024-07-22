@@ -28,17 +28,17 @@ class MainActivity : AppCompatActivity() {
             startTimerActivity() // 버튼 클릭 시 TimerActivity 시작
         }
 
-        // TimerActivity를 시작하는 버튼 설정
+        // CalendarActivity를 시작하는 버튼 설정
         val startCalendarActivityButton: Button = findViewById(R.id.startCalendarActivityButton)
         startCalendarActivityButton.setOnClickListener {
-            startCalendarActivity() // 버튼 클릭 시 TimerActivity 시작
+            startCalendarActivity() // 버튼 클릭 시 CalendarActivity 시작
         }
 
-        // TimerActivity를 시작하는 버튼 설정
-//        val startChartActivityButton: Button = findViewById(R.id.startChartActivityButton)
-//        startChartActivityButton.setOnClickListener {
-//            startCarlendarActivity() // 버튼 클릭 시 TimerActivity 시작
-//        }
+        // ChartActivity를 시작하는 버튼 설정
+        val startChartActivityButton: Button = findViewById(R.id.startChartActivityButton)
+        startChartActivityButton.setOnClickListener {
+            startChartActivity() // 버튼 클릭 시 ChartActivity 시작
+        }
 
 
     }
@@ -48,21 +48,21 @@ class MainActivity : AppCompatActivity() {
         startActivity(intent) // BlinkActivity 시작
     }
 
-//         BlinkActivity를 시작하는 함수
+//         TimerActivity를 시작하는 함수
     private fun startTimerActivity() {
         val intent = Intent(this, TimerActivity::class.java) // TimerActivity로 이동하기 위한 Intent 생성
-        startActivity(intent) // BlinkActivity 시작
+        startActivity(intent) // TimerActivity 시작
     }
 
-    //         BlinkActivity를 시작하는 함수
+    //         CalenderActivity를 시작하는 함수
     private fun startCalendarActivity() {
         val intent = Intent(this, CalendarActivity::class.java) // CalenderActivity로 이동하기 위한 Intent 생성
-        startActivity(intent) // BlinkActivity 시작
+        startActivity(intent) // CalendarActivity 시작
     }
 
-    //         BlinkActivity를 시작하는 함수
-//    private fun startChartActivity() {
-//        val intent = Intent(this, ChartActivity::class.java) // BlinkActivity로 이동하기 위한 Intent 생성
-//        startActivity(intent) // BlinkActivity 시작
-//    }
+    //         ChartActivity를 시작하는 함수
+    private fun startChartActivity() {
+        val intent = Intent(this, ChartActivity::class.java) // ChartActivity로 이동하기 위한 Intent 생성
+        startActivity(intent) // ChartActivity 시작
+    }
 }
