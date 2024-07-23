@@ -25,7 +25,7 @@ class MainActivity : AppCompatActivity() {
         // TimerActivity를 시작하는 버튼 설정
         val startTimerActivityButton: Button = findViewById(R.id.startTimerActivityButton)
         startTimerActivityButton.setOnClickListener {
-            startTimerActivity() // 버튼 클릭 시 TimerActivity 시작
+            startTimerActivity() // 버튼 클릭 시 TimerActivity 시작s
         }
 
         // CalendarActivity를 시작하는 버튼 설정
