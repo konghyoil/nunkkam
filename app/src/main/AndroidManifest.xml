@@ -31,6 +31,10 @@
         <activity android:name=".TimerActivity" /> <!-- TimerActivity 선언 -->
         <activity android:name=".ChartActivity" /> <!-- ChartActivity 선언 -->
         <activity android:name=".CalendarActivity" /> <!-- CalendarActivity 선언 -->
+        <activity android:name=".FirebaseUIActivity" /> <!-- FirebaseUIActivity 선언 -->
+        <activity android:name=".GoogleSignInActivity" /> <!-- GoogleSignInActivity 선언 -->
+        <activity android:name=".LoginMainActivity" /> <!-- LoginMainActivity 선언 -->
+
     </application>
 
 </manifest>
