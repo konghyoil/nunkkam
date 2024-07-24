@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "886745816335",
+    "project_id": "its-nunkkam",
+    "storage_bucket": "its-nunkkam.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:886745816335:android:082a0106d3e9673e4ef27a",
+        "android_client_info": {
+          "package_name": "com.its.nunkkam.android"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "886745816335-akpa2ljcje0rfgoa119gv3djugnfrej2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.its.nunkkam.android",
+            "certificate_hash": "d786bf86bced4f707cd588dc677727013d98279b"
+          }
+        },
+        {
+          "client_id": "886745816335-ojschmmjkfcpnvbtgrbck5uco7ebrbsp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDE2142oUMg7F5vUPiGmIQJiJU9fMOVwnU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "886745816335-ojschmmjkfcpnvbtgrbck5uco7ebrbsp.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

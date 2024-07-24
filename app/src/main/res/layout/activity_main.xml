@@ -8,6 +8,21 @@
     tools:context=".MainActivity">
 
     <Button
+        android:id="@+id/startCardActivityButton"
+        style="@style/ButtonStyle"
+        android:layout_width="@dimen/button_width"
+        android:layout_height="@dimen/button_height"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="273dp"
+        android:layout_marginEnd="35dp"
+        android:minWidth="@dimen/button_width"
+        android:minHeight="@dimen/button_height"
+        android:text="START CARD"
+        android:textSize="@dimen/button_text_size"
+        android:textStyle="bold" />
+
+    <Button
         android:id="@+id/startBlinkActivityButton"
         style="@style/ButtonStyle"
         android:layout_width="@dimen/button_width"
