@@ -8,7 +8,7 @@
     tools:context=".MainActivity">
 
     <Button
-        android:id="@+id/startBlinkActivityButton"
+        android:id="@+id/startSignInButton"
         style="@style/ButtonStyle"
         android:layout_width="@dimen/button_width"
         android:layout_height="@dimen/button_height"
@@ -16,6 +16,21 @@
         android:layout_alignParentEnd="true"
         android:layout_marginTop="342dp"
         android:layout_marginEnd="34dp"
+        android:minWidth="@dimen/button_width"
+        android:minHeight="@dimen/button_height"
+        android:text="Sign In"
+        android:textSize="@dimen/button_text_size"
+        android:textStyle="bold" />
+
+    <Button
+        android:id="@+id/startBlinkActivityButton"
+        style="@style/ButtonStyle"
+        android:layout_width="@dimen/button_width"
+        android:layout_height="@dimen/button_height"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="271dp"
+        android:layout_marginEnd="43dp"
         android:minWidth="@dimen/button_width"
         android:minHeight="@dimen/button_height"
         android:text="START BLINK"

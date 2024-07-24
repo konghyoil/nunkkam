@@ -5,6 +5,7 @@ import android.content.Intent // 다른 액티비티를 시작하기 위한 클�
 import android.os.Bundle // 액티비티 생명주기 관련 클래스
 import androidx.appcompat.app.AppCompatActivity // 앱 호환성을 위한 기본 액티비티 클래스
 import android.widget.Button // 버튼 위젯을 사용하기 위한 클래스
+import com.google.firebase.database.FirebaseDatabase
 
 // 주석 규칙 | [외부]: 외부 데이터에서 가져오는 부분을 구분하기 위한 주석
 
@@ -39,8 +40,10 @@ class MainActivity : AppCompatActivity() {
         startChartActivityButton.setOnClickListener {
             startChartActivity() // 버튼 클릭 시 ChartActivity 시작
         }
-
-
+        val startSignInButton: Button = findViewById(R.id.startSignInButton)
+        startSignInButton.setOnClickListener {
+            GoogleSignInActivity()
+        }
     }
 //     BlinkActivity를 시작하는 함수
     private fun startBlinkActivity() {
@@ -64,5 +67,11 @@ class MainActivity : AppCompatActivity() {
     private fun startChartActivity() {
         val intent = Intent(this, ChartActivity::class.java) // ChartActivity로 이동하기 위한 Intent 생성
         startActivity(intent) // ChartActivity 시작
+    }
+
+    //          GoogleSigninActivity를 시작하는 함수
+    private fun GoogleSignInActivity() {
+        val intent = Intent(this, LoginMainActivity::class.java) // LoginMainActivity 이동하기 위한 Intent 생성
+        startActivity(intent)// GoogleSignInActivity 시작
     }
 }
