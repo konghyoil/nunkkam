@@ -16,6 +16,9 @@ import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.Timestamp
+import java.util.*
 
 class TimerActivity : ComponentActivity() {
 
@@ -29,6 +32,14 @@ class TimerActivity : ComponentActivity() {
     private var countDownTimer: CountDownTimer? = null
     private var timeLeftInMillis: Long =1200000 // 20 minutes
     private var timerRunning: Boolean = false
+
+    private var startTime: Long = 0
+    private var endTime: Long = 0
+    private var pausedTime: Long = 0
+
+
+    private val db = FirebaseFirestore.getInstance()
+    private val userId = "example_user_id" // 실제 사용자 ID로 변경 필요
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
