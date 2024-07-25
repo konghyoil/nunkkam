@@ -49,6 +49,7 @@ class CalendarAdapter(private val days: List<Date?>, private val infoList: List<
                     holder.infoTextView.setTextColor(Color.BLACK)
                 }
                 holder.infoTextView.text = info
+                //holder.infoTextView.text = "●"
             } else {
                 holder.infoTextView.text = ""
             }
