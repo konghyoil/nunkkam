@@ -48,7 +48,7 @@ anychart = { group = "com.github.AnyChart", name = "AnyChart-Android", version.r
 appdistribution-gradle = {group = "com.google.firebase", name = "firebase-appdistribution-gradle", version.ref="appdistribution"}
 firebase-auth-ktx = { group = "com.google.firebase", name = "firebase-auth-ktx", version.ref = "firebaseAuthKtx" }
 firebase-auth = { group = "com.google.firebase", name = "firebase-auth", version.ref = "firebaseAuth" }
-firebase-database = { group = "com.google.firebase", name = "firebase-database", version.ref = "firebaseDatabase" }
+firebase-database = { group = "com.google.firebase", name = "firebase-database-ktx", version.ref = "firebaseDatabase" }
 firebase-adMob = { group = "com.google.android.gms", name = "play-services-ads", version.ref = "services" }
 services-auth = { group = "com.google.android.gms", name = "play-services-auth", version.ref = "auth"}
 firebase-firestore=  { group = "com.google.firebase", name = "firebase-firestore-ktx", version.ref = "firestore" }
