@@ -66,3 +66,4 @@ class MainActivity : AppCompatActivity() {
         startActivity(intent) // ChartActivity 시작
     }
 }
+
