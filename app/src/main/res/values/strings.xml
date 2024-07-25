@@ -1,3 +1,11 @@
 <resources>
-    <string name="app_name">nunkkam</string>
+    <string name="app_name">눈깜</string>
+    <string name="default_timer_text">00:00</string>
+    <string name="start_measurement">측정 시작</string>
+    <string name="pause">일시정지</string>
+    <string name="reset">초기화</string>
+    <string name="check_results">결과 확인</string>
+    <string name="measurement_alarm">측정 알람</string>
+    <string name="manage_alarm">알람 관리</string>
+    <string name="resume">재개</string>
 </resources>

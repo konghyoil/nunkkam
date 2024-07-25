@@ -27,10 +27,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".BlinkActivity" />
+        <activity android:name=".BlinkActivity" /> <!-- BlinkActivity 선언 -->
         <activity android:name=".TimerActivity" /> <!-- TimerActivity 선언 -->
         <activity android:name=".ChartActivity" /> <!-- ChartActivity 선언 -->
         <activity android:name=".CalendarActivity" /> <!-- CalendarActivity 선언 -->
+        <activity android:name=".CardActivity" /> <!-- CardActivity 선언 -->
+        <activity android:name=".ResultActivity" /> <!-- ResultActivity 선언 -->
     </application>
 
 </manifest>
