@@ -46,7 +46,22 @@ dependencies {
     implementation platform('com.google.firebase:firebase-bom:32.2.2')
     implementation 'com.google.firebase:firebase-analytics-ktx'
     implementation 'com.github.AnyChart:AnyChart-Android:1.1.2'
+    implementation 'com.google.firebase:firebase-firestore-ktx:25.0.0'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+
+//
+//    implementation libs.firebase.analytics
+//    implementation libs.firebase.adMob
+//    implementation libs.firebase.auth.ktx
+//    implementation libs.firebase.firestore
+//    implementation libs.services.auth
+//    implementation libs.firebase.database
+//    implementation libs.api.people
+//    implementation libs.api.android
+//    implementation libs.api.gson
+//    implementation libs.firebase.auth
+//    firestore와 로그인을 위한 버전 추가
+
 }

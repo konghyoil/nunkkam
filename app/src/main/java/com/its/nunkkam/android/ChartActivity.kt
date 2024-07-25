@@ -17,44 +17,7 @@ class ChartActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chart) // 새로 생성한 레이아웃 파일 사용
 
-        setupCurrentBlinkGraph()
         setupAverageBlinkGraph()
-    }
-
-    // 현재 눈 깜빡임 수치 그래프 설정
-    private fun setupCurrentBlinkGraph() {
-        val anyChartView: AnyChartView = findViewById(R.id.any_chart_view)
-        val bar = AnyChart.bar()
-
-        // 그래프 스타일 설정
-        bar.background().fill("#000000")
-        bar.title("현재 눈 깜빡임 수치 (*분당 평균)")
-        bar.title().padding(0.0, 0.0, 10.0, 0.0)
-        bar.title().fontColor("#4DB6AC")
-        bar.title().fontSize(18)
-        bar.title().fontWeight("bold")
-        bar.title().background().fill("#00796B")
-
-        // 데이터 설정
-        val data = listOf(
-            ValueDataEntry("나", 7),
-            ValueDataEntry("평균", 15)
-        )
-
-        val series = bar.bar(data)
-        series.color("#B2DFDB")
-
-        // 축 설정
-        bar.xAxis(0).title("").labels().fontSize(14)
-        bar.yAxis(0).title("").labels().fontSize(14)
-
-        // 레이블 설정
-        bar.labels().enabled(true)
-        bar.labels().position("right")
-        bar.labels().fontSize(14)
-        bar.labels().fontColor("#FFFFFF")
-
-        anyChartView.setChart(bar)
     }
 
     // 평균 눈 깜빡임 수치 그래프 설정
