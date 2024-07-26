@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import java.text.DecimalFormat
 import java.util.*
 
 class CalendarAdapter(private val days: List<Date?>, private val infoList: List<String?>) : RecyclerView.Adapter<CalendarAdapter.DayViewHolder>() {
@@ -25,6 +26,7 @@ class CalendarAdapter(private val days: List<Date?>, private val infoList: List<
 
     override fun onBindViewHolder(holder: DayViewHolder, position: Int) {
         val date = days[position]
+
         if (date != null) {
             val calendar = Calendar.getInstance().apply { time = date }
             holder.dayTextView.text = calendar.get(Calendar.DAY_OF_MONTH).toString()
@@ -41,15 +43,20 @@ class CalendarAdapter(private val days: List<Date?>, private val infoList: List<
             }
 
             if (info != null) {
-                if (info.toInt() >= 15) {
+
+                val infoFloat = info.toFloat()
+                val df = DecimalFormat("0.##")
+                val formattedInfo = df.format(infoFloat)
+
+                if (infoFloat >= 15) {
                     holder.infoTextView.setTextColor(Color.GREEN)
-                } else if (info.toInt() in 1..14) {
+                } else if (infoFloat in 1f..14f) {
                     holder.infoTextView.setTextColor(Color.RED)
                 } else {
                     holder.infoTextView.setTextColor(Color.BLACK)
                 }
-                holder.infoTextView.text = info
-                //holder.infoTextView.text = "●"
+                holder.infoTextView.text = formattedInfo
+
             } else {
                 holder.infoTextView.text = ""
             }
