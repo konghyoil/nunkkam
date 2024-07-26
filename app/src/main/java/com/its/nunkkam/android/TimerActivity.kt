@@ -206,8 +206,8 @@ class TimerActivity : ComponentActivity() {
 
         // 임의 값(나중에 실제 계산 필요)
         val count = 2
-        val birthDate = Timestamp(seconds=631173525, nanoseconds=863000000)
-        val exMeasurementTime = Timestamp(seconds=1718071582, nanoseconds=863000000)
+        val birthDate = Timestamp(seconds = 631173525, nanoseconds = 863000000)
+        val exMeasurementTime = Timestamp(seconds = 1718071582, nanoseconds = 863000000)
 
 
         // 눈 깜빡임 데이터를 담을 HashMap 생성
@@ -215,7 +215,7 @@ class TimerActivity : ComponentActivity() {
             "count" to count, // 눈 깜빡임 빈도 (임시값, 실제 계산 필요)
             "measurement_time" to measurementTimeInMinutes, // 측정 시간
             "measurement_date" to exMeasurementTime, // 측정 날짜 Timestamp 객체
-            "average_frequency_per_minute" to count/measurementTimeInMinutes, // 분당 평균 빈도 (임시값, 실제 계산 필요)
+            "average_frequency_per_minute" to count / measurementTimeInMinutes, // 분당 평균 빈도 (임시값, 실제 계산 필요)
         )
 
         Log.e("TimerActivity", blinkData.toString()) // 생성된 데이터 로그 출력
@@ -245,7 +245,10 @@ class TimerActivity : ComponentActivity() {
                 // 새 문서 생성 및 데이터 설정
                 userDocument.set(newUser)
                     .addOnSuccessListener {
-                        Log.e("TimerActivity", "New user document successfully created!") // 새 문서 생성 성공 로그
+                        Log.e(
+                            "TimerActivity",
+                            "New user document successfully created!"
+                        ) // 새 문서 생성 성공 로그
                     }
                     .addOnFailureListener { e ->
                         Log.e("TimerActivity", "saveMeasurementData4 called!") // 새 문서 생성 실패 로그
@@ -253,3 +256,9 @@ class TimerActivity : ComponentActivity() {
             }
         }
     }
+    private fun goToResultScreen() {
+        val intent = Intent(this, CalendarActivity::class.java) // CalendarActivity로 이동하는 인텐트 생성
+        startActivity(intent) // 액티비티 시작
+    }
+
+}
