@@ -109,22 +109,30 @@ class CalendarActivity : AppCompatActivity() {
     }
 
     // 각 일자에 해당하는 정보(평균 눈 깜빡임 횟수)를 가져오는 함수
+
     private fun getInfoForDays(days: List<Date?>): List<String?> {
         val infoList = mutableListOf<String?>()
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
         // blinksData를 날짜별로 매핑합니다.
-        val blinksMap = blinksData.associateBy {
+        val blinksGroupedByDate = blinksData.groupBy {
             dateFormat.format((it["measurement_date"] as com.google.firebase.Timestamp).toDate())
         }
-        Log.d("TAG","blinksMap = $blinksMap")
+
+        Log.d("TAG","blinksGroupedByDate = $blinksGroupedByDate")
 
         for (date in days) {
             if (date != null) {
                 val dateString = dateFormat.format(date)
-                val blinkData = blinksMap[dateString]
-                val averageFrequency = blinkData?.get("average_frequency_per_minute")?.toString()
-                infoList.add(averageFrequency)
+                val blinkDataList = blinksGroupedByDate[dateString]
+                if (blinkDataList != null) {
+                    // 같은 날짜의 여러 데이터를 처리
+                    val totalFrequency = blinkDataList.sumOf { (it["average_frequency_per_minute"] as Number).toInt() }
+                    val averageFrequency = totalFrequency / blinkDataList.size
+                    infoList.add(averageFrequency.toString())
+                } else {
+                    infoList.add(null)
+                }
             } else {
                 infoList.add(null)
             }
@@ -132,6 +140,31 @@ class CalendarActivity : AppCompatActivity() {
 
         return infoList
     }
+
+//    날짜별 최근 데이터만 나오는 코드
+//    private fun getInfoForDays(days: List<Date?>): List<String?> {
+//        val infoList = mutableListOf<String?>()
+//        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+//
+//        // blinksData를 날짜별로 매핑합니다.
+//        val blinksMap = blinksData.associateBy {
+//            dateFormat.format((it["measurement_date"] as com.google.firebase.Timestamp).toDate())
+//        }
+//        Log.d("TAG","blinksMap = $blinksMap")
+//
+//        for (date in days) {
+//            if (date != null) {
+//                val dateString = dateFormat.format(date)
+//                val blinkData = blinksMap[dateString]
+//                val averageFrequency = blinkData?.get("average_frequency_per_minute")?.toString()
+//                infoList.add(averageFrequency)
+//            } else {
+//                infoList.add(null)
+//            }
+//        }
+//
+//        return infoList
+//    }
 
     // 월/년 텍스트를 업데이트하는 함수
     private fun updateMonthYearText() {
