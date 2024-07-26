@@ -206,15 +206,18 @@ class TimerActivity : ComponentActivity() {
 
         // 임의 값(나중에 실제 계산 필요)
         val count = 2
-        val birthDate = Timestamp(seconds = 631173525, nanoseconds = 863000000)
-        val exMeasurementTime = Timestamp(seconds = 1718071582, nanoseconds = 863000000)
+//        val birthDate = Timestamp(seconds = 631173525, nanoseconds = 863000000) // 예시 birthDate 타임스탬프
+        val birthDate = Timestamp(seconds = 631173525, nanoseconds = 863000000) // 예시 birthDate 타임스탬프
+
+//        val exMeasurementTime = Timestamp(seconds = 1718071582, nanoseconds = 863000000) // 예시 measurementTime 타임스탬프
+//
 
 
         // 눈 깜빡임 데이터를 담을 HashMap 생성
         val blinkData = hashMapOf(
             "count" to count, // 눈 깜빡임 빈도 (임시값, 실제 계산 필요)
             "measurement_time" to measurementTimeInMinutes, // 측정 시간
-            "measurement_date" to exMeasurementTime, // 측정 날짜 Timestamp 객체
+            "measurement_date" to measurementTime, // 측정 날짜 Timestamp 객체
             "average_frequency_per_minute" to count / measurementTimeInMinutes, // 분당 평균 빈도 (임시값, 실제 계산 필요)
         )
 
