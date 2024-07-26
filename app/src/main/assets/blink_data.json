@@ -1,0 +1,91 @@
+{
+  "guest_id": "user124",
+  "birth_date": {"timestamp": "1990-01-01T00:00:00Z"},
+  "tutorial": true,
+  "blinks": [
+    {
+      "blink_id": "blink1",
+      "count": 200,
+      "measurement_time": 20,
+      "measurement_date": {"timestamp": "2024-07-25T00:00:00Z"},
+      "average_frequency_per_minute": 10
+    },
+    {
+      "blink_id": "blink13",
+      "count": 195,
+      "measurement_time": 15,
+      "measurement_date": {"timestamp": "2024-07-22T00:00:00Z"},
+      "average_frequency_per_minute": 13.0
+    },
+    {
+      "blink_id": "blink12",
+      "count": 130,
+      "measurement_time": 10,
+      "measurement_date": {"timestamp": "2024-07-19T00:00:00Z"},
+      "average_frequency_per_minute": 13.0
+    },
+    {
+      "blink_id": "blink11",
+      "count": 220,
+      "measurement_time": 20,
+      "measurement_date": {"timestamp": "2024-07-16T00:00:00Z"},
+      "average_frequency_per_minute": 11.0
+    },
+    {
+      "blink_id": "blink10",
+      "count": 140,
+      "measurement_time": 15,
+      "measurement_date": {"timestamp": "2024-07-11T00:00:00Z"},
+      "average_frequency_per_minute": 9.33
+    },
+    {
+      "blink_id": "blink9",
+      "count": 105,
+      "measurement_time": 10,
+      "measurement_date": {"timestamp": "2024-07-08T00:00:00Z"},
+      "average_frequency_per_minute": 10.5
+    },
+    {
+      "blink_id": "blink8",
+      "count": 180,
+      "measurement_time": 20,
+      "measurement_date": {"timestamp": "2024-07-04T00:00:00Z"},
+      "average_frequency_per_minute": 9.0
+    },
+    {
+      "blink_id": "blink7",
+      "count": 160,
+      "measurement_time": 15,
+      "measurement_date": {"timestamp": "2024-07-01T00:00:00Z"},
+      "average_frequency_per_minute": 10.67
+    },
+    {
+      "blink_id": "blink6",
+      "count": 110,
+      "measurement_time": 10,
+      "measurement_date": {"timestamp": "2024-06-28T00:00:00Z"},
+      "average_frequency_per_minute": 11.0
+    },
+    {
+      "blink_id": "blink5",
+      "count": 200,
+      "measurement_time": 20,
+      "measurement_date": {"timestamp": "2024-06-25T00:00:00Z"},
+      "average_frequency_per_minute": 10.0
+    },
+    {
+      "blink_id": "blink4",
+      "count": 150,
+      "measurement_time": 15,
+      "measurement_date": {"timestamp": "2024-06-20T00:00:00Z"},
+      "average_frequency_per_minute": 10.0
+    },
+    {
+      "blink_id": "blink3",
+      "count": 120,
+      "measurement_time": 10,
+      "measurement_date": {"timestamp": "2024-06-17T00:00:00Z"},
+      "average_frequency_per_minute": 12.0
+    }
+  ]
+}
