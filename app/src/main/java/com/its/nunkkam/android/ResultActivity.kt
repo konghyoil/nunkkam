@@ -1,30 +1,26 @@
 package com.its.nunkkam.android
 
 import android.os.Bundle
-import android.util.Log
-import android.view.LayoutInflater
 import androidx.appcompat.app.AppCompatActivity
-import android.widget.FrameLayout
+import androidx.fragment.app.Fragment
 
 class ResultActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.d("ResultActivity", "onCreate called")
         setContentView(R.layout.activity_result)
 
-        // 각 Activity의 레이아웃을 FrameLayout에 인플레이트하여 추가
-        // addContentToFrameLayout(R.id.cardFrame, R.layout.activity_card) // 카드 관련 부분 주석 처리 또는 제거
-        addContentToFrameLayout(R.id.chartFrame, R.layout.activity_chart)
-        addContentToFrameLayout(R.id.calendarFrame, R.layout.activity_calendar)
-    }
+        val ratePerMinute = intent.getIntExtra("RATE_PER_MINUTE", 0)
 
-    private fun addContentToFrameLayout(frameLayoutId: Int, layoutResId: Int) {
-        Log.d("ResultActivity", "Inflating layout $layoutResId into frame $frameLayoutId")
-        val frameLayout = findViewById<FrameLayout>(frameLayoutId)
-        val inflater = LayoutInflater.from(this)
-        val view = inflater.inflate(layoutResId, frameLayout, false)
-        frameLayout.addView(view)
-        Log.d("ResultActivity", "Layout inflated: $layoutResId into FrameLayout: $frameLayoutId")
+        // 각 Fragment를 생성하고 순서대로 추가합니다.
+        val cardFragment = CardFragment.newInstance(ratePerMinute)
+        val chartFragment = ChartFragment()
+        val calendarFragment = CalendarFragment()
+
+        supportFragmentManager.beginTransaction().apply {
+            add(R.id.cardContainer, cardFragment)
+            add(R.id.chartContainer, chartFragment)
+            add(R.id.calendarContainer, calendarFragment)
+        }.commit()
     }
 }

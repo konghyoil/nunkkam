@@ -3,20 +3,22 @@ package com.its.nunkkam.android // 패키지 선언: 이 코드가 속한 패키
 import android.content.Intent // 인텐트 사용을 위한 임포트
 import android.os.Bundle // 번들 사용을 위한 임포트
 import android.widget.TextView // 텍스트뷰 사용을 위한 임포트
-import androidx.activity.ComponentActivity // 컴포넌트 액티비티 사용을 위한 임포트
 import androidx.core.view.ViewCompat // 뷰 호환성을 위한 임포트
 import androidx.core.view.WindowInsetsCompat // 윈도우 인셋 호환성을 위한 임포트
 import android.widget.Button // 버튼 사용을 위한 임포트
 import android.os.CountDownTimer // 카운트다운 타이머 사용을 위한 임포트
 import android.util.Log // 로그 사용을 위한 임포트
+import android.view.LayoutInflater
 import android.view.View // 뷰 사용을 위한 임포트
+import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import com.google.firebase.Timestamp // 파이어베이스 타임스탬프 사용을 위한 임포트
 import com.google.firebase.firestore.FieldValue // 파이어스토어 필드값 사용을 위한 임포트
 import com.google.firebase.firestore.FirebaseFirestore // 파이어스토어 사용을 위한 임포트
 import java.util.* // 자바 유틸 클래스 사용을 위한 임포트
 
 // TimerActivity 클래스 정의: 타이머 기능을 구현하는 주요 액티비티
-class TimerActivity : ComponentActivity() {
+class TimerFragment : Fragment() {
 
     private lateinit var timerTextView: TextView // 타이머 표시 텍스트뷰
     private lateinit var startButton: Button // 시작 버튼
@@ -36,24 +38,30 @@ class TimerActivity : ComponentActivity() {
     private val db = FirebaseFirestore.getInstance() // 파이어스토어 인스턴스
     private val userId = "user1234" // 사용자 ID (실제 ID로 변경 필요) //Device ID 활용 방안 연구
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_timer) // 레이아웃 설정
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        return inflater.inflate(R.layout.fragment_timer, container, false)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         // WindowInsets 처리
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.timer)) { v, insets ->
+        ViewCompat.setOnApplyWindowInsetsListener(view.findViewById(R.id.timer)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
 
         // 뷰 요소 초기화
-        timerTextView = findViewById(R.id.timer_text)
-        startButton = findViewById(R.id.start_button)
-        pauseButton = findViewById(R.id.pause_button)
-        resetButton = findViewById(R.id.reset_button)
-        resultButton = findViewById(R.id.result_button)
-        restartButton = findViewById(R.id.restart_button)
+        timerTextView = view.findViewById(R.id.timer_text)
+        startButton = view.findViewById(R.id.start_button)
+        pauseButton = view.findViewById(R.id.pause_button)
+        resetButton = view.findViewById(R.id.reset_button)
+        resultButton = view.findViewById(R.id.result_button)
+        restartButton = view.findViewById(R.id.restart_button)
 
         startButton.setOnClickListener { // 시작 버튼 클릭 리스너
             startTimer()
@@ -260,7 +268,7 @@ class TimerActivity : ComponentActivity() {
         }
     }
     private fun goToResultScreen() {
-        val intent = Intent(this, CalendarActivity::class.java) // CalendarActivity로 이동하는 인텐트 생성
+        val intent = Intent(activity, ResultActivity::class.java) // ResultActivity로 이동하는 인텐트 생성
         startActivity(intent) // 액티비티 시작
     }
 

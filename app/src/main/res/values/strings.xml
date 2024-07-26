@@ -8,4 +8,10 @@
     <string name="measurement_alarm">측정 알람</string>
     <string name="manage_alarm">알람 관리</string>
     <string name="resume">재개</string>
+    <string name="result_scroll_view_description">측정 결과, 차트, 달력을 포함한 스크롤 가능한 화면</string>
+    <string name="card_container_description">측정 결과 카드</string>
+    <string name="chart_container_description">차트 뷰</string>
+    <string name="calendar_container_description">달력 뷰</string>
+    <string name="previous_month">이전 달</string>
+    <string name="next_month">다음 달</string>
 </resources>

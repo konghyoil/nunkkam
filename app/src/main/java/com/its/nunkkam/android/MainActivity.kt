@@ -61,26 +61,26 @@ class MainActivity : AppCompatActivity() {
 
     // TimerActivity를 시작하는 함수
     private fun startTimerActivity() {
-        val intent = Intent(this, TimerActivity::class.java) // TimerActivity로 이동하기 위한 Intent 생성
+        val intent = Intent(this, TimerFragment::class.java) // TimerActivity로 이동하기 위한 Intent 생성
         startActivity(intent) // TimerActivity 시작
     }
 
     // CalenderActivity를 시작하는 함수
     private fun startCalendarActivity() {
-        val intent = Intent(this, CalendarActivity::class.java) // CalenderActivity로 이동하기 위한 Intent 생성
+        val intent = Intent(this, CalendarFragment::class.java) // CalenderActivity로 이동하기 위한 Intent 생성
         startActivity(intent) // CalendarActivity 시작
     }
 
     // ChartActivity를 시작하는 함수
     private fun startChartActivity() {
-        val intent = Intent(this, ChartActivity::class.java) // ChartActivity로 이동하기 위한 Intent 생성
+        val intent = Intent(this, ChartFragment::class.java) // ChartActivity로 이동하기 위한 Intent 생성
         startActivity(intent) // ChartActivity 시작
     }
 
     // CardActivity를 시작하는 함수
     private fun startCardActivity() {
         val exampleRatePerMinute = 13 // 예제 분당 횟수 값 (이 값을 실제로 측정된 값으로 변경해야 합니다)
-        val intent = Intent(this, CardActivity::class.java).apply {
+        val intent = Intent(this, CardFragment::class.java).apply {
             putExtra("RATE_PER_MINUTE", exampleRatePerMinute)
         }
         startActivity(intent) // CardActivity 시작
