@@ -205,7 +205,7 @@ class TimerActivity : ComponentActivity() {
 
         // 임의 값(나중에 실제 계산 필요)
         val count = 2
-        val birthDate = "1990-01-01T00:00:00Z"
+        val birthDate = Timestamp(seconds=631173525, nanoseconds=863000000)
         val exMeasurementTime = Timestamp(seconds=1718071582, nanoseconds=863000000)
 
 
