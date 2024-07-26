@@ -1,4 +1,4 @@
-package com.its.nunkkam.android // 패키지 선언: 이 코드가 속한 패키지를 지정
+package com.its.nunkkam.android
 
 import android.os.Bundle
 import android.util.Log
@@ -7,109 +7,135 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
+import java.text.SimpleDateFormat
 import java.util.*
 
 class CalendarActivity : AppCompatActivity() {
 
-    private lateinit var calendar: Calendar  // 캘린더 인스턴스
-    private lateinit var adapter: CalendarAdapter  // 어댑터 인스턴스
-    private lateinit var recyclerView: RecyclerView  // 리사이클러뷰 인스턴스
-    private lateinit var textViewMonthYear: TextView  // 월, 년 텍스트뷰 인스턴스
+    // 필요한 변수들을 선언합니다.
+    private lateinit var calendar: Calendar
+    private lateinit var adapter: CalendarAdapter
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var textViewMonthYear: TextView
+    private val db = Firebase.firestore  // Firebase Firestore 인스턴스를 초기화합니다.
+
+    private var blinksData: List<Map<String, Any>> = emptyList()  // 눈 깜빡임 데이터를 저장할 리스트
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_calendar)
 
-        // 초기화
+        val user_id = "user1234"  // 사용자 ID (실제 앱에서는 동적으로 설정해야 함)
+        val TAG = "Calendar_view_data"
+        val docRef = db.collection("USERS").document(user_id)
+
+        // Firestore에서 사용자 데이터를 가져옵니다.
+        docRef.get().addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                val document = task.result
+                if (document != null) {
+                    blinksData = document.data?.get("blinks") as List<Map<String, Any>>? ?: emptyList()
+                    Log.d(TAG, "Cached document data: ${document.data}")
+                    updateCalendar()  // 데이터를 가져온 후 캘린더를 업데이트합니다.
+                }
+            } else {
+                Log.d(TAG, "Cached get failed: ", task.exception)
+            }
+        }
+
+        // 캘린더 및 UI 요소들을 초기화합니다.
         calendar = Calendar.getInstance()
-        calendar.set(Calendar.DAY_OF_MONTH, 1)  // 항상 현재 달의 첫 번째 날로 설정
+        calendar.set(Calendar.DAY_OF_MONTH, 1)
         recyclerView = findViewById(R.id.recyclerView)
-        recyclerView.layoutManager = GridLayoutManager(this, 7)  // 7열 레이아웃으로 설정 (1주일 7일 기준)
+        recyclerView.layoutManager = GridLayoutManager(this, 7)  // 7열의 그리드 레이아웃을 사용합니다.
         textViewMonthYear = findViewById(R.id.textView_month_year)
 
-        // 버튼 초기화 및 클릭 리스너 설정
         val buttonPrevious: Button = findViewById(R.id.button_previous)
         val buttonNext: Button = findViewById(R.id.button_next)
 
+        // 이전 달 버튼 클릭 리스너
         buttonPrevious.setOnClickListener {
             calendar.add(Calendar.MONTH, -1)
-            calendar.set(Calendar.DAY_OF_MONTH, 1)  // 이전 달의 첫 번째 날로 설정
+            calendar.set(Calendar.DAY_OF_MONTH, 1)
             updateCalendar()
         }
 
+        // 다음 달 버튼 클릭 리스너
         buttonNext.setOnClickListener {
             calendar.add(Calendar.MONTH, 1)
-            calendar.set(Calendar.DAY_OF_MONTH, 1)  // 다음 달의 첫 번째 날로 설정
+            calendar.set(Calendar.DAY_OF_MONTH, 1)
             updateCalendar()
         }
 
-        // 초기 달력 업데이트
-        updateCalendar()
+        updateCalendar()  // 초기 캘린더를 표시합니다.
     }
 
+    // 캘린더를 업데이트하는 함수
     private fun updateCalendar() {
-        // 빈 공간이 포함된 날짜 목록 생성
-        val days = getDaysInMonthWithEmptySpaces()
-        // 각 날짜에 대한 추가 정보 생성
-        val infoList = getInfoForDays(days)
+        val days = getDaysInMonthWithEmptySpaces()  // 현재 월의 일자들을 가져옵니다.
+        val infoList = getInfoForDays(days)  // 각 일자에 해당하는 정보를 가져옵니다.
 
-        // 어댑터 설정 또는 갱신
-        adapter = CalendarAdapter(days, infoList)
-        recyclerView.adapter = adapter
+        adapter = CalendarAdapter(days, infoList)  // 어댑터를 생성합니다.
+        recyclerView.adapter = adapter  // RecyclerView에 어댑터를 설정합니다.
 
-        // 텍스트뷰 업데이트
-        updateMonthYearText()
+        updateMonthYearText()  // 월/년 텍스트를 업데이트합니다.
     }
 
-    // 빈 공간을 포함한 한 달의 날짜 목록을 반환
+    // 현재 월의 일자들과 이전 월의 빈 공간을 포함한 리스트를 반환하는 함수
     private fun getDaysInMonthWithEmptySpaces(): List<Date?> {
         val tempCalendar = calendar.clone() as Calendar
 
-        // Log the initial state of the calendar
-        Log.d("CalendarDebug", "Initial Calendar: ${tempCalendar.time}")
-
         val daysInMonth = tempCalendar.getActualMaximum(Calendar.DAY_OF_MONTH)
-        val firstDayOfWeek = tempCalendar.get(Calendar.DAY_OF_WEEK) - 1  // 일요일 = 1, 월요일 = 2, ..., 토요일 = 7 (0부터 시작하도록 변환)
+        val firstDayOfWeek = tempCalendar.get(Calendar.DAY_OF_WEEK) - 1
 
         val days = mutableListOf<Date?>()
 
-        // 달의 첫날 전까지 빈 공간 추가
+        // 이전 월의 빈 공간을 추가합니다.
         for (i in 0 until firstDayOfWeek) {
             days.add(null)
         }
 
-        // 실제 날짜 추가
+        // 현재 월의 일자들을 추가합니다.
         for (i in 0 until daysInMonth) {
             days.add(tempCalendar.time)
-            // Log each day being added
-            Log.d("CalendarDebug", "Adding Date: ${tempCalendar.time}")
             tempCalendar.add(Calendar.DAY_OF_MONTH, 1)
         }
 
-        // 달이 변경되었으므로 다시 1일로 설정
         tempCalendar.set(Calendar.DAY_OF_MONTH, 1)
 
         return days
     }
 
-    // 날짜에 대한 추가 랜덤 정보 생성-> 나중에 파이어 베이스 연동
+    // 각 일자에 해당하는 정보(평균 눈 깜빡임 횟수)를 가져오는 함수
     private fun getInfoForDays(days: List<Date?>): List<String?> {
-        val random = Random()
-        val today = Calendar.getInstance().time
+        val infoList = mutableListOf<String?>()
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
-        return days.map { date ->
-            if (date != null && (date.before(today) || date.equals(today))) {
-                val randomNumber = random.nextInt(30) + 1  // 1부터 30까지의 랜덤 숫자 생성
-                "$randomNumber"
+        // blinksData를 날짜별로 매핑합니다.
+        val blinksMap = blinksData.associateBy {
+            dateFormat.format((it["measurement_date"] as com.google.firebase.Timestamp).toDate())
+        }
+        Log.d("TAG","blinksMap = $blinksMap")
+
+        for (date in days) {
+            if (date != null) {
+                val dateString = dateFormat.format(date)
+                val blinkData = blinksMap[dateString]
+                val averageFrequency = blinkData?.get("average_frequency_per_minute")?.toString()
+                infoList.add(averageFrequency)
             } else {
-                null
+                infoList.add(null)
             }
         }
+
+        return infoList
     }
 
-    // 현재 월과 년도를 텍스트뷰에 업데이트
+    // 월/년 텍스트를 업데이트하는 함수
     private fun updateMonthYearText() {
-        val monthYearFormat = java.text.SimpleDateFormat("yyyy MMMM", Locale.getDefault())
+        val monthYearFormat = SimpleDateFormat("yyyy. MM", Locale.getDefault())
         textViewMonthYear.text = monthYearFormat.format(calendar.time)
     }
 }
