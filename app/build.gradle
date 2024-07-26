@@ -1,50 +1,62 @@
 plugins {
     id 'com.android.application'
     id 'kotlin-android'
-    id 'com.google.gms.google-services'
+    id 'com.google.gms.google-services'  // Firebase 사용을 위한 플러그인
 }
 
 android {
-    namespace 'com.its.nunkkam.android'
-    compileSdk 34
+    // 수정: namespace 추가
+    namespace 'com.its.nunkkam.android'  // R 클래스 등 생성된 코드의 패키지 이름 지정
+    compileSdk 34  // 컴파일에 사용할 Android SDK 버전
 
     defaultConfig {
-        applicationId "com.its.nunkkam.android"
-        minSdk 31
-        targetSdk 34
-        versionCode 1
-        versionName "1.0"
+        applicationId "com.its.nunkkam.android"  // 앱의 고유 식별자
+        minSdk 31  // 앱이 지원하는 최소 Android 버전
+        targetSdk 34  // 앱이 목표로 하는 Android 버전
+        versionCode 1  // 앱의 버전 코드 (정수)
+        versionName "1.0"  // 앱의 버전 이름 (문자열)
 
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"  // 안드로이드 테스트 러너
     }
 
     buildTypes {
         release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            minifyEnabled false  // 코드 축소 비활성화
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'  // ProGuard 규칙 파일
         }
     }
+
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
+        sourceCompatibility JavaVersion.VERSION_17  // 소스 코드의 Java 버전
+        targetCompatibility JavaVersion.VERSION_17  // 생성된 바이트코드의 Java 버전
     }
+
     kotlinOptions {
-        jvmTarget = '17'
+        jvmTarget = '17'  // Kotlin 컴파일러의 대상 JVM 버전
     }
 }
 
 dependencies {
+    // AndroidX 핵심 라이브러리
     implementation 'androidx.core:core-ktx:1.12.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'
+
+    // Material Design 컴포넌트
     implementation 'com.google.android.material:material:1.9.0'
+
+    // 제약 레이아웃
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+
+    // MediaPipe 비전 라이브러리
     implementation 'com.google.mediapipe:tasks-vision:0.10.14'
+
+    // CameraX 라이브러리
     implementation 'androidx.camera:camera-core:1.2.3'
     implementation 'androidx.camera:camera-camera2:1.2.3'
     implementation 'androidx.camera:camera-lifecycle:1.2.3'
     implementation 'androidx.camera:camera-view:1.2.3'
-    implementation platform('com.google.firebase:firebase-bom:32.2.2')
-    implementation 'com.google.firebase:firebase-analytics-ktx'
+
+    // AnyChart 라이브러리 (차트 생성용)
     implementation 'com.github.AnyChart:AnyChart-Android:1.1.2'
     implementation 'com.google.firebase:firebase-firestore-ktx:25.0.0'
     testImplementation 'junit:junit:4.13.2'
@@ -55,4 +67,17 @@ dependencies {
     implementation 'androidx.test:runner:1.6.1'
     implementation 'androidx.test.espresso:espresso-core:3.6.1'
     testImplementation 'androidx.arch.core:core-testing:2.2.0'
+
+    // Firebase 라이브러리
+    implementation platform('com.google.firebase:firebase-bom:32.2.0')  // Firebase BOM
+    implementation 'com.google.firebase:firebase-analytics-ktx'  // Firebase 분석
+    implementation 'com.google.firebase:firebase-firestore-ktx'  // Firestore 데이터베이스
+
+    // Gson 라이브러리 (JSON 파싱)
+    implementation 'com.google.code.gson:gson:2.8.9'
+
+    // 테스트 라이브러리
+    testImplementation 'junit:junit:4.13.2'  // 단위 테스트
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'  // 안드로이드 JUnit 확장
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'  // UI 테스트
 }
