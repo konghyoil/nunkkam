@@ -30,10 +30,10 @@ class TimerActivity : ComponentActivity() {
 
     private var startTime: Long = 0 // 시작 시간
     private var endTime: Long = 0 // 종료 시간
-    private var pausedTime: Long = 0 // 일시정지 시간
-
+    private var pausedStartTime: Long = 0 // 일시정지 시작 시간
+    private var pausedAccumulatedTime: Long = 0 // 누적 일시정지 시간
     private val db = FirebaseFirestore.getInstance() // 파이어스토어 인스턴스
-    private val userId = "user1234" // 사용자 ID (실제 ID로 변경 필요)
+    private val userId = "user1234" // 사용자 ID (실제 ID로 변경 필요) //Device ID 활용 방안 연구
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,12 +64,12 @@ class TimerActivity : ComponentActivity() {
 
         resetButton.setOnClickListener { // 리셋 버튼 클릭 리스너
             Log.e("TimerActivity", "resetButton clicked")
-            saveMeasurementData() // 측정 데이터 저장
+//            saveMeasurementData() // 측정 데이터 저장
             resetTimer()
         }
 
         restartButton.setOnClickListener { // 재시작 버튼 클릭 리스너
-            startTimer()
+            restartTimer()
         }
 
         resultButton.setOnClickListener { // 결과 버튼 클릭 리스너
@@ -80,6 +80,9 @@ class TimerActivity : ComponentActivity() {
     private fun startTimer() {
         if (startTime == 0L) { // 시작 시간 기록
             startTime = System.currentTimeMillis()
+        }
+        if (pausedStartTime != 0L) { // 일시정지 시간이 기록된 경우
+            pausedAccumulatedTime += System.currentTimeMillis() - pausedStartTime
         }
         countDownTimer?.cancel() // 기존 타이머 취소
         countDownTimer = object : CountDownTimer(timeLeftInMillis, 1000) {
@@ -95,6 +98,7 @@ class TimerActivity : ComponentActivity() {
                 resetButton.visibility = View.GONE
                 restartButton.visibility = View.GONE
                 endTime = System.currentTimeMillis()
+                Log.e("TimerActivity", "Finish endTime: $endTime")
                 saveMeasurementData() // 측정 데이터 저장
             }
         }.start()
@@ -109,25 +113,69 @@ class TimerActivity : ComponentActivity() {
     private fun pauseTimer() {
         countDownTimer?.cancel() // 타이머 취소
         timerRunning = false // 타이머 상태 변경
-        pausedTime = System.currentTimeMillis() // 일시정지 시간 기록
+        pausedStartTime = System.currentTimeMillis() // 일시정지 시작 시간 기록
         startButton.visibility = View.GONE // 버튼 가시성 조정
         pauseButton.visibility = View.GONE
         resetButton.visibility = View.VISIBLE
         restartButton.visibility = View.VISIBLE
     }
 
+    private fun restartTimer() {
+        timerRunning = true // 타이머 상태 변경
+        if (pausedStartTime != 0L) { // 일시정지 시간이 기록된 경우
+            pausedAccumulatedTime += System.currentTimeMillis() - pausedStartTime
+            pausedStartTime = 0L // 일시정지 시작 시간 초기화
+        }
+        countDownTimer?.cancel()
+        countDownTimer = object : CountDownTimer(timeLeftInMillis, 1000) {
+            override fun onTick(millisUntilFinished: Long) {
+                timeLeftInMillis = millisUntilFinished
+                updateTimerText()
+            }
+
+            override fun onFinish() {
+                timerRunning = false
+                startButton.visibility = View.VISIBLE
+                pauseButton.visibility = View.GONE
+                resetButton.visibility = View.GONE
+                restartButton.visibility = View.GONE
+                endTime = System.currentTimeMillis()
+                Log.e("TimerActivity", "Finish endTime: $endTime")
+
+                saveMeasurementData()
+            }
+        }.start()
+
+        startButton.visibility = View.GONE
+        pauseButton.visibility = View.VISIBLE
+        resetButton.visibility = View.VISIBLE
+        restartButton.visibility = View.GONE
+    }
+
+
     private fun resetTimer() {
+        Log.e("TimerActivity", "resetTimer start startTime: $startTime")
+        Log.e("TimerActivity", "resetTimer start endTime: $endTime")
+        Log.e("TimerActivity", "resetTimer start pausedAccumulatedTime: $pausedAccumulatedTime")
+        endTime = System.currentTimeMillis()
+        saveMeasurementData()
+
         countDownTimer?.cancel() // 타이머 취소
         timeLeftInMillis = 1200000 // 시간 초기화 (20분)
         updateTimerText() // 타이머 텍스트 업데이트
         timerRunning = false // 타이머 상태 초기화
-        startTime = 0 // 시간 변수 초기화
-        endTime = System.currentTimeMillis()
-        pausedTime = 0
+        startTime = 0 // 시작 시간 초기화
+        endTime = 0 // 종료 시간 초기화
+        pausedStartTime = 0 // 일시정지 시작 시간 초기화
+        pausedAccumulatedTime = 0 // 누적 일시정지 시간 초기화
         startButton.visibility = View.VISIBLE // 버튼 가시성 조정
         pauseButton.visibility = View.GONE
         resetButton.visibility = View.GONE
         restartButton.visibility = View.GONE
+        Log.e("TimerActivity", "resetTimer end startTime: $startTime")
+        Log.e("TimerActivity", "resetTimer end endTime: $endTime")
+        Log.e("TimerActivity", "resetTimer end pausedAccumulatedTime: $pausedAccumulatedTime")
+
     }
 
     private fun updateTimerText() {
@@ -143,32 +191,37 @@ class TimerActivity : ComponentActivity() {
         Log.e("TimerActivity", "saveMeasurementData2 called!") // 데이터 처리 시작 로그
 
         // 측정 시간 계산 (초 단위)
-        val measurementTimeInSeconds = (endTime - startTime) / 1000
-        Log.e("TimerActivity", endTime.toString())
-        Log.e("TimerActivity", startTime.toString())
+        val measurementTimeInSeconds = (endTime - startTime - pausedAccumulatedTime) / 1000
+        Log.e("TimerActivity", "measurement endTime: $endTime")
+        Log.e("TimerActivity", "measurement startTime: $startTime")
+        Log.e("TimerActivity", "measurement pausedAccumulatedTime: $pausedAccumulatedTime")
         // 측정 시간 계산 (분 단위)
         val measurementTimeInMinutes = measurementTimeInSeconds / 60.0
 
         // 측정 시작 시간을 Timestamp 객체로 변환
         val measurementTime = Timestamp(Date(startTime))
-        // 측정 날짜를 LocalDate 객체로 변환 (시스템 기본 시간대 사용)
-        val measurementDate = measurementTime.toDate().toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate()
+//        // 측정 날짜를 LocalDate 객체로 변환 (시스템 기본 시간대 사용)
+//        val measurementDate = measurementTime.toDate().toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate()
+
+        // 임의 값(나중에 실제 계산 필요)
+        val count = 2
+        val birthDate = "1990-01-01T00:00:00Z"
+        val exMeasurementTime = Timestamp(seconds=1718071582, nanoseconds=863000000)
+
 
         // 눈 깜빡임 데이터를 담을 HashMap 생성
         val blinkData = hashMapOf(
-            "blink_id" to UUID.randomUUID().toString(), // 고유 ID 생성
-            "frequency" to 200, // 눈 깜빡임 빈도 (임시값, 실제 계산 필요)
-            "measurement_time" to measurementTime.toDate(), // 측정 시간
-            "measurement_date" to measurementDate.toString(), // 측정 날짜 (문자열로 변환)
-            "average_frequency_per_minute" to 20, // 분당 평균 빈도 (임시값, 실제 계산 필요)
-            "measurement_time_minutes" to measurementTimeInMinutes // 측정 시간 (분 단위)
+            "count" to count, // 눈 깜빡임 빈도 (임시값, 실제 계산 필요)
+            "measurement_time" to measurementTimeInMinutes, // 측정 시간
+            "measurement_date" to exMeasurementTime, // 측정 날짜 Timestamp 객체
+            "average_frequency_per_minute" to count/measurementTimeInMinutes, // 분당 평균 빈도 (임시값, 실제 계산 필요)
         )
 
         Log.e("TimerActivity", blinkData.toString()) // 생성된 데이터 로그 출력
         println("Saving data: $blinkData") // 저장할 데이터 콘솔 출력
 
         // Firestore의 'nunkkam' 컬렉션 내 'users' 문서 참조
-        val userDocument = db.collection("nunkkam").document("users")
+        val userDocument = db.collection("USERS").document(userId)
 
         // 문서 가져오기 시도
         userDocument.get().addOnSuccessListener { document ->
@@ -176,7 +229,7 @@ class TimerActivity : ComponentActivity() {
                 // 'blinks' 필드에 새로운 blinkData를 추가 (배열에 요소 추가)
                 userDocument.update("blinks", FieldValue.arrayUnion(blinkData))
                     .addOnSuccessListener {
-                        println("Data successfully written!") // 데이터 추가 성공 로그
+                        Log.e("TimerActivity", "Data successfully written!") // 데이터 추가 성공 로그
                     }
                     .addOnFailureListener { e ->
                         Log.e("TimerActivity", "saveMeasurementData3 called!") // 데이터 추가 실패 로그
@@ -184,15 +237,14 @@ class TimerActivity : ComponentActivity() {
             } else { // 문서가 존재하지 않는 경우
                 // 새로운 사용자 문서 생성을 위한 데이터
                 val newUser = hashMapOf(
-                    "guest_id" to userId, // 게스트 ID
-                    "birth_date" to "1990-01-01T00:00:00Z", // 임시 생년월일
+                    "birth_date" to birthDate, // 임시 생년월일
                     "tutorial" to true, // 튜토리얼 완료 여부
                     "blinks" to listOf(blinkData) // 눈 깜빡임 데이터 리스트
                 )
                 // 새 문서 생성 및 데이터 설정
                 userDocument.set(newUser)
                     .addOnSuccessListener {
-                        println("New user document successfully created!") // 새 문서 생성 성공 로그
+                        Log.e("TimerActivity", "New user document successfully created!") // 새 문서 생성 성공 로그
                     }
                     .addOnFailureListener { e ->
                         Log.e("TimerActivity", "saveMeasurementData4 called!") // 새 문서 생성 실패 로그
