@@ -1,6 +1,5 @@
 package com.its.nunkkam.android // 패키지 선언: 이 코드가 속한 패키지를 지정
 
-import android.content.Context
 import android.content.Intent // 인텐트 사용을 위한 임포트
 import android.os.Bundle // 번들 사용을 위한 임포트
 import android.widget.TextView // 텍스트뷰 사용을 위한 임포트
@@ -65,8 +64,7 @@ class TimerFragment : Fragment() {
         restartButton = view.findViewById(R.id.restart_button)
 
         startButton.setOnClickListener { // 시작 버튼 클릭 리스너
-            val intent = Intent(activity, BlinkActivity::class.java)
-            startActivity(intent)
+            startTimer()
         }
 
         pauseButton.setOnClickListener { // 일시정지 버튼 클릭 리스너
@@ -201,10 +199,6 @@ class TimerFragment : Fragment() {
 
         Log.e("TimerActivity", "saveMeasurementData2 called!") // 데이터 처리 시작 로그
 
-        // BlinkActivity에서 SharedPreferences에 저장된 blinkCount 값을 가져오기
-        val sharedPref = requireActivity().getSharedPreferences("MyApp", Context.MODE_PRIVATE)
-        val blinkCount = sharedPref.getInt("blink_count", 0)
-
         // 측정 시간 계산 (초 단위)
         val measurementTimeInSeconds = (endTime - startTime - pausedAccumulatedTime) / 1000
         Log.e("TimerActivity", "measurement endTime: $endTime")
@@ -229,7 +223,7 @@ class TimerFragment : Fragment() {
 
         // 눈 깜빡임 데이터를 담을 HashMap 생성
         val blinkData = hashMapOf(
-            "count" to blinkCount, // 눈 깜빡임 빈도 (임시값, 실제 계산 필요)
+            "count" to count, // 눈 깜빡임 빈도 (임시값, 실제 계산 필요)
             "measurement_time" to measurementTimeInMinutes, // 측정 시간
             "measurement_date" to measurementTime, // 측정 날짜 Timestamp 객체
             "average_frequency_per_minute" to count / measurementTimeInMinutes, // 분당 평균 빈도 (임시값, 실제 계산 필요)

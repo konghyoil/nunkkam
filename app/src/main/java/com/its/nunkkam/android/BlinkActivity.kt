@@ -3,12 +3,9 @@ package com.its.nunkkam.android // 패키지 선언: 이 코드가 속한 패키
 // 필요한 라이브러리들을 가져오기
 import android.Manifest // 안드로이드 권한 관련 클래스
 import android.annotation.SuppressLint // 특정 lint 경고를 억제하기 위한 어노테이션
-import android.content.Context
 import android.content.pm.PackageManager // 패키지 관리자 클래스
 import android.os.Bundle // 액티비티 생명주기 관련 클래스
-import android.os.CountDownTimer
 import android.util.Log // 로그 출력을 위한 클래스
-import android.widget.Button
 import android.widget.ImageView // 이미지 뷰 위젯
 import android.widget.TextView // 텍스트 뷰 위젯
 import android.widget.Toast // 짧은 메시지를 화면에 표시하는 클래스
@@ -18,15 +15,11 @@ import androidx.camera.lifecycle.ProcessCameraProvider // 카메라 프로바이
 import androidx.camera.view.PreviewView // 카메라 미리보기 뷰 클래스
 import androidx.core.app.ActivityCompat // 액티비티 호환성 관련 클래스
 import androidx.core.content.ContextCompat // 컨텍스트 호환성 관련 클래스
-import com.google.firebase.Timestamp
-import com.google.firebase.firestore.FieldValue
-import com.google.firebase.firestore.FirebaseFirestore
 import com.google.mediapipe.framework.image.BitmapImageBuilder // MediaPipe 이미지 빌더 클래스
 import com.google.mediapipe.tasks.core.BaseOptions // MediaPipe 기본 옵션 클래스
 import com.google.mediapipe.tasks.vision.core.RunningMode // MediaPipe 실행 모드 클래스
 import com.google.mediapipe.tasks.vision.facelandmarker.FaceLandmarker // 얼굴 랜드마크 감지 클래스
 import com.google.mediapipe.tasks.vision.facelandmarker.FaceLandmarkerResult // 얼굴 랜드마크 결과 클래스
-import java.util.Date
 import java.util.concurrent.ExecutorService // 실행자 서비스 인터페이스
 import java.util.concurrent.Executors // 실행자 생성 유틸리티 클래스
 import kotlin.math.abs // 절대값을 계산하는 수학 함수
@@ -53,24 +46,6 @@ class BlinkActivity : AppCompatActivity() {
     private var fps = 0f // 현재 FPS
     private lateinit var fpsTextView: TextView // FPS를 표시할 TextView
 
-    // 여기부터
-    // 홍철 타이머 관련 코드 추가
-    private lateinit var timerTextView: TextView
-    private lateinit var pauseButton: Button
-    private lateinit var restartButton: Button
-    private lateinit var resetButton: Button
-
-    private var countDownTimer: CountDownTimer? = null
-    private var timeLeftInMillis: Long = 1200000
-    private var timerRunning: Boolean = false
-    private var startTime: Long = 0
-    private var endTime: Long = 0
-    private var pausedStartTime: Long = 0
-    private var pausedAccumulatedTime: Long = 0
-    private val db = FirebaseFirestore.getInstance()
-    private val userId = "user1234"
-    //여기까지
-
     // 액티비티가 생성될 때 호출되는 함수
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState) // 부모 클래스의 onCreate 메서드 호출
@@ -81,18 +56,6 @@ class BlinkActivity : AppCompatActivity() {
         eyeStatusImageView = findViewById(R.id.eyeStatusImageView)
         eyeStatusTextView = findViewById(R.id.textViewEyeStatus)
         fpsTextView = findViewById(R.id.fpsTextView)
-
-        //여기부터
-        // 홍철 타이머 관련 내용 추가
-        blinkCountTextView = findViewById(R.id.blinkCountTextView)
-        blinkRateTextView = findViewById(R.id.blinkRateTextView)
-
-        // 타이머 관련 뷰 초기화
-        timerTextView = findViewById(R.id.timer_text)
-        pauseButton = findViewById(R.id.pause_button)
-        restartButton = findViewById(R.id.restart_button)
-        resetButton = findViewById(R.id.reset_button)
-        //여기까지
 
         // 카메라 권한이 있는지 확인하고, 있으면 카메라 시작, 없으면 권한 요청
         if (allPermissionsGranted()) {
@@ -122,129 +85,7 @@ class BlinkActivity : AppCompatActivity() {
         blinkCountTextView = findViewById(R.id.blinkCountTextView)
         blinkRateTextView = findViewById(R.id.blinkRateTextView)
         updateBlinkUI()
-
-        //여기부터
-        //홍철 타이머 관련 내용 추가
-        // 타이머 시작
-        startTimer()
-
-        pauseButton.setOnClickListener { pauseTimer() }
-        restartButton.setOnClickListener { restartTimer() }
-        resetButton.setOnClickListener { resetTimer() }
-        //여기까지
-
     }
-
-    //여기부터
-    //홍철 타이머 관련 함수
-    private fun startTimer() {
-        if (startTime == 0L) {
-            startTime = System.currentTimeMillis()
-        }
-        if (pausedStartTime != 0L) {
-            pausedAccumulatedTime += System.currentTimeMillis() - pausedStartTime
-        }
-        countDownTimer?.cancel()
-        countDownTimer = object : CountDownTimer(timeLeftInMillis, 1000) {
-            override fun onTick(millisUntilFinished: Long) {
-                timeLeftInMillis = millisUntilFinished
-                updateTimerText()
-            }
-
-            override fun onFinish() {
-                timerRunning = false
-                endTime = System.currentTimeMillis()
-                saveMeasurementData()
-            }
-        }.start()
-
-        timerRunning = true
-    }
-
-    private fun pauseTimer() {
-        countDownTimer?.cancel()
-        timerRunning = false
-        pausedStartTime = System.currentTimeMillis()
-    }
-
-    private fun restartTimer() {
-        timerRunning = true
-        if (pausedStartTime != 0L) {
-            pausedAccumulatedTime += System.currentTimeMillis() - pausedStartTime
-            pausedStartTime = 0L
-        }
-        countDownTimer?.cancel()
-        countDownTimer = object : CountDownTimer(timeLeftInMillis, 1000) {
-            override fun onTick(millisUntilFinished: Long) {
-                timeLeftInMillis = millisUntilFinished
-                updateTimerText()
-            }
-
-            override fun onFinish() {
-                timerRunning = false
-                startTime = System.currentTimeMillis()
-                saveMeasurementData()
-            }
-        }.start()
-
-//        pauseButton.visibility = View.VISIBLE
-//        restartButton.visibility = View.GONE
-//        resetButton.visibility = View.VISIBLE
-    }
-
-    private fun resetTimer() {
-        endTime = System.currentTimeMillis()
-        saveMeasurementData()
-
-        countDownTimer?.cancel()
-        timeLeftInMillis = 1200000
-        updateTimerText()
-        timerRunning = false
-        startTime = 0
-        endTime = 0
-        pausedStartTime = 0
-        pausedAccumulatedTime = 0
-
-        // TimerFragment로 돌아가도록 설정
-        finish()
-    }
-
-    private fun updateTimerText() {
-        val minutes = (timeLeftInMillis / 1000) / 60
-        val seconds = (timeLeftInMillis / 1000) % 60
-        val timeFormatted = String.format("00:%02d:%02d", minutes, seconds)
-        timerTextView.text = timeFormatted
-    }
-
-    private fun saveMeasurementData() {
-        val measurementTimeInSeconds = (endTime - startTime - pausedAccumulatedTime) / 1000
-        val measurementTimeInMinutes = measurementTimeInSeconds / 60.0
-        val measurementTime = Timestamp(Date(startTime))
-        val count = blinkCount
-
-        val blinkData = hashMapOf(
-            "count" to count,
-            "measurement_time" to measurementTimeInMinutes,
-            "measurement_date" to measurementTime,
-            "average_frequency_per_minute" to count / measurementTimeInMinutes
-        )
-
-        val userDocument = db.collection("USERS").document(userId)
-        userDocument.get().addOnSuccessListener { document ->
-            if (document.exists()) {
-                userDocument.update("blinks", FieldValue.arrayUnion(blinkData))
-            } else {
-                val newUser = hashMapOf(
-                    "birth_date" to Timestamp(Date(631173525000)), // 예시 생년월일
-                    "tutorial" to true,
-                    "blinks" to listOf(blinkData)
-                )
-                userDocument.set(newUser)
-            }
-        }
-    }
-    // 여기까지
-
 
     // 카메라 시작 함수
     private fun startCamera() {
@@ -364,21 +205,6 @@ class BlinkActivity : AppCompatActivity() {
             updateUI("Eye is closed", R.drawable.eye_closed)    // [외부] drawable/eye_closed.png 이미지 리소스 가져오기
         } else {
             updateUI("Eye is open", R.drawable.eye_open)        // [외부] drawable/eye_open.png 이미지 리소스 가져오기
-        }
-    }
-
-    // 눈 깜빡임 카운트 증가 및 저장 함수 -> TimerFragment로 보내기 위함
-    private fun updateBlinkCount() {
-        blinkCount++
-        saveBlinkCountToPreferences()
-        updateBlinkUI()
-    }
-
-    private fun saveBlinkCountToPreferences() {
-        val sharedPref = getSharedPreferences("MyApp", Context.MODE_PRIVATE)
-        with(sharedPref.edit()) {
-            putInt("blink_count", blinkCount)
-            apply()
         }
     }
 
