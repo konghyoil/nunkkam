@@ -28,11 +28,13 @@
             </intent-filter>
         </activity>
         <activity android:name=".BlinkActivity" /> <!-- BlinkActivity 선언 -->
-        <activity android:name=".TimerActivity" /> <!-- TimerActivity 선언 -->
-        <activity android:name=".ChartActivity" /> <!-- ChartActivity 선언 -->
-        <activity android:name=".CalendarActivity" /> <!-- CalendarActivity 선언 -->
-        <activity android:name=".CardActivity" /> <!-- CardActivity 선언 -->
+        <activity android:name=".TimerFragment" /> <!-- TimerActivity 선언 -->
+        <activity android:name=".ChartFragment" /> <!-- ChartActivity 선언 -->
+        <activity android:name=".CalendarFragment" /> <!-- CalendarActivity 선언 -->
+        <activity android:name=".CardFragment" /> <!-- CardActivity 선언 -->
         <activity android:name=".ResultActivity" /> <!-- ResultActivity 선언 -->
+        <activity android:name=".LoginActivity" /> <!-- LoginActivity 선언 -->
+
     </application>
 
 </manifest>
