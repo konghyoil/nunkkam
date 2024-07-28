@@ -1,78 +1,75 @@
 package com.its.nunkkam.android
 
+import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentTransaction
+import android.util.Log
 import android.widget.Button
+import androidx.appcompat.app.AppCompatActivity
+import java.util.UUID
 
 class MainActivity : AppCompatActivity() {
+
+    private lateinit var guestLoginButton: Button
+    private lateinit var googleLoginButton: Button
+    private lateinit var logoutButton: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // BlinkActivity를 시작하는 버튼 설정
-        val startBlinkActivityButton: Button = findViewById(R.id.startBlinkActivityButton)
-        startBlinkActivityButton.setOnClickListener {
-            startBlinkActivity()
+        guestLoginButton = findViewById(R.id.guest_login_button)
+        googleLoginButton = findViewById(R.id.google_login_button)
+        logoutButton = findViewById(R.id.logout_button)
+
+        val deviceModel = Build.MODEL ?: "unknown_device"
+        Log.d("MainActivity", "Device model: $deviceModel") // 디버그 로그로 기기 모델명 확인
+
+        guestLoginButton.setOnClickListener {
+            Log.d("MainActivity", "Guest Login button clicked")
+            initializeGuestUser()
+            navigateToMainFunction()
         }
 
-        // TimerFragment를 시작하는 버튼 설정
-        val startTimerFragmentButton: Button = findViewById(R.id.startTimerActivityButton)
-        startTimerFragmentButton.setOnClickListener {
-            loadFragment(TimerFragment())
+        googleLoginButton.setOnClickListener {
+            // 구글 로그인 처리 (현재는 구현하지 않음)
+        }
+        logoutButton.setOnClickListener {
+            Log.d("MainActivity", "Logout button clicked")
+            logoutUser()
         }
 
-        // CalendarFragment를 시작하는 버튼 설정
-        val startCalendarFragmentButton: Button = findViewById(R.id.startCalendarActivityButton)
-        startCalendarFragmentButton.setOnClickListener {
-            loadFragment(CalendarFragment())
-        }
+    }
 
-        // ChartFragment를 시작하는 버튼 설정
-        val startChartFragmentButton: Button = findViewById(R.id.startChartActivityButton)
-        startChartFragmentButton.setOnClickListener {
-            loadFragment(ChartFragment())
-        }
-
-        // CardFragment를 시작하는 버튼 설정
-        val startCardFragmentButton: Button = findViewById(R.id.startCardActivityButton)
-        startCardFragmentButton.setOnClickListener {
-            val exampleRatePerMinute = 13
-            val fragment = CardFragment()
-            val bundle = Bundle()
-            bundle.putInt("RATE_PER_MINUTE", exampleRatePerMinute)
-            fragment.arguments = bundle
-            loadFragment(fragment)
-        }
-
-        // ResultActivity를 시작하는 버튼 설정
-        val startResultActivityButton: Button = findViewById(R.id.startResultActivityButton)
-        startResultActivityButton.setOnClickListener {
-            startResultActivity()
+    private fun initializeGuestUser() {
+        val sharedPreferences = getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
+        val deviceModel = Build.MODEL ?: "unknown_device"
+        val userId = "$deviceModel-${UUID.randomUUID()}"
+        with(sharedPreferences.edit()) {
+            if (sharedPreferences.getString("user_id", null) == null) {
+                putString("user_id", userId)
+                Log.d("MainActivity", "User ID initialized: $userId")
+            }
+            putString("user_name", "Guest User")
+            putBoolean("is_first_login", true)
+            apply()
         }
     }
 
-    private fun loadFragment(fragment: Fragment) {
-        val fragmentManager: FragmentManager = supportFragmentManager
-        val fragmentTransaction: FragmentTransaction = fragmentManager.beginTransaction()
-        fragmentTransaction.replace(R.id.fragment_container, fragment)
-        fragmentTransaction.addToBackStack(null)
-        fragmentTransaction.commit()
-    }
 
-    // BlinkActivity를 시작하는 함수
-    private fun startBlinkActivity() {
-        val intent = Intent(this, BlinkActivity::class.java)
+    private fun navigateToMainFunction() {
+        UserManager.initialize(this) // UserManager 초기화
+        Log.d("MainActivity", "Navigating to main function")
+        val intent = Intent(this, TimerActivity::class.java)
         startActivity(intent)
     }
 
-    // ResultActivity를 시작하는 함수
-    private fun startResultActivity() {
-        val intent = Intent(this, ResultActivity::class.java)
+    private fun logoutUser() {
+        UserManager.clearUserData(this)
+        Log.d("MainActivity", "User logged out")
+        val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)
+        finish()
     }
 }

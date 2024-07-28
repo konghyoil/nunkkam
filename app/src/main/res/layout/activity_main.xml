@@ -1,77 +1,54 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="16dp"
+    android:background="@android:color/black"
     tools:context=".MainActivity">
 
-    <FrameLayout
-        android:id="@+id/fragment_container"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_above="@id/button_container"/>
+    <!-- 눈깜 - blink alarm service 텍스트 -->
+    <TextView
+        android:id="@+id/app_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="눈깜 - blink alarm service"
+        android:textColor="#FFFFFF"
+        android:textSize="24sp"
+        android:layout_marginBottom="32dp"
+        android:gravity="center"/>
 
-    <LinearLayout
-        android:id="@+id/button_container"
+    <!-- 게스트 로그인 버튼 -->
+    <Button
+        android:id="@+id/guest_login_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:text="Guest Login"
+        android:layout_marginBottom="16dp"
+        android:backgroundTint="#00FF00"
+        android:textColor="#FFFFFF"
+        android:padding="12dp" />
 
-        <Button
-            android:id="@+id/startBlinkActivityButton"
-            style="@style/ButtonStyle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="START BLINK"
-            android:textSize="@dimen/button_text_size"
-            android:textStyle="bold" />
+    <!-- 구글 로그인 버튼 -->
+    <Button
+        android:id="@+id/google_login_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Google Login"
+        android:layout_marginBottom="16dp"
+        android:backgroundTint="#4285F4"
+        android:textColor="#FFFFFF"
+        android:padding="12dp" />
 
-        <Button
-            android:id="@+id/startTimerActivityButton"
-            style="@style/ButtonStyle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="START TIMER"
-            android:textSize="@dimen/button_text_size"
-            android:textStyle="bold" />
-
-        <Button
-            android:id="@+id/startChartActivityButton"
-            style="@style/ButtonStyle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="START CHART"
-            android:textSize="@dimen/button_text_size"
-            android:textStyle="bold" />
-
-        <Button
-            android:id="@+id/startCalendarActivityButton"
-            style="@style/ButtonStyle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="START CALENDAR"
-            android:textSize="@dimen/button_text_size"
-            android:textStyle="bold" />
-
-        <Button
-            android:id="@+id/startCardActivityButton"
-            style="@style/ButtonStyle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="START CARD"
-            android:textSize="@dimen/button_text_size"
-            android:textStyle="bold" />
-
-        <Button
-            android:id="@+id/startResultActivityButton"
-            style="@style/ButtonStyle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="START RESULT"
-            android:textSize="@dimen/button_text_size"
-            android:textStyle="bold" />
-    </LinearLayout>
-</RelativeLayout>
+    <!-- 로그아웃 버튼 -->
+    <Button
+        android:id="@+id/logout_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Logout"
+        android:backgroundTint="#FF0000"
+        android:textColor="#FFFFFF"
+        android:padding="12dp" />
+</LinearLayout>
