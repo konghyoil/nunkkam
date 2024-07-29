@@ -26,11 +26,20 @@ class MainActivity : AppCompatActivity() {
         val deviceModel = Build.MODEL ?: "unknown_device"
         Log.d("MainActivity", "Device model: $deviceModel") // 디버그 로그로 기기 모델명 확인
 
+
         guestLoginButton.setOnClickListener {
             Log.d("MainActivity", "Guest Login button clicked")
             initializeGuestUser()
             navigateToMainFunction()
         }
+
+//        guestLoginButton.setOnClickListener {
+//            Log.d("MainActivity", "Guest Login button clicked")
+//            initializeGuestUser()
+//            UserManager.initialize(this) // UserManager 초기화
+//            Log.d("MainActivity", "User ID: ${UserManager.userId}, User Name: ${UserManager.userName}")
+//            navigateToMainFunction()
+//        }
 
         googleLoginButton.setOnClickListener {
             // 구글 로그인 처리 (현재는 구현하지 않음)
@@ -59,7 +68,6 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun navigateToMainFunction() {
-        UserManager.initialize(this) // UserManager 초기화
         Log.d("MainActivity", "Navigating to main function")
         val intent = Intent(this, TimerActivity::class.java)
         startActivity(intent)

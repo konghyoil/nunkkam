@@ -5,7 +5,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
 import androidx.fragment.app.Fragment
@@ -36,24 +35,15 @@ class CalendarFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-            super.onViewCreated(view, savedInstanceState)
+        super.onViewCreated(view, savedInstanceState)
 
-        val user_id = "user1234"  // 사용자 ID (실제 앱에서는 동적으로 설정해야 함)
-        val TAG = "Calendar_view_data"
-        val docRef = db.collection("USERS").document(user_id)
-
-        // Firestore에서 사용자 데이터를 가져옵니다.
-        docRef.get().addOnCompleteListener { task ->
-            if (task.isSuccessful) {
-                val document = task.result
-                if (document != null) {
-                    blinksData = document.data?.get("blinks") as List<Map<String, Any>>? ?: emptyList()
-                    Log.d(TAG, "Cached document data: ${document.data}")
-                    updateCalendar()  // 데이터를 가져온 후 캘린더를 업데이트합니다.
-                }
-            } else {
-                Log.d(TAG, "Cached get failed: ", task.exception)
-            }
+        // UserManager 초기화 및 user_id 가져오기
+        UserManager.initialize(requireContext())
+        val userId = UserManager.userId
+        if (userId != null) {
+            fetchUserData(userId)
+        } else {
+            Log.e("CalendarFragment", "User ID is null")
         }
 
         // 캘린더 및 UI 요소들을 초기화합니다.
@@ -82,6 +72,26 @@ class CalendarFragment : Fragment() {
         }
 
         updateCalendar()  // 초기 캘린더를 표시합니다.
+    }
+
+    // Firestore에서 사용자 데이터를 가져오는 함수
+    private fun fetchUserData(userId: String) {
+        val TAG = "Calendar_view_data"
+        val docRef = db.collection("USERS").document(userId)
+
+        // Firestore에서 사용자 데이터를 가져옵니다.
+        docRef.get().addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                val document = task.result
+                if (document != null) {
+                    blinksData = document.data?.get("blinks") as List<Map<String, Any>>? ?: emptyList()
+                    Log.d(TAG, "Cached document data: ${document.data}")
+                    updateCalendar()  // 데이터를 가져온 후 캘린더를 업데이트합니다.
+                }
+            } else {
+                Log.d(TAG, "Cached get failed: ", task.exception)
+            }
+        }
     }
 
     // 캘린더를 업데이트하는 함수
@@ -126,16 +136,17 @@ class CalendarFragment : Fragment() {
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
         // blinksData를 날짜별로 매핑합니다.
-        val blinksMap = blinksData.associateBy {
+        val blinksMap = blinksData.groupBy {
             dateFormat.format((it["measurement_date"] as com.google.firebase.Timestamp).toDate())
+        }.mapValues { entry ->
+            entry.value.map { it["average_frequency_per_minute"] as Double }.average()
         }
-        Log.d("TAG","blinksMap = $blinksMap")
+        Log.d("TAG", "blinksMap = $blinksMap")
 
         for (date in days) {
             if (date != null) {
                 val dateString = dateFormat.format(date)
-                val blinkData = blinksMap[dateString]
-                val averageFrequency = blinkData?.get("average_frequency_per_minute")?.toString()
+                val averageFrequency = blinksMap[dateString]?.toString()
                 infoList.add(averageFrequency)
             } else {
                 infoList.add(null)

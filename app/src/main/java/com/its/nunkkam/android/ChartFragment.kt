@@ -5,7 +5,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.anychart.AnyChart
 import com.anychart.AnyChartView
@@ -45,10 +44,11 @@ class ChartFragment : Fragment() {
         column.title().padding(0.0, 0.0, 10.0, 0.0)
         column.title().fontColor("#009D90")
         column.title().fontSize(16)
-//        column.title().fontWeight("bold")
-        column.title().background().fill("#FFFFFF")
 
-        firestore.collection("USERS").document("user1234")
+        val userId = UserManager.userId ?: "unknown_user"
+        Log.d("ChartFragment", "User ID: $userId")
+
+        firestore.collection("USERS").document(userId)
             .get()
             .addOnSuccessListener { document ->
                 if (document != null && document.exists()) {

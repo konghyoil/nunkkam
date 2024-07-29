@@ -71,7 +71,6 @@ class BlinkActivity : AppCompatActivity() {
 
     // 사용자 데이터 관련 변수 추가
     private lateinit var userId: String
-    private lateinit var userName: String
 
     //여기까지
 
@@ -100,8 +99,7 @@ class BlinkActivity : AppCompatActivity() {
         // 사용자 데이터 로드
         UserManager.initialize(this)
         userId = UserManager.userId ?: "unknown_device"
-        userName = UserManager.userName ?: "Guest User"
-        Log.d("BlinkActivity", "User ID: $userId, User Name: $userName")
+        Log.d("BlinkActivity", "User ID: $userId")
 
         // 카메라 권한이 있는지 확인하고, 있으면 카메라 시작, 없으면 권한 요청
         if (allPermissionsGranted()) {
@@ -244,8 +242,7 @@ class BlinkActivity : AppCompatActivity() {
                 userDocument.update("blinks", FieldValue.arrayUnion(blinkData))
             } else {
                 val newUser = hashMapOf(
-                    "user_name" to userName,
-                    "birth_date" to Timestamp(Date(631173525000)), // 예시 생년월일
+                    "birth_date" to null, // 예시 생년월일
                     "tutorial" to true,
                     "blinks" to listOf(blinkData)
                 )
