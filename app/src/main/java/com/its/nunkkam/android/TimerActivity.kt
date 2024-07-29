@@ -9,12 +9,19 @@ import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.firebase.auth.FirebaseAuth
 
 class TimerActivity : AppCompatActivity() {
 
     private lateinit var startButton: Button
     private lateinit var resultButton: Button
     private lateinit var timerTextView: TextView
+    private lateinit var logoutButton: Button
+    private lateinit var googleSignInClient: GoogleSignInClient
+    private lateinit var auth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -22,7 +29,20 @@ class TimerActivity : AppCompatActivity() {
 
         startButton = findViewById(R.id.start_button)
         resultButton = findViewById(R.id.result_button)
+        logoutButton = findViewById(R.id.logout_button)
         timerTextView = findViewById(R.id.timer_text)
+
+
+        // Firebase Auth 초기화
+        auth = FirebaseAuth.getInstance()
+
+        // GoogleSignInOptions 설정
+        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(getString(R.string.default_web_client_id))
+            .requestEmail()
+            .build()
+
+        googleSignInClient = GoogleSignIn.getClient(this, gso)
 
 
         startButton.setOnClickListener {
@@ -33,6 +53,11 @@ class TimerActivity : AppCompatActivity() {
         resultButton.setOnClickListener {
             goToResultScreen()
         }
+
+        logoutButton.setOnClickListener {
+            logoutUser()
+
+        }
     }
 
 
@@ -40,4 +65,19 @@ class TimerActivity : AppCompatActivity() {
         val intent = Intent(this, ResultActivity::class.java)
         startActivity(intent)
     }
+    private fun logoutUser() {
+        // Firebase에서 로그아웃
+        auth.signOut()
+
+        // Google에서 로그아웃
+        googleSignInClient.signOut().addOnCompleteListener(this) {
+            // 로그아웃이 완료되면 MainActivity로 이동
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
+            finish()
+            Log.d("TimerActivity", "User logged out successfully")
+
+        }
+    }
+
 }

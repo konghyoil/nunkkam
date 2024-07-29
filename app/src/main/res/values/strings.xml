@@ -14,5 +14,6 @@
     <string name="calendar_container_description">달력 뷰</string>
     <string name="previous_month">이전 달</string>
     <string name="next_month">다음 달</string>
+    <string name="default_web_client_id">886745816335-ojschmmjkfcpnvbtgrbck5uco7ebrbsp.apps.googleusercontent.com</string>
 
 </resources>

@@ -1,5 +1,6 @@
 package com.its.nunkkam.android
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -34,13 +35,16 @@ class CalendarFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_calendar, container, false)
     }
 
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // UserManager 초기화 및 user_id 가져오기
-        UserManager.initialize(requireContext())
-        val userId = UserManager.userId
+        val sharedPreferences = requireContext().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
+        val userId = sharedPreferences.getString("user_id", null)
+        val isGoogleLogin = sharedPreferences.getBoolean("is_google_login", false)
+
         if (userId != null) {
+            UserManager.initialize(requireContext(), userId, isGoogleLogin)
             fetchUserData(userId)
         } else {
             Log.e("CalendarFragment", "User ID is null")

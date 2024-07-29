@@ -68,10 +68,12 @@ dependencies {
     implementation 'androidx.test.espresso:espresso-core:3.6.1'
     testImplementation 'androidx.arch.core:core-testing:2.2.0'
 
+
     // Firebase 라이브러리
     implementation platform('com.google.firebase:firebase-bom:32.2.0')  // Firebase BOM
     implementation 'com.google.firebase:firebase-analytics-ktx'  // Firebase 분석
     implementation 'com.google.firebase:firebase-firestore-ktx'  // Firestore 데이터베이스
+    implementation 'com.google.firebase:firebase-auth:23.0.0' // Firebase 권한
 
     // Gson 라이브러리 (JSON 파싱)
     implementation 'com.google.code.gson:gson:2.8.9'
@@ -80,4 +82,7 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'  // 단위 테스트
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'  // 안드로이드 JUnit 확장
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'  // UI 테스트
+
+    // 구글 계정 연동
+    implementation 'com.google.android.gms:play-services-auth:19.2.0' // google 권한
 }

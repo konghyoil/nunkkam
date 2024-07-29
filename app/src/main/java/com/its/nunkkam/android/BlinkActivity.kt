@@ -19,6 +19,8 @@ import androidx.camera.view.PreviewView // 카메라 미리보기 뷰 클래스
 import androidx.core.app.ActivityCompat // 액티비티 호환성 관련 클래스
 import androidx.core.content.ContextCompat // 컨텍스트 호환성 관련 클래스
 import com.google.firebase.Timestamp
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.mediapipe.framework.image.BitmapImageBuilder // MediaPipe 이미지 빌더 클래스
@@ -60,6 +62,10 @@ class BlinkActivity : AppCompatActivity() {
     private lateinit var restartButton: Button
     private lateinit var resetButton: Button
 
+    private var userId: String = ""
+    private var birthDate: Timestamp? = null
+    private var isGoogleLogin: Boolean = false
+
     private var countDownTimer: CountDownTimer? = null
     private var timeLeftInMillis: Long = 1200000
     private var timerRunning: Boolean = false
@@ -68,9 +74,6 @@ class BlinkActivity : AppCompatActivity() {
     private var pausedStartTime: Long = 0
     private var pausedAccumulatedTime: Long = 0
     private val db = FirebaseFirestore.getInstance()
-
-    // 사용자 데이터 관련 변수 추가
-    private lateinit var userId: String
 
     //여기까지
 
@@ -96,12 +99,22 @@ class BlinkActivity : AppCompatActivity() {
         restartButton = findViewById(R.id.restart_button)
         resetButton = findViewById(R.id.reset_button)
 
-        // 사용자 데이터 로드
-        UserManager.initialize(this)
-        userId = UserManager.userId ?: "unknown_device"
-        Log.d("BlinkActivity", "User ID: $userId")
+        val sharedPreferences = getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
+        userId = sharedPreferences.getString("user_id", null) ?: ""
+        Log.e("BlinkActivity", "User ID_1: $userId")
 
-        // 카메라 권한이 있는지 확인하고, 있으면 카메라 시작, 없으면 권한 요청
+        isGoogleLogin = intent.getBooleanExtra("isGoogleLogin", false)
+
+        if (isGoogleLogin) {
+            // Google 로그인 시 생년월일을 가져오는 로직을 추가합니다.
+            val auth = FirebaseAuth.getInstance()
+            val currentUser = auth.currentUser
+            currentUser?.let {
+                birthDate = getBirthDateFromGoogleAccount(it)
+                Log.e("BlinkActivity", "birthDate: $birthDate")
+            }
+        }
+
         if (allPermissionsGranted()) {
             startCamera()
         } else {
@@ -237,12 +250,13 @@ class BlinkActivity : AppCompatActivity() {
         )
 
         val userDocument = db.collection("USERS").document(userId)
+        Log.e("BlinkActivity", "User ID_2: $userId")
         userDocument.get().addOnSuccessListener { document ->
             if (document.exists()) {
                 userDocument.update("blinks", FieldValue.arrayUnion(blinkData))
             } else {
                 val newUser = hashMapOf(
-                    "birth_date" to null, // 예시 생년월일
+                    "birth_date" to birthDate, // 예시 생년월일
                     "tutorial" to true,
                     "blinks" to listOf(blinkData)
                 )
@@ -251,7 +265,12 @@ class BlinkActivity : AppCompatActivity() {
         }
     }
     // 여기까지
-
+    private fun getBirthDateFromGoogleAccount(user: FirebaseUser): Timestamp? {
+        // Google 계정에서 생년월일 정보를 가져오는 로직을 여기에 추가합니다.
+        // 생년월일 정보는 Google API에서 직접 가져올 수 없습니다.
+        // 대안으로는 사용자가 생년월일을 입력하도록 요청하는 방법이 있습니다.
+        return null
+    }
 
     // 카메라 시작 함수
     private fun startCamera() {

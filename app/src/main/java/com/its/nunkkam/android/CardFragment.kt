@@ -1,5 +1,6 @@
 package com.its.nunkkam.android
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -11,6 +12,7 @@ import androidx.fragment.app.Fragment
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+
 
 class CardFragment : Fragment() {
 
@@ -45,15 +47,18 @@ class CardFragment : Fragment() {
         eyeTypeTextView = view.findViewById(R.id.textView3)
         eyeTypeImageView = view.findViewById(R.id.imageView)
 
-        // UserManager 초기화 및 user_id 가져오기
-        UserManager.initialize(requireContext())
-        val userId = UserManager.userId
+        val sharedPreferences = requireContext().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
+        val userId = sharedPreferences.getString("user_id", null)
+        val isGoogleLogin = sharedPreferences.getBoolean("is_google_login", false)
+
         if (userId != null) {
+            UserManager.initialize(requireContext(), userId, isGoogleLogin)
             fetchLatestRatePerMinute(userId)
         } else {
             Log.e("CardFragment", "User ID is null")
         }
     }
+
 
     // Firestore에서 최신 데이터를 가져오는 함수
     private fun fetchLatestRatePerMinute(userId: String) {
