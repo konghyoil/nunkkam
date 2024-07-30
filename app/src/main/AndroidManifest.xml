@@ -23,9 +23,6 @@
     <!-- 시리얼 번호를 가져오기 위한 권한 -->
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
-    <!-- 알림을 게시하기 위한 권한 -->
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
-
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -37,6 +34,8 @@
         android:theme="@style/Theme.Nunkkam"
         tools:targetApi="31"
         android:usesCleartextTraffic="true">
+
+        <!-- MainActivity 선언 -->
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -45,6 +44,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity android:name=".BlinkActivity" /> <!-- BlinkActivity 선언 -->
         <activity android:name=".TimerFragment" /> <!-- TimerActivity 선언 -->
         <activity android:name=".TimerActivity" /> <!-- TimerActivity 선언 -->
@@ -55,6 +55,13 @@
         <activity android:name=".LoginActivity" /> <!-- LoginActivity 선언 -->
         <activity android:name=".UserManager" /> <!-- UserManager 선언 -->
         <activity android:name=".MyApplication" /> <!-- MyApplication 선언 -->
+
+        <!-- 포그라운드 서비스 선언 -->
+        <service
+            android:name=".CameraService"
+            android:foregroundServiceType="camera"
+            android:enabled="true"
+            android:exported="false" />
 
     </application>
 
