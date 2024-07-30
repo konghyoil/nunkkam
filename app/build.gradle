@@ -59,6 +59,7 @@ dependencies {
     // AnyChart 라이브러리 (차트 생성용)
     implementation 'com.github.AnyChart:AnyChart-Android:1.1.2'
     implementation 'com.google.firebase:firebase-firestore-ktx:25.0.0'
+    implementation libs.androidx.lifecycle.service
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'

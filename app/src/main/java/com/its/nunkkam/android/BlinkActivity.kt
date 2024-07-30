@@ -3,10 +3,15 @@ package com.its.nunkkam.android // 패키지 선언: 이 코드가 속한 패키
 // 필요한 라이브러리들을 가져오기
 import android.Manifest // 안드로이드 권한 관련 클래스
 import android.annotation.SuppressLint // 특정 lint 경고를 억제하기 위한 어노테이션
+import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
+import android.content.ServiceConnection
 import android.content.pm.PackageManager // 패키지 관리자 클래스
+import android.os.Build
 import android.os.Bundle // 액티비티 생명주기 관련 클래스
 import android.os.CountDownTimer
+import android.os.IBinder
 import android.util.Log // 로그 출력을 위한 클래스
 import android.widget.Button
 import android.widget.ImageView // 이미지 뷰 위젯
@@ -24,6 +29,8 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.mediapipe.framework.image.BitmapImageBuilder // MediaPipe 이미지 빌더 클래스
+import com.google.mediapipe.framework.image.MPImage
+import com.google.mediapipe.tasks.components.containers.NormalizedLandmark
 import com.google.mediapipe.tasks.core.BaseOptions // MediaPipe 기본 옵션 클래스
 import com.google.mediapipe.tasks.vision.core.RunningMode // MediaPipe 실행 모드 클래스
 import com.google.mediapipe.tasks.vision.facelandmarker.FaceLandmarker // 얼굴 랜드마크 감지 클래스
@@ -77,10 +84,53 @@ class BlinkActivity : AppCompatActivity() {
 
     //여기까지
 
+    private lateinit var cameraService: CameraService
+    private var serviceBound = false
+
+    private val connection = object : ServiceConnection {
+        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+            val binder = service as CameraService.LocalBinder
+            cameraService = binder.getService()
+            cameraService.setCallback(cameraCallback)
+            if (allPermissionsGranted()) {
+                cameraService.startCamera(viewFinder)
+            }
+        }
+
+        override fun onServiceDisconnected(name: ComponentName?) {
+            // 서비스 연결이 끊어졌을 때의 처리
+        }
+    }
+
+    private val cameraCallback = object : CameraService.CameraCallback {
+        override fun onFaceLandmarkerResult(result: FaceLandmarkerResult, image: MPImage) {
+            handleFaceLandmarkerResult(result, image)
+        }
+    }
+
+    private val REQUEST_CODE_POST_NOTIFICATIONS = 101 // 권한 요청 코드
+    private val CAMERA_PERMISSION_REQUEST_CODE = 1001
+
     // 액티비티가 생성될 때 호출되는 함수
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState) // 부모 클래스의 onCreate 메서드 호출
         setContentView(R.layout.activity_blink) // [외부] 레이아웃 XML 파일을 가져와 화면에 설정
+
+        if (!allPermissionsGranted()) {
+            ActivityCompat.requestPermissions(
+                this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS
+            )
+        }
+
+        // POST_NOTIFICATIONS 권한이 허용되지 않은 경우 요청
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.POST_NOTIFICATIONS), REQUEST_CODE_POST_NOTIFICATIONS)
+        }
+
+        // 서비스 시작 및 바인딩
+        val intent = Intent(this, CameraService::class.java)
+        ContextCompat.startForegroundService(this, intent)
+        bindService(intent, connection, Context.BIND_AUTO_CREATE)
 
         // XML에서 정의한 뷰들을 찾아 변수에 할당
         viewFinder = findViewById(R.id.viewFinder)
@@ -114,29 +164,6 @@ class BlinkActivity : AppCompatActivity() {
                 Log.e("BlinkActivity", "birthDate: $birthDate")
             }
         }
-
-        if (allPermissionsGranted()) {
-            startCamera()
-        } else {
-            ActivityCompat.requestPermissions(
-                this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS
-            )
-        }
-
-        // 카메라 작업을 위한 단일 스레드 실행자 생성
-        cameraExecutor = Executors.newSingleThreadExecutor()
-
-        // FaceLandmarker 설정
-        val baseOptions = BaseOptions.builder() // [외부] 얼굴 랜드마크 모델 파일(face_landmarker.task) 가져오기
-            .setModelAssetPath("face_landmarker.task") // 모델 파일 경로 설정
-            .build() // BaseOptions 객체 생성 및 반환
-        val options = FaceLandmarker.FaceLandmarkerOptions.builder()
-            .setBaseOptions(baseOptions) // 기본 옵션 설정
-            .setRunningMode(RunningMode.LIVE_STREAM) // 실시간 스트림 모드로 설정
-            .setNumFaces(1) // 감지할 얼굴 수 설정
-            .setResultListener(this::handleFaceLandmarkerResult) // 결과 처리 리스너 설정
-            .build() // FaceLandmarkerOptions 객체 생성 및 반환
-        faceLandmarker = FaceLandmarker.createFromOptions(this, options) // FaceLandmarker 객체 생성
 
         // 깜빡임 카운트 표시 관련 TextView 초기화 및 UI 업데이트
         blinkCountTextView = findViewById(R.id.blinkCountTextView)
@@ -229,6 +256,7 @@ class BlinkActivity : AppCompatActivity() {
         finish()
     }
 
+    @SuppressLint("DefaultLocale")
     private fun updateTimerText() {
         val minutes = (timeLeftInMillis / 1000) / 60
         val seconds = (timeLeftInMillis / 1000) % 60
@@ -265,6 +293,7 @@ class BlinkActivity : AppCompatActivity() {
         }
     }
     // 여기까지
+
     private fun getBirthDateFromGoogleAccount(user: FirebaseUser): Timestamp? {
         // Google 계정에서 생년월일 정보를 가져오는 로직을 여기에 추가합니다.
         // 생년월일 정보는 Google API에서 직접 가져올 수 없습니다.
@@ -272,52 +301,15 @@ class BlinkActivity : AppCompatActivity() {
         return null
     }
 
-    // 카메라 시작 함수
-    private fun startCamera() {
-        val cameraProviderFuture = ProcessCameraProvider.getInstance(this) // [외부] 카메라 제공자(provider)의 인스턴스를 비동기적으로 가져오기
-
-        //  cameraProviderFuture의 리스너는 카메라 설정 및 바인딩을 수행
-        cameraProviderFuture.addListener({
-            val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get() // cameraProviderFuture가 완료되면 실행될 cameraProviderFuture의 리스너에 추가
-
-            // 카메라 미리보기 설정
-            val preview = Preview.Builder()
-                .build() // Preview 객체 생성 및 반환
-                .also {
-                    // also를 사용하여 생성된 Preview 객체에 대해 추가 작업 수행
-                    // setSurfaceProvider를 호출하여 카메라 미리보기를 표시할 surface 제공
-                    it.setSurfaceProvider(viewFinder.surfaceProvider)
-                }
-
-            // 이미지 분석 설정
-            val imageAnalyzer = ImageAnalysis.Builder()
-                .build() // ImageAnalysis 객체 생성 및 반환
-                .also {
-                    it.setAnalyzer(cameraExecutor) { imageProxy -> // [외부] 카메라 이미지 프레임
-                        val bitmap = imageProxy.toBufferBitmap() // ImageProxy를 Bitmap으로 변환
-                        val mpImage = BitmapImageBuilder(bitmap).build() // MediaPipe 이미지로 변환
-                        faceLandmarker.detectAsync(mpImage, imageProxy.imageInfo.timestamp) // 비동기로 얼굴 감지
-                        imageProxy.close() // ImageProxy 리소스 해제
-                    }
-                }
-
-            try {
-                // 기존 카메라 사용을 모두 해제하고 새로 바인딩
-                cameraProvider.unbindAll()
-                cameraProvider.bindToLifecycle(
-                    this, CameraSelector.DEFAULT_FRONT_CAMERA, preview, imageAnalyzer
-                )
-            } catch (exc: Exception) {
-                // 카메라 사용 실패 시 에러 로그 출력
-                Log.e(TAG, "카메라 바인딩 실패", exc)
-            }
-
-        }, ContextCompat.getMainExecutor(this))  // 메인 스레드에서 리스너가 실행
-    }
-
     // FaceLandmarker 결과 처리 함수
     @Suppress("UNUSED_PARAMETER") // image 파라미터를 현재 사용하지 않음을 컴파일러에 알림
     private fun handleFaceLandmarkerResult(result: FaceLandmarkerResult, image: com.google.mediapipe.framework.image.MPImage) {
+        // viewFinder가 초기화되지 않았을 경우 로그 출력 후 종료
+        if (!this::viewFinder.isInitialized) {
+            Log.e(TAG, "ViewFinder is not initialized")
+            return
+        }
+
         frameCounter++ // 프레임 카운터 증가
 
         // FPS 계산
@@ -344,7 +336,7 @@ class BlinkActivity : AppCompatActivity() {
         val rightEyeOuter = landmarks[362]  // 362: 오른쪽 눈 바깥쪽 점
 
         // 눈 랜드마크 좌표 로깅 추가
-        Log.d("" +
+        Log.d("[8]Landmark" +
                 "q  ", "Landmark coordinates: " +
                 "Left Eye Top (159): $leftEyeTop, " +
                 "Left Eye Bottom (145): $leftEyeBottom, " +
@@ -356,10 +348,11 @@ class BlinkActivity : AppCompatActivity() {
                 "Right Eye Outer (362): $rightEyeOuter")
 
         // 눈 개폐 정도 계산
-        fun calculateEyeOpenness(top: com.google.mediapipe.tasks.components.containers.NormalizedLandmark,
-                                 bottom: com.google.mediapipe.tasks.components.containers.NormalizedLandmark,
-                                 inner: com.google.mediapipe.tasks.components.containers.NormalizedLandmark,
-                                 outer: com.google.mediapipe.tasks.components.containers.NormalizedLandmark): Float {
+        fun calculateEyeOpenness(top: NormalizedLandmark,
+                                 bottom: NormalizedLandmark,
+                                 inner: NormalizedLandmark,
+                                 outer: NormalizedLandmark
+        ): Float {
             val verticalDistance = abs(top.y() - bottom.y()) // 눈의 세로 길이 계산
             val horizontalDistance = abs(outer.x() - inner.x()) // 눈의 가로 길이 계산
             return verticalDistance / horizontalDistance // 세로/가로 비율 반환 (눈 개폐 정도)
@@ -395,12 +388,13 @@ class BlinkActivity : AppCompatActivity() {
 
     // 눈 깜빡임 카운트 증가 및 저장 함수 -> TimerFragment로 보내기 위함
     private fun updateBlinkCount() {
-        blinkCount++
+        cameraService.incrementBlinkCount() // 눈 깜빡임 횟수 증가
         saveBlinkCountToPreferences()
         updateBlinkUI()
     }
 
     private fun saveBlinkCountToPreferences() {
+        val blinkCount = cameraService.getBlinkCount()
         val sharedPref = getSharedPreferences("MyApp", Context.MODE_PRIVATE)
         with(sharedPref.edit()) {
             putInt("blink_count", blinkCount)
@@ -412,6 +406,7 @@ class BlinkActivity : AppCompatActivity() {
     @SuppressLint("SetTextI18n")
     private fun updateBlinkUI() {
         runOnUiThread {
+            val blinkCount = cameraService.getBlinkCount()
             blinkCountTextView.text = "Total Blinks: $blinkCount" // 총 깜빡임 횟수 표시
             blinkRateTextView.text = "Blink Rate: %.2f bpm".format(blinkRate) // 분당 깜빡임 횟수 표시
         }
@@ -447,7 +442,7 @@ class BlinkActivity : AppCompatActivity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == REQUEST_CODE_PERMISSIONS) {
             if (allPermissionsGranted()) {
-                startCamera() // 모든 권한이 허용되면 카메라 시작
+                cameraService.startCamera(viewFinder) // 모든 권한이 허용되면 카메라 시작
             } else {
                 // 권한이 거부되었을 때 앱 종료
                 Toast.makeText(this, "Permissions not granted by the user.", Toast.LENGTH_SHORT).show()
@@ -459,14 +454,56 @@ class BlinkActivity : AppCompatActivity() {
     // 액티비티가 종료될 때 호출되는 함수
     override fun onDestroy() {
         super.onDestroy()
-        cameraExecutor.shutdown() // 카메라 실행자 종료
+        if (serviceBound) {
+            unbindService(connection)
+            serviceBound = false
+        }
     }
+
+    override fun onPause() {
+        super.onPause()
+        if (serviceBound) {
+            // 서비스를 언바인딩 하지 않음
+            cameraService.stopCamera()  // 필요시 카메라 세션 종료
+//            unbindService(connection)
+//            serviceBound = false
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (!serviceBound) {
+            val onCreate = Intent(this, CameraService::class.java)
+            bindService(intent, connection, Context.BIND_AUTO_CREATE)
+        } else {
+            // 바인딩된 서비스가 있다면 카메라 세션 재시작
+            if (allPermissionsGranted()) {
+                cameraService.startCamera(viewFinder)
+            }
+        }
+//        val intent = Intent(this, CameraService::class.java)
+//        bindService(intent, connection, Context.BIND_AUTO_CREATE)
+    }
+
 
     // 클래스 내부에서 사용할 상수들을 정의
     companion object {
         private const val TAG = "CameraXApp" // 로그 태그: 로그 메시지를 필터링하거나 식별하는 데 사용
         private const val BLINK_THRESHOLD = 0.5 // 눈 깜빡임 감지 임계값: 이 값보다 작으면 눈을 감은 것으로 판단
         private const val REQUEST_CODE_PERMISSIONS = 10 // 권한 요청 코드: onRequestPermissionsResult에서 이 요청을 식별하는 데 사용
-        private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA) // 필요한 권한 목록: 이 앱이 필요로 하는 모든 권한을 포함
+        private const val CAMERA_PERMISSION_REQUEST_CODE = 1001
+        private val REQUEST_CODE_POST_NOTIFICATIONS = 101 // 권한 요청 코드
+        private val REQUIRED_PERMISSIONS = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            arrayOf(
+                Manifest.permission.CAMERA,
+                Manifest.permission.POST_NOTIFICATIONS,
+                Manifest.permission.FOREGROUND_SERVICE
+            )
+        } else {
+            arrayOf(
+                Manifest.permission.CAMERA,
+                Manifest.permission.FOREGROUND_SERVICE
+            )
+        }
     }
 }
