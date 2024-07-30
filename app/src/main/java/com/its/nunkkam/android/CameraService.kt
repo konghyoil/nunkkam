@@ -37,8 +37,6 @@ class CameraService : LifecycleService() {
     private var timeLeftInMillis: Long = 1200000
 
     private var blinkCount = 0 // 눈 깜빡임 총 횟수를 저장하는 변수
-    private var frameSkipCount = 0
-    private val FRAME_SKIP_THRESHOLD = 30
 
     private var isForeground = false // 포그라운드 여부를 나타내는 변수
 
@@ -181,12 +179,9 @@ class CameraService : LifecycleService() {
                         }
 
                         // 프레임 분석 수행
-                        frameSkipCount++
-                        if (frameSkipCount % FRAME_SKIP_THRESHOLD == 0) {
-                            val bitmap = imageProxy.toBufferBitmap()
-                            val mpImage = BitmapImageBuilder(bitmap).build()
-                            faceLandmarker.detectAsync(mpImage, imageProxy.imageInfo.timestamp)
-                        }
+                        val bitmap = imageProxy.toBufferBitmap()
+                        val mpImage = BitmapImageBuilder(bitmap).build()
+                        faceLandmarker.detectAsync(mpImage, imageProxy.imageInfo.timestamp)
                         imageProxy.close()
                     }
                 }

@@ -344,6 +344,11 @@ class BlinkActivity : AppCompatActivity() {
     // FaceLandmarker 결과 처리 함수
     @Suppress("UNUSED_PARAMETER") // image 파라미터를 현재 사용하지 않음을 컴파일러에 알림
     private fun handleFaceLandmarkerResult(result: FaceLandmarkerResult, image: MPImage) {
+        if (result.faceLandmarks().isEmpty()) {
+            Log.d(TAG, "No face landmarks detected")
+            return
+        }
+
         Log.d(TAG, "BlinkActivity: handleFaceLandmarkerResult called")
 
         // viewFinder가 초기화되지 않았을 경우 로그 출력 후 종료
@@ -415,6 +420,9 @@ class BlinkActivity : AppCompatActivity() {
         if (eyesOpen != lastEyeState && !eyesOpen) {
             Log.d(TAG, "Blink detected")
             cameraService.incrementBlinkCount() // 눈 깜빡임 횟수 증가
+            val blinkCount = cameraService.getBlinkCount()
+            Log.d(TAG, "Total blinks: $blinkCount")
+
             val timeDiff = (currentTime - lastBlinkTime) / 1000.0 // 마지막 깜빡임과의 시간 차이를 초 단위로 계산
             blinkRate = 60.0 / timeDiff // 분당 깜빡임 횟수 계산 (60초 / 깜빡임 간격)
             lastBlinkTime = currentTime // 마지막 깜빡임 시간 업데이트
@@ -478,7 +486,9 @@ class BlinkActivity : AppCompatActivity() {
             Log.d(TAG, "Updating UI: message=$message, drawableResId=$drawableResId")
             eyeStatusTextView.text = message
             eyeStatusImageView.setImageResource(drawableResId)
-            Log.d(TAG, "UI updated")
+            val blinkCount = cameraService.getBlinkCount()
+            blinkCountTextView.text = "Blinks: $blinkCount"
+            Log.d(TAG, "UI updated, Blink count: $blinkCount")
         }
     }
 
