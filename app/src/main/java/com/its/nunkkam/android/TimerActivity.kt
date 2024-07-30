@@ -7,6 +7,9 @@ import android.util.Log
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.FirebaseAuth
 
 class TimerActivity : AppCompatActivity() {
@@ -16,6 +19,8 @@ class TimerActivity : AppCompatActivity() {
     private lateinit var timerTextView: TextView
     private lateinit var logoutButton: Button
     private lateinit var auth: FirebaseAuth
+    private lateinit var googleSignInClient: GoogleSignInClient
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,6 +33,17 @@ class TimerActivity : AppCompatActivity() {
 
         // Firebase Auth 초기화
         auth = FirebaseAuth.getInstance()
+
+        // GoogleSignInClient 초기화
+        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestEmail()
+            .build()
+        googleSignInClient = GoogleSignIn.getClient(this, gso)
+
+        startButton.setOnClickListener {
+            val intent = Intent(this, BlinkActivity::class.java)
+            startActivity(intent)
+        }
 
         startButton.setOnClickListener {
             val intent = Intent(this, BlinkActivity::class.java)
@@ -51,14 +67,25 @@ class TimerActivity : AppCompatActivity() {
     private fun logoutUser() {
         // Firebase에서 로그아웃
         auth.signOut()
+        Log.d("TimerActivity", "Firebase 로그아웃 성공")
 
-        // SharedPreferences에서 로그아웃 처리
-        UserManager.clearUserData()
+        // Google에서 로그아웃
+        googleSignInClient.signOut().addOnCompleteListener(this) {
+            if (it.isSuccessful) {
+                Log.d("TimerActivity", "Google 로그아웃 성공")
+            } else {
+                Log.d("TimerActivity", "Google 로그아웃 실패: ${it.exception?.message}")
+            }
 
-        // MainActivity로 이동
-        val intent = Intent(this, MainActivity::class.java)
-        startActivity(intent)
-        finish()
-        Log.d("TimerActivity", "User logged out successfully")
+            // SharedPreferences에서 로그아웃 처리
+            UserManager.clearUserData(this)
+            Log.d("TimerActivity", "SharedPreferences 데이터 삭제 성공")
+
+            // MainActivity로 이동
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
+            finish()
+            Log.d("TimerActivity", "MainActivity로 이동")
+        }
     }
 }
