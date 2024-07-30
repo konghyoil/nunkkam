@@ -11,6 +11,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.FirebaseAuth
+import com.its.nunkkam.android.UserManager.userId
 
 class TimerActivity : AppCompatActivity() {
 
@@ -52,6 +53,7 @@ class TimerActivity : AppCompatActivity() {
 
         resultButton.setOnClickListener {
             goToResultScreen()
+            Log.d("TimerActivity","userId: $userId")
         }
 
         logoutButton.setOnClickListener {

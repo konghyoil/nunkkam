@@ -18,6 +18,7 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.its.nunkkam.android.UserManager.userId
 import java.util.UUID
 
 class MainActivity : AppCompatActivity() {
@@ -30,6 +31,8 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        UserManager.initialize(this) // UserManager 초기화
 
         guestLoginButton = findViewById(R.id.guest_login_button)
         googleLoginButton = findViewById(R.id.google_login_button)
@@ -52,6 +55,7 @@ class MainActivity : AppCompatActivity() {
         guestLoginButton.setOnClickListener {
             Log.d("MainActivity", "Guest Login button clicked")
             initializeGuestUser()
+            Log.d("MainActivity", "guest userId: $userId")
         }
 
         checkUserStatus()
@@ -80,8 +84,13 @@ class MainActivity : AppCompatActivity() {
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     val user = auth.currentUser
-                    saveUserToFirestore(user)
-                    navigateToMainFunction()
+                    if (user != null) {
+                        UserManager.setUser(user.uid)  // userId 설정
+                        saveUserToFirestore(user)
+                        navigateToMainFunction()
+                    } else {
+                        Log.w(TAG, "signInWithCredential: User is null")
+                    }
                 } else {
                     Log.w(TAG, "signInWithCredential:failure", task.exception)
                 }
@@ -104,6 +113,7 @@ class MainActivity : AppCompatActivity() {
         val sharedPreferences = getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
         val deviceModel = Build.MODEL ?: "unknown_device"
         val userId = "$deviceModel-${UUID.randomUUID()}"
+        UserManager.setUser(userId)  // userId 설정
         with(sharedPreferences.edit()) {
             if (sharedPreferences.getString("user_id", null) == null) {
                 putString("user_id", userId)
