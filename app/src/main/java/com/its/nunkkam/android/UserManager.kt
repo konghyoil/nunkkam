@@ -4,38 +4,33 @@ import android.content.Context
 import android.content.SharedPreferences
 
 object UserManager {
-    var userId: String = ""
-        private set
-    var isGoogleLogin: Boolean = false
+
+    private const val PREF_NAME = "UserPrefs"
+    private const val USER_ID_KEY = "user_id"
+    private lateinit var sharedPreferences: SharedPreferences
+
+    var userId: String? = null
         private set
 
     fun initialize(context: Context) {
-        val sharedPreferences = context.getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
-        userId = sharedPreferences.getString("user_id", "") ?: ""
-        isGoogleLogin = sharedPreferences.getBoolean("is_google_login", false)
+        sharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+        userId = sharedPreferences.getString(USER_ID_KEY, null)
     }
 
-    fun setUser(context: Context, userId: String, isGoogleLogin: Boolean) {
-        val sharedPreferences = context.getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
+    fun setUser(userId: String) {
+        this.userId = userId
         with(sharedPreferences.edit()) {
-            putString("user_id", userId)
-            putBoolean("is_google_login", isGoogleLogin)
+            putString(USER_ID_KEY, userId)
             apply()
         }
-        this.userId = userId
-        this.isGoogleLogin = isGoogleLogin
     }
 
     fun clearUserData(context: Context) {
-        val sharedPreferences = context.getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
+        sharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
         with(sharedPreferences.edit()) {
-            remove("user_id")
-            remove("user_name")
-            remove("is_first_login")
-            remove("is_google_login")
+            remove(USER_ID_KEY)
             apply()
         }
-        userId = ""
-        isGoogleLogin = false
+        userId = null
     }
 }
