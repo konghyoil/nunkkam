@@ -326,7 +326,7 @@ class BlinkActivity : AppCompatActivity() {
             } else {
                 val newUser = hashMapOf(
                     "birth_date" to birthDate, // 예시 생년월일
-                    "tutorial" to true,
+                    "tutorial" to false,
                     "blinks" to listOf(blinkData)
                 )
                 userDocument.set(newUser)
