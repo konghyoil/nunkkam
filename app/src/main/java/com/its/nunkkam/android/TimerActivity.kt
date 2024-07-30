@@ -56,7 +56,6 @@ class TimerActivity : AppCompatActivity() {
 
         logoutButton.setOnClickListener {
             logoutUser()
-
         }
     }
 
@@ -66,18 +65,14 @@ class TimerActivity : AppCompatActivity() {
         startActivity(intent)
     }
     private fun logoutUser() {
-        // Firebase에서 로그아웃
+        UserManager.clearUserData(this)
         auth.signOut()
-
-        // Google에서 로그아웃
         googleSignInClient.signOut().addOnCompleteListener(this) {
-            // 로그아웃이 완료되면 MainActivity로 이동
+            Log.d("TimerActivity", "User logged out from Google")
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
             finish()
-            Log.d("TimerActivity", "User logged out successfully")
-
         }
-    }
 
+    }
 }

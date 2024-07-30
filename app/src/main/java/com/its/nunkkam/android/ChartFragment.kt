@@ -5,7 +5,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.anychart.AnyChart
 import com.anychart.AnyChartView
@@ -13,7 +12,6 @@ import com.anychart.chart.common.dataentry.DataEntry
 import com.anychart.chart.common.dataentry.ValueDataEntry
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
-import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.roundToInt
 
@@ -38,12 +36,17 @@ class ChartFragment : Fragment() {
 
         // Firestore 인스턴스 초기화
         firestore = FirebaseFirestore.getInstance()
+
+        // UserManager 초기화 및 user_id 가져오기
+        val userId = UserManager.userId ?: "unknown_user"
+        Log.d("ChartFragment", "User ID: $userId")
+
         // 평균 눈 깜빡임 그래프 설정
-        setupAverageBlinkGraph()
+        setupAverageBlinkGraph(userId)
     }
 
     // 평균 눈 깜빡임 그래프를 설정하는 함수
-    private fun setupAverageBlinkGraph() {
+    private fun setupAverageBlinkGraph(userId: String) {
         // AnyChartView 찾기
         val anyChartView: AnyChartView = requireView().findViewById(R.id.any_chart_view2)
         // 컬럼 차트 생성
@@ -58,10 +61,6 @@ class ChartFragment : Fragment() {
         column.title().background().fill("#FFFFFF")
 
         // Firestore에서 데이터 가져오기
-        firestore.collection("USERS").document("user1234")
-        val userId = UserManager.userId ?: "unknown_user"
-        Log.d("ChartFragment", "User ID: $userId")
-
         firestore.collection("USERS").document(userId)
             .get()
             .addOnSuccessListener { document ->

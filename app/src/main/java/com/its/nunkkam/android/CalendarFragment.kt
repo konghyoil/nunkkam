@@ -44,7 +44,6 @@ class CalendarFragment : Fragment() {
         val isGoogleLogin = sharedPreferences.getBoolean("is_google_login", false)
 
         if (userId != null) {
-            UserManager.initialize(requireContext(), userId, isGoogleLogin)
             fetchUserData(userId)
         } else {
             Log.e("CalendarFragment", "User ID is null")

@@ -52,7 +52,6 @@ class CardFragment : Fragment() {
         val isGoogleLogin = sharedPreferences.getBoolean("is_google_login", false)
 
         if (userId != null) {
-            UserManager.initialize(requireContext(), userId, isGoogleLogin)
             fetchLatestRatePerMinute(userId)
         } else {
             Log.e("CardFragment", "User ID is null")

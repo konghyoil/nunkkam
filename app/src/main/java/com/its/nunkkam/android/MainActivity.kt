@@ -1,24 +1,28 @@
 package com.its.nunkkam.android
 
-import android.content.ContentValues.TAG
+import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
-import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
-import com.google.firebase.firestore.firestore
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import java.util.UUID
 
 class MainActivity : AppCompatActivity() {
@@ -29,6 +33,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var googleLoginButton: Button
     private lateinit var logoutButton: Button
 
+    private val REQUEST_CODE_READ_PHONE_STATE = 100
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,11 +41,6 @@ class MainActivity : AppCompatActivity() {
 
         guestLoginButton = findViewById(R.id.guest_login_button)
         googleLoginButton = findViewById(R.id.google_login_button)
-        logoutButton = findViewById(R.id.logout_button)
-
-        val deviceModel = Build.MODEL ?: "unknown_device"
-        Log.d("MainActivity", "Device model: $deviceModel") // 디버그 로그로 기기 모델명 확인
-
 
         // Firebase Auth 초기화
         auth = FirebaseAuth.getInstance()
@@ -59,18 +59,11 @@ class MainActivity : AppCompatActivity() {
 
         guestLoginButton.setOnClickListener {
             Log.d("MainActivity", "Guest Login button clicked")
-            initializeGuestUser()
-            navigateToMainFunction()
-        }
-
-        logoutButton.setOnClickListener {
-            Log.d("MainActivity", "Logout button clicked")
-            logoutUser()
+            checkAndRequestPermissions()
         }
 
         checkUserStatus()
     }
-
 
     private val googleSignInLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -87,7 +80,6 @@ class MainActivity : AppCompatActivity() {
     private fun signIn() {
         val signInIntent = googleSignInClient.signInIntent
         googleSignInLauncher.launch(signInIntent)
-        Log.d("MainActivity", "Google sign-in")
     }
 
     private fun firebaseAuthWithGoogle(acct: GoogleSignInAccount) {
@@ -97,9 +89,6 @@ class MainActivity : AppCompatActivity() {
                 if (task.isSuccessful) {
                     val user = auth.currentUser
                     saveUserToFirestore(user)
-                    user?.let {
-                        UserManager.setUser(this, it.uid, true)
-                    }
                     navigateToMainFunction()
                 } else {
                     Log.w(TAG, "signInWithCredential:failure", task.exception)
@@ -107,7 +96,6 @@ class MainActivity : AppCompatActivity() {
             }
     }
 
-    // 여기 수정할 것
     private fun saveUserToFirestore(user: FirebaseUser?) {
         val userRef = Firebase.firestore.collection("USERS").document(user?.uid ?: "unknown")
         val userData = mapOf(
@@ -120,8 +108,6 @@ class MainActivity : AppCompatActivity() {
         userRef.set(userData)
     }
 
-
-
     private fun initializeGuestUser() {
         val sharedPreferences = getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
         val deviceModel = Build.MODEL ?: "unknown_device"
@@ -131,10 +117,47 @@ class MainActivity : AppCompatActivity() {
                 putString("user_id", userId)
                 Log.d("MainActivity", "User ID initialized: $userId")
             }
-            putBoolean("is_google_login", false)
+            putString("user_name", "Guest User")
+            putBoolean("is_first_login", true)
             apply()
         }
-        UserManager.setUser(this, userId, false)
+        navigateToMainFunction()
+    }
+
+    private fun checkAndRequestPermissions() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE)
+            != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(
+                this, arrayOf(Manifest.permission.READ_PHONE_STATE),
+                REQUEST_CODE_READ_PHONE_STATE
+            )
+        } else {
+            getDeviceSerialNumber()
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int, permissions: Array<out String>, grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == REQUEST_CODE_READ_PHONE_STATE) {
+            if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                getDeviceSerialNumber()
+            } else {
+                // 권한이 거부된 경우 처리
+            }
+        }
+    }
+
+    @SuppressLint("HardwareIds")
+    private fun getDeviceSerialNumber() {
+        val serialNumber: String = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            Build.getSerial()
+        } else {
+            Build.SERIAL
+        }
+        Log.d("SerialNumber", "Device Serial Number: $serialNumber")
+        initializeGuestUser()
     }
 
     private fun navigateToMainFunction() {
@@ -143,18 +166,10 @@ class MainActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
-    private fun logoutUser() {
-        UserManager.clearUserData(this)
-        Log.d("MainActivity", "User logged out")
-        val intent = Intent(this, MainActivity::class.java)
-        startActivity(intent)
-        finish()
-    }
 
     private fun checkUserStatus() {
-        UserManager.initialize(this)
         val currentUser = auth.currentUser
-        if (UserManager.userId.isNotEmpty() || currentUser != null) {
+        if (currentUser != null) {
             navigateToMainFunction()
         }
     }
@@ -162,5 +177,4 @@ class MainActivity : AppCompatActivity() {
     companion object {
         private const val TAG = "MainActivity"
     }
-
 }

@@ -42,13 +42,4 @@
         android:textColor="#FFFFFF"
         android:padding="12dp" />
 
-    <!-- 로그아웃 버튼 -->
-    <Button
-        android:id="@+id/logout_button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Logout"
-        android:backgroundTint="#FF0000"
-        android:textColor="#FFFFFF"
-        android:padding="12dp" />
 </LinearLayout>
