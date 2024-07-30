@@ -100,11 +100,8 @@ class MainActivity : AppCompatActivity() {
     private fun saveUserToFirestore(user: FirebaseUser?) {
         val userRef = Firebase.firestore.collection("USERS").document(user?.uid ?: "unknown")
         val userData = mapOf(
-            "uid" to (user?.uid ?: "unknown"),
-            "name" to (user?.displayName ?: "Guest User"),
-            "email" to (user?.email ?: ""),
             "birth_date" to null,
-            "tutorial" to true
+            "tutorial" to false
         )
         userRef.set(userData)
     }
