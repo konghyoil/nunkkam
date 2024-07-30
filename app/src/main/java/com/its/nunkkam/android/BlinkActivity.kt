@@ -1,68 +1,62 @@
-package com.its.nunkkam.android // 패키지 선언: 이 코드가 속한 패키지를 지정
+package com.its.nunkkam.android
 
 // 필요한 라이브러리들을 가져오기
-import android.Manifest // 안드로이드 권한 관련 클래스
-import android.annotation.SuppressLint // 특정 lint 경고를 억제하기 위한 어노테이션
+import android.Manifest
+import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
-import android.content.pm.PackageManager // 패키지 관리자 클래스
+import android.content.pm.PackageManager
 import android.os.Build
-import android.os.Bundle // 액티비티 생명주기 관련 클래스
+import android.os.Bundle
 import android.os.CountDownTimer
 import android.os.IBinder
-import android.util.Log // 로그 출력을 위한 클래스
+import android.util.Log
 import android.widget.Button
-import android.widget.ImageView // 이미지 뷰 위젯
-import android.widget.TextView // 텍스트 뷰 위젯
-import android.widget.Toast // 짧은 메시지를 화면에 표시하는 클래스
-import androidx.appcompat.app.AppCompatActivity // 앱 호환성을 위한 기본 액티비티 클래스
-import androidx.camera.core.* // 카메라 관련 핵심 클래스들
-import androidx.camera.lifecycle.ProcessCameraProvider // 카메라 프로바이더 클래스
-import androidx.camera.view.PreviewView // 카메라 미리보기 뷰 클래스
-import androidx.core.app.ActivityCompat // 액티비티 호환성 관련 클래스
-import androidx.core.content.ContextCompat // 컨텍스트 호환성 관련 클래스
+import android.widget.ImageView
+import android.widget.TextView
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.camera.view.PreviewView
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.mediapipe.framework.image.BitmapImageBuilder // MediaPipe 이미지 빌더 클래스
+import com.google.mediapipe.framework.image.BitmapImageBuilder
 import com.google.mediapipe.framework.image.MPImage
 import com.google.mediapipe.tasks.components.containers.NormalizedLandmark
-import com.google.mediapipe.tasks.core.BaseOptions // MediaPipe 기본 옵션 클래스
-import com.google.mediapipe.tasks.vision.core.RunningMode // MediaPipe 실행 모드 클래스
-import com.google.mediapipe.tasks.vision.facelandmarker.FaceLandmarker // 얼굴 랜드마크 감지 클래스
-import com.google.mediapipe.tasks.vision.facelandmarker.FaceLandmarkerResult // 얼굴 랜드마크 결과 클래스
+import com.google.mediapipe.tasks.vision.core.RunningMode
+import com.google.mediapipe.tasks.vision.facelandmarker.FaceLandmarker
+import com.google.mediapipe.tasks.vision.facelandmarker.FaceLandmarkerResult
 import java.util.Date
-import java.util.concurrent.ExecutorService // 실행자 서비스 인터페이스
-import java.util.concurrent.Executors // 실행자 생성 유틸리티 클래스
-import kotlin.math.abs // 절대값을 계산하는 수학 함수
-
-// 주석 규칙 | [외부]: 외부 데이터에서 가저오는 부분을 구분하기 위한 주석
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
+import kotlin.math.abs
 
 // BlinkActivity 클래스 정의: 앱의 눈 깜빡임 화면을 담당
 class BlinkActivity : AppCompatActivity() {
 
     // 클래스 내부에서 사용할 변수들을 선언
-    private lateinit var faceLandmarker: FaceLandmarker // 얼굴 랜드마크 감지기
-    private lateinit var cameraExecutor: ExecutorService // 카메라 작업 실행을 위한 실행자
-    private lateinit var viewFinder: PreviewView // 카메라 미리보기 뷰
-    private lateinit var eyeStatusImageView: ImageView // 눈 상태를 표시할 이미지 뷰
-    private lateinit var eyeStatusTextView: TextView // 눈 상태를 표시할 텍스트 뷰
-    private var blinkCount = 0 // 눈 깜빡임 총 횟수를 저장하는 변수
-    private var lastEyeState = true // 마지막으로 감지된 눈 상태 (true: 눈 뜸, false: 눈 감음)
-    private lateinit var blinkCountTextView: TextView // 눈 깜빡임 횟수를 표시할 TextView
-    private var lastBlinkTime = System.currentTimeMillis() // 마지막 눈 깜빡임이 감지된 시간
-    private var blinkRate = 0.0 // 분당 눈 깜빡임 횟수 (blinks per minute)
-    private lateinit var blinkRateTextView: TextView // 분당 눈 깜빡임 횟수를 표시할 TextView
-    private var frameCounter = 0 // 프레임 카운터
-    private var lastFpsUpdateTime = System.currentTimeMillis() // 마지막 FPS 업데이트 시간
-    private var fps = 0f // 현재 FPS
-    private lateinit var fpsTextView: TextView // FPS를 표시할 TextView
+    private lateinit var faceLandmarker: FaceLandmarker
+    private lateinit var cameraExecutor: ExecutorService
+    private lateinit var viewFinder: PreviewView
+    private lateinit var eyeStatusImageView: ImageView
+    private lateinit var eyeStatusTextView: TextView
+    private var blinkCount = 0
+    private var lastEyeState = true
+    private lateinit var blinkCountTextView: TextView
+    private var lastBlinkTime = System.currentTimeMillis()
+    private var blinkRate = 0.0
+    private lateinit var blinkRateTextView: TextView
+    private var frameCounter = 0
+    private var lastFpsUpdateTime = System.currentTimeMillis()
+    private var fps = 0f
+    private lateinit var fpsTextView: TextView
 
-    // 여기부터
     // 홍철 타이머 관련 코드 추가
     private lateinit var timerTextView: TextView
     private lateinit var pauseButton: Button
@@ -81,8 +75,6 @@ class BlinkActivity : AppCompatActivity() {
     private var pausedStartTime: Long = 0
     private var pausedAccumulatedTime: Long = 0
     private val db = FirebaseFirestore.getInstance()
-
-    //여기까지
 
     private lateinit var cameraService: CameraService
     private var serviceBound = false
@@ -138,7 +130,6 @@ class BlinkActivity : AppCompatActivity() {
         eyeStatusTextView = findViewById(R.id.textViewEyeStatus)
         fpsTextView = findViewById(R.id.fpsTextView)
 
-        //여기부터
         // 홍철 타이머 관련 내용 추가
         blinkCountTextView = findViewById(R.id.blinkCountTextView)
         blinkRateTextView = findViewById(R.id.blinkRateTextView)
@@ -170,20 +161,16 @@ class BlinkActivity : AppCompatActivity() {
         blinkRateTextView = findViewById(R.id.blinkRateTextView)
         updateBlinkUI()
 
-        //여기부터
-        //홍철 타이머 관련 내용 추가
+        // 홍철 타이머 관련 내용 추가
         // 타이머 시작
         startTimer()
 
         pauseButton.setOnClickListener { pauseTimer() }
         restartButton.setOnClickListener { restartTimer() }
         resetButton.setOnClickListener { resetTimer() }
-        //여기까지
-
     }
 
-    //여기부터
-    //홍철 타이머 관련 함수
+    // 홍철 타이머 관련 함수
     private fun startTimer() {
         if (startTime == 0L) {
             startTime = System.currentTimeMillis()
@@ -233,10 +220,6 @@ class BlinkActivity : AppCompatActivity() {
                 saveMeasurementData()
             }
         }.start()
-
-//        pauseButton.visibility = View.VISIBLE
-//        restartButton.visibility = View.GONE
-//        resetButton.visibility = View.VISIBLE
     }
 
     private fun resetTimer() {
@@ -284,7 +267,7 @@ class BlinkActivity : AppCompatActivity() {
                 userDocument.update("blinks", FieldValue.arrayUnion(blinkData))
             } else {
                 val newUser = hashMapOf(
-                    "birth_date" to birthDate, // 예시 생년월일
+                    "birth_date" to birthDate,
                     "tutorial" to true,
                     "blinks" to listOf(blinkData)
                 )
@@ -292,7 +275,6 @@ class BlinkActivity : AppCompatActivity() {
             }
         }
     }
-    // 여기까지
 
     private fun getBirthDateFromGoogleAccount(user: FirebaseUser): Timestamp? {
         // Google 계정에서 생년월일 정보를 가져오는 로직을 여기에 추가합니다.
@@ -302,93 +284,77 @@ class BlinkActivity : AppCompatActivity() {
     }
 
     // FaceLandmarker 결과 처리 함수
-    @Suppress("UNUSED_PARAMETER") // image 파라미터를 현재 사용하지 않음을 컴파일러에 알림
-    private fun handleFaceLandmarkerResult(result: FaceLandmarkerResult, image: com.google.mediapipe.framework.image.MPImage) {
-        // viewFinder가 초기화되지 않았을 경우 로그 출력 후 종료
+    @Suppress("UNUSED_PARAMETER")
+    private fun handleFaceLandmarkerResult(result: FaceLandmarkerResult, image: MPImage) {
         if (!this::viewFinder.isInitialized) {
             Log.e(TAG, "ViewFinder is not initialized")
             return
         }
 
-        frameCounter++ // 프레임 카운터 증가
+        frameCounter++
 
         // FPS 계산
-        val currentTime = System.currentTimeMillis() // 현재 시간 기록
-        if (currentTime - lastFpsUpdateTime >= 1000) { // 1초마다 FPS 업데이트
-            fps = frameCounter * 1000f / (currentTime - lastFpsUpdateTime) // FPS 계산
-            frameCounter = 0 // 프레임 카운터 초기화
-            lastFpsUpdateTime = currentTime // 마지막 FPS 업데이트 시간 갱신
-            updateFpsUI() // FPS UI 업데이트
+        val currentTime = System.currentTimeMillis()
+        if (currentTime - lastFpsUpdateTime >= 1000) {
+            fps = frameCounter * 1000f / (currentTime - lastFpsUpdateTime)
+            frameCounter = 0
+            lastFpsUpdateTime = currentTime
+            updateFpsUI()
         }
 
-        if (result.faceLandmarks().isEmpty()) return // 감지된 얼굴이 없으면 함수 종료
+        if (result.faceLandmarks().isEmpty()) return
 
-        val landmarks = result.faceLandmarks()[0] // 첫 번째 감지된 얼굴의 랜드마크
+        val landmarks = result.faceLandmarks()[0]
 
         // 눈 랜드마크 좌표 가져오기
-        val leftEyeTop = landmarks[159]     // 159: 왼쪽 눈 위쪽 점
-        val leftEyeBottom = landmarks[145]  // 145: 왼쪽 눈 아래쪽 점
-        val leftEyeInner = landmarks[33]    // 33: 왼쪽 눈 안쪽 점
-        val leftEyeOuter = landmarks[133]   // 133: 왼쪽 눈 바깥쪽 점
-        val rightEyeTop = landmarks[386]    // 386: 오른쪽 눈 위쪽 점
-        val rightEyeBottom = landmarks[374] // 374: 오른쪽 눈 아래쪽 점
-        val rightEyeInner = landmarks[263]  // 263: 오른쪽 눈 안쪽 점
-        val rightEyeOuter = landmarks[362]  // 362: 오른쪽 눈 바깥쪽 점
-
-        // 눈 랜드마크 좌표 로깅 추가
-        Log.d("[8]Landmark" +
-                "q  ", "Landmark coordinates: " +
-                "Left Eye Top (159): $leftEyeTop, " +
-                "Left Eye Bottom (145): $leftEyeBottom, " +
-                "Left Eye Inner (33): $leftEyeInner, " +
-                "Left Eye Outer (133): $leftEyeOuter, " +
-                "Right Eye Top (386): $rightEyeTop, " +
-                "Right Eye Bottom (374): $rightEyeBottom, " +
-                "Right Eye Inner (263): $rightEyeInner, " +
-                "Right Eye Outer (362): $rightEyeOuter")
+        val leftEyeTop = landmarks[159]
+        val leftEyeBottom = landmarks[145]
+        val leftEyeInner = landmarks[33]
+        val leftEyeOuter = landmarks[133]
+        val rightEyeTop = landmarks[386]
+        val rightEyeBottom = landmarks[374]
+        val rightEyeInner = landmarks[263]
+        val rightEyeOuter = landmarks[362]
 
         // 눈 개폐 정도 계산
-        fun calculateEyeOpenness(top: NormalizedLandmark,
-                                 bottom: NormalizedLandmark,
-                                 inner: NormalizedLandmark,
-                                 outer: NormalizedLandmark
-        ): Float {
-            val verticalDistance = abs(top.y() - bottom.y()) // 눈의 세로 길이 계산
-            val horizontalDistance = abs(outer.x() - inner.x()) // 눈의 가로 길이 계산
-            return verticalDistance / horizontalDistance // 세로/가로 비율 반환 (눈 개폐 정도)
-        }
-
-        // 왼쪽, 오른쪽 눈의 개폐 정도 계산
         val leftEyeOpenness = calculateEyeOpenness(leftEyeTop, leftEyeBottom, leftEyeInner, leftEyeOuter)
         val rightEyeOpenness = calculateEyeOpenness(rightEyeTop, rightEyeBottom, rightEyeInner, rightEyeOuter)
-        val averageEyeOpenness = (leftEyeOpenness + rightEyeOpenness) / 2 // 양쪽 눈의 평균 개폐 정도
+        val averageEyeOpenness = (leftEyeOpenness + rightEyeOpenness) / 2
 
         Log.d("FaceLandmarks", "Total landmarks detected: ${landmarks.size}, FPS: $fps")
         Log.d("EyeOpenness", "FPS: $fps, Left Eye: $leftEyeOpenness, Right Eye: $rightEyeOpenness, Average: $averageEyeOpenness")
 
-        val eyesOpen = averageEyeOpenness >= BLINK_THRESHOLD // 눈이 열려있는지 여부 판단
+        val eyesOpen = averageEyeOpenness >= BLINK_THRESHOLD
 
-        // 눈 깜빡임 감지 및 UI 업데이트 로직
         if (eyesOpen != lastEyeState && !eyesOpen) {
-            blinkCount++ // 눈 깜빡임 횟수 증가
-            val timeDiff = (currentTime - lastBlinkTime) / 1000.0 // 마지막 깜빡임과의 시간 차이를 초 단위로 계산
-            blinkRate = 60.0 / timeDiff // 분당 깜빡임 횟수 계산 (60초 / 깜빡임 간격)
-            lastBlinkTime = currentTime // 마지막 깜빡임 시간 업데이트
-            updateBlinkUI() // UI 업데이트 함수 호출
+            blinkCount++
+            val timeDiff = (currentTime - lastBlinkTime) / 1000.0
+            blinkRate = 60.0 / timeDiff
+            lastBlinkTime = currentTime
+            updateBlinkUI()
         }
-        lastEyeState = eyesOpen // 현재 눈 상태를 마지막 상태로 저장
+        lastEyeState = eyesOpen
 
-        // 눈 상태에 따라 UI 업데이트
         if (!eyesOpen) {
-            updateUI("Eye is closed", R.drawable.eye_closed)    // [외부] drawable/eye_closed.png 이미지 리소스 가져오기
+            updateUI("Eye is closed", R.drawable.eye_closed)
         } else {
-            updateUI("Eye is open", R.drawable.eye_open)        // [외부] drawable/eye_open.png 이미지 리소스 가져오기
+            updateUI("Eye is open", R.drawable.eye_open)
         }
     }
 
-    // 눈 깜빡임 카운트 증가 및 저장 함수 -> TimerFragment로 보내기 위함
+    private fun calculateEyeOpenness(
+        top: NormalizedLandmark,
+        bottom: NormalizedLandmark,
+        inner: NormalizedLandmark,
+        outer: NormalizedLandmark
+    ): Float {
+        val verticalDistance = abs(top.y() - bottom.y())
+        val horizontalDistance = abs(outer.x() - inner.x())
+        return verticalDistance / horizontalDistance
+    }
+
     private fun updateBlinkCount() {
-        cameraService.incrementBlinkCount() // 눈 깜빡임 횟수 증가
+        cameraService.incrementBlinkCount()
         saveBlinkCountToPreferences()
         updateBlinkUI()
     }
@@ -402,56 +368,47 @@ class BlinkActivity : AppCompatActivity() {
         }
     }
 
-    // 깜빡임 카운트 UI 업데이트 함수 | 메인 UI 스레드에서 실행되어야 하므로 runOnUiThread를 사용
     @SuppressLint("SetTextI18n")
     private fun updateBlinkUI() {
         runOnUiThread {
             val blinkCount = cameraService.getBlinkCount()
-            blinkCountTextView.text = "Total Blinks: $blinkCount" // 총 깜빡임 횟수 표시
-            blinkRateTextView.text = "Blink Rate: %.2f bpm".format(blinkRate) // 분당 깜빡임 횟수 표시
+            blinkCountTextView.text = "Total Blinks: $blinkCount"
+            blinkRateTextView.text = "Blink Rate: %.2f bpm".format(blinkRate)
         }
     }
 
-    // FPS UI 업데이트 함수
     @SuppressLint("SetTextI18n")
     private fun updateFpsUI() {
         runOnUiThread {
-            fpsTextView.text = "FPS: %.2f".format(fps) // FPS 표시 업데이트
+            fpsTextView.text = "FPS: %.2f".format(fps)
         }
     }
 
-    // UI 업데이트 함수
     private fun updateUI(message: String, drawableResId: Int) {
         runOnUiThread {
-            eyeStatusTextView.text = message // 텍스트 뷰 업데이트
-            eyeStatusImageView.setImageResource(drawableResId) // 이미지 뷰 업데이트
+            eyeStatusTextView.text = message
+            eyeStatusImageView.setImageResource(drawableResId)
         }
     }
 
-    // 모든 필요한 권한이 허용되었는지 확인하는 함수
     private fun allPermissionsGranted() = REQUIRED_PERMISSIONS.all {
-        // REQUIRED_PERMISSIONS 배열의 모든 권한에 대해 확인
-        // 모든 권한이 허용되었을 때만 true를 반환
         ContextCompat.checkSelfPermission(baseContext, it) == PackageManager.PERMISSION_GRANTED
     }
 
-    // 권한 요청 결과 처리 함수
     override fun onRequestPermissionsResult(
         requestCode: Int, permissions: Array<String>, grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == REQUEST_CODE_PERMISSIONS) {
             if (allPermissionsGranted()) {
-                cameraService.startCamera(viewFinder) // 모든 권한이 허용되면 카메라 시작
+                cameraService.startCamera(viewFinder)
             } else {
-                // 권한이 거부되었을 때 앱 종료
                 Toast.makeText(this, "Permissions not granted by the user.", Toast.LENGTH_SHORT).show()
                 finish()
             }
         }
     }
 
-    // 액티비티가 종료될 때 호출되는 함수
     override fun onDestroy() {
         super.onDestroy()
         if (serviceBound) {
@@ -463,36 +420,27 @@ class BlinkActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         if (serviceBound) {
-            // 서비스를 언바인딩 하지 않음
-            cameraService.stopCamera()  // 필요시 카메라 세션 종료
-//            unbindService(connection)
-//            serviceBound = false
+            cameraService.stopCamera()
         }
     }
 
     override fun onResume() {
         super.onResume()
         if (!serviceBound) {
-            val onCreate = Intent(this, CameraService::class.java)
+            val intent = Intent(this, CameraService::class.java)
             bindService(intent, connection, Context.BIND_AUTO_CREATE)
         } else {
-            // 바인딩된 서비스가 있다면 카메라 세션 재시작
             if (allPermissionsGranted()) {
                 cameraService.startCamera(viewFinder)
             }
         }
-//        val intent = Intent(this, CameraService::class.java)
-//        bindService(intent, connection, Context.BIND_AUTO_CREATE)
     }
 
-
-    // 클래스 내부에서 사용할 상수들을 정의
     companion object {
-        private const val TAG = "CameraXApp" // 로그 태그: 로그 메시지를 필터링하거나 식별하는 데 사용
-        private const val BLINK_THRESHOLD = 0.5 // 눈 깜빡임 감지 임계값: 이 값보다 작으면 눈을 감은 것으로 판단
-        private const val REQUEST_CODE_PERMISSIONS = 10 // 권한 요청 코드: onRequestPermissionsResult에서 이 요청을 식별하는 데 사용
-        private const val CAMERA_PERMISSION_REQUEST_CODE = 1001
-        private val REQUEST_CODE_POST_NOTIFICATIONS = 101 // 권한 요청 코드
+        private const val TAG = "CameraXApp"
+        private const val BLINK_THRESHOLD = 0.5
+        private const val REQUEST_CODE_PERMISSIONS = 10
+
         private val REQUIRED_PERMISSIONS = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             arrayOf(
                 Manifest.permission.CAMERA,

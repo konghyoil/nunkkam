@@ -7,7 +7,6 @@ import android.util.Log
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.firebase.auth.FirebaseAuth
 
 class TimerActivity : AppCompatActivity() {
@@ -54,7 +53,7 @@ class TimerActivity : AppCompatActivity() {
         auth.signOut()
 
         // SharedPreferences에서 로그아웃 처리
-        UserManager.clearUserData(this)
+        UserManager.clearUserData()
 
         // MainActivity로 이동
         val intent = Intent(this, MainActivity::class.java)
