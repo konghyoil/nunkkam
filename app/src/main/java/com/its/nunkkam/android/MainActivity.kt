@@ -18,12 +18,15 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
+import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
+import com.google.api.services.people.v1.People
+import com.google.api.services.people.v1.PeopleScopes
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import java.util.UUID
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -31,7 +34,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
     private lateinit var guestLoginButton: Button
     private lateinit var googleLoginButton: Button
-    private lateinit var logoutButton: Button
+    private lateinit var credential: GoogleAccountCredential
 
     private val REQUEST_CODE_READ_PHONE_STATE = 100
 
@@ -49,6 +52,7 @@ class MainActivity : AppCompatActivity() {
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(getString(R.string.default_web_client_id))
             .requestEmail()
+            .requestScopes(Scope(PeopleScopes.CONTACTS_READONLY))
             .build()
 
         googleSignInClient = GoogleSignIn.getClient(this, gso)
@@ -88,21 +92,50 @@ class MainActivity : AppCompatActivity() {
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     val user = auth.currentUser
-                    saveUserToFirestore(user)
-                    navigateToMainFunction()
+                    getBirthDateFromGoogleAccount(user) { birthDate ->
+                        saveUserToFirestore(user, birthDate)
+                        navigateToMainFunction()
+                    }
                 } else {
                     Log.w(TAG, "signInWithCredential:failure", task.exception)
                 }
             }
     }
 
-    private fun saveUserToFirestore(user: FirebaseUser?) {
+    private fun getBirthDateFromGoogleAccount(user: FirebaseUser?, callback: (String?) -> Unit) {
+        if (user == null) {
+            callback(null)
+            return
+        }
+
+        credential = GoogleAccountCredential.usingOAuth2(this, listOf(PeopleScopes.CONTACTS_READONLY))
+        credential.selectedAccount = user.email?.let { account -> account }
+
+        val peopleService = People.Builder(GoogleNetHttpTransport.newTrustedTransport(), JacksonFactory.getDefaultInstance(), credential)
+            .setApplicationName("YourAppName")
+            .build()
+
+        val request = peopleService.people().get("people/me").setPersonFields("birthdays")
+        Thread {
+            try {
+                val response = request.execute()
+                val birthDate = response.birthdays?.firstOrNull()?.date
+                val birthDateString = birthDate?.let { "${it.year}-${it.month}-${it.day}" }
+                callback(birthDateString)
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to get birth date", e)
+                callback(null)
+            }
+        }.start()
+    }
+
+    private fun saveUserToFirestore(user: FirebaseUser?, birthDate: String?) {
         val userRef = Firebase.firestore.collection("USERS").document(user?.uid ?: "unknown")
         val userData = mapOf(
             "uid" to (user?.uid ?: "unknown"),
             "name" to (user?.displayName ?: "Guest User"),
             "email" to (user?.email ?: ""),
-            "birth_date" to null,
+            "birth_date" to birthDate,
             "tutorial" to true
         )
         userRef.set(userData)
@@ -165,7 +198,6 @@ class MainActivity : AppCompatActivity() {
         val intent = Intent(this, TimerActivity::class.java)
         startActivity(intent)
     }
-
 
     private fun checkUserStatus() {
         val currentUser = auth.currentUser
