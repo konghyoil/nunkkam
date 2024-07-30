@@ -8,6 +8,7 @@ import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 
 class TimerActivity : AppCompatActivity() {
 
@@ -43,6 +44,9 @@ class TimerActivity : AppCompatActivity() {
         resultButton.setOnClickListener {
             goToResultScreen()
         }
+
+        addAlarmFragment()
+
     }
 
     private fun showUserNameInputDialog() {
@@ -79,5 +83,12 @@ class TimerActivity : AppCompatActivity() {
     private fun goToResultScreen() {
         val intent = Intent(this, ResultActivity::class.java)
         startActivity(intent)
+    }
+
+    private fun addAlarmFragment() {
+        val fragment: Fragment = AlarmFragment()
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.alarm_fragment_container, fragment)
+            .commit()
     }
 }

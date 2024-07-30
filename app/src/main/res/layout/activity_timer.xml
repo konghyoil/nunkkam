@@ -65,4 +65,12 @@
         android:layout_marginTop="25dp"
         app:layout_constraintWidth_percent="0.8" />
 
+    <FrameLayout
+        android:id="@+id/alarm_fragment_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/result_button"
+        android:layout_marginBottom="15dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        tools:ignore="MissingConstraints" />
 </androidx.constraintlayout.widget.ConstraintLayout>
