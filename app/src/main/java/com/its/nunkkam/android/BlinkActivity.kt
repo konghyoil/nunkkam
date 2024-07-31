@@ -334,6 +334,7 @@ class BlinkActivity : AppCompatActivity() {
         }
     }
     // 여기까지
+    //
     private fun getBirthDateFromGoogleAccount(user: FirebaseUser): Timestamp? {
         // Google 계정에서 생년월일 정보를 가져오는 로직을 여기에 추가합니다.
         // 생년월일 정보는 Google API에서 직접 가져올 수 없습니다.

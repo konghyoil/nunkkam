@@ -57,7 +57,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="로그아웃"
-        android:backgroundTint="#FF0000"
+        android:backgroundTint="#004D40"
         android:textColor="#FFFFFF"
         android:visibility="visible"
         app:layout_constraintTop_toBottomOf="@id/result_button"
@@ -65,5 +65,21 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="25dp"
         app:layout_constraintWidth_percent="0.8" />
+
+    <Button
+        android:id="@+id/delete_account_button"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="회원탈퇴"
+        android:backgroundTint="#00251A"
+        android:textColor="#FFFFFF"
+        android:visibility="visible"
+        app:layout_constraintTop_toBottomOf="@id/logout_button"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="25dp"
+        app:layout_constraintWidth_percent="0.8" />
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.SharedPreferences
 
 object UserManager {
-
     private const val PREF_NAME = "UserPrefs"
     private const val USER_ID_KEY = "user_id"
     private lateinit var sharedPreferences: SharedPreferences

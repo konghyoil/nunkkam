@@ -15,6 +15,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import java.util.*
 import kotlin.math.roundToInt
 
+// ChartFragment: 차트를 표시하는 Fragment
 class ChartFragment : Fragment() {
 
     // Firestore 인스턴스 선언
@@ -37,7 +38,7 @@ class ChartFragment : Fragment() {
         // Firestore 인스턴스 초기화
         firestore = FirebaseFirestore.getInstance()
 
-        // UserManager 초기화 및 user_id 가져오기
+        // UserManager에서 user_id 가져오기
         val userId = UserManager.userId ?: "unknown_user"
         Log.d("ChartFragment", "User ID: $userId")
 
@@ -92,11 +93,11 @@ class ChartFragment : Fragment() {
             }
     }
 
-    // 수정: 주간 평균 데이터를 생성하는 함수
+    // 주간 평균 데이터를 생성하는 함수
     private fun generateWeeklyAverageData(blinkData: List<Map<String, Any>>): List<DataEntry> {
         val data = mutableListOf<DataEntry>()
         val calendar = Calendar.getInstance()
-        // 수정: 월요일을 한 주의 시작으로 설정
+        // 월요일을 한 주의 시작으로 설정
         calendar.firstDayOfWeek = Calendar.MONDAY
 
         // 현재 날짜로부터 6주 전 날짜 계산
@@ -114,7 +115,7 @@ class ChartFragment : Fragment() {
                 getWeekLabel(measurementDate)
             }
 
-        // 수정: 최근 6주의 라벨 생성
+        // 최근 6주의 라벨 생성
         val weeks = mutableListOf<String>()
         repeat(6) {
             val weekLabel = getWeekLabel(calendar.time)
@@ -152,7 +153,7 @@ class ChartFragment : Fragment() {
         return data
     }
 
-    // 수정: 주차 라벨을 생성하는 함수
+    // 주차 라벨을 생성하는 함수
     private fun getWeekLabel(date: Date): String {
         val calendar = Calendar.getInstance()
         calendar.firstDayOfWeek = Calendar.MONDAY
