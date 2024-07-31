@@ -213,6 +213,9 @@ class CameraService : LifecycleService() {
         }, ContextCompat.getMainExecutor(this))
     }
 
+    private var lastBlinkTime = 0L
+    private val MIN_BLINK_INTERVAL = 100 // 100ms
+
     // 눈 깜빡임 감지 메서드
     private fun detectBlink(result: FaceLandmarkerResult): Boolean {
         val landmarks = result.faceLandmarks()[0]
@@ -230,10 +233,19 @@ class CameraService : LifecycleService() {
         // 눈 개폐 정도 계산
         val leftEyeOpenness = calculateEyeOpenness(leftEyeTop, leftEyeBottom, leftEyeInner, leftEyeOuter)
         val rightEyeOpenness = calculateEyeOpenness(rightEyeTop, rightEyeBottom, rightEyeInner, rightEyeOuter)
-
         val averageEyeOpenness = (leftEyeOpenness + rightEyeOpenness) / 2
+
+        val currentTime = System.currentTimeMillis()
+        val isBlink = averageEyeOpenness < BLINK_THRESHOLD
+
         Log.d(TAG, "CameraService: Average eye openness: $averageEyeOpenness, Threshold: $BLINK_THRESHOLD")
-        return averageEyeOpenness < BLINK_THRESHOLD
+
+        if (isBlink && (currentTime - lastBlinkTime) > MIN_BLINK_INTERVAL) {
+            lastBlinkTime = currentTime
+            return true
+        }
+
+        return false
     }
 
     // 눈 개폐 정도 계산 메서드
@@ -284,10 +296,7 @@ class CameraService : LifecycleService() {
             // 알림 생성
             val notification: Notification = createNotification()
             startForeground(NOTIFICATION_ID, notification)
-
-            // MediaPipe FaceLandmarker 설정
-            setupFaceLandmarker()
-
+            setupFaceLandmarker() // MediaPipe FaceLandmarker 설정
             isForeground = true
         } catch (e: Exception) {
             Log.e(TAG, "CameraService: Error in onStartCommand", e)

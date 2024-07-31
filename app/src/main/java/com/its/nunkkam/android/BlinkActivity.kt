@@ -3,6 +3,8 @@ package com.its.nunkkam.android // 패키지 선언: 이 코드가 속한 패키
 // 필요한 라이브러리들을 가져오기
 import android.Manifest // 안드로이드 권한 관련 클래스
 import android.annotation.SuppressLint // 특정 lint 경고를 억제하기 위한 어노테이션
+import android.app.AlarmManager
+import android.app.PendingIntent
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -61,8 +63,7 @@ class BlinkActivity : AppCompatActivity() {
     private var fps = 0f // 현재 FPS
     private lateinit var fpsTextView: TextView // FPS를 표시할 TextView
 
-    // 여기부터
-    // 홍철 타이머 관련 코드 추가
+    // 타이머
     private lateinit var timerTextView: TextView
     private lateinit var pauseButton: Button
     private lateinit var restartButton: Button
@@ -81,11 +82,13 @@ class BlinkActivity : AppCompatActivity() {
     private var pausedAccumulatedTime: Long = 0
     private val db = FirebaseFirestore.getInstance()
 
-    //여기까지
-
+    // 카메라 및 포그라운드/백그라운드 구분
     private lateinit var cameraService: CameraService
     private var serviceBound = false
 
+    // 알람
+    private lateinit var alarmManager: AlarmManager
+    private lateinit var alarmIntent: PendingIntent
 
     // ServiceConnection 객체
     private val connection = object : ServiceConnection {
@@ -146,6 +149,10 @@ class BlinkActivity : AppCompatActivity() {
                 Log.e("BlinkActivity", "birthDate: $birthDate")
             }
         }
+
+        // 알람
+        alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+
     }
 
     // 액티비티가 생성될 때 호출되는 함수
@@ -174,6 +181,8 @@ class BlinkActivity : AppCompatActivity() {
         pauseButton.setOnClickListener { pauseTimer() }
         restartButton.setOnClickListener { restartTimer() }
         resetButton.setOnClickListener { resetTimer() }
+
+        setupAlarm()
     }
 
     // 서비스 시작 및 바인딩
@@ -402,7 +411,7 @@ class BlinkActivity : AppCompatActivity() {
         ): Float {
             val verticalDistance = abs(top.y() - bottom.y()) // 눈의 세로 길이 계산
             val horizontalDistance = abs(outer.x() - inner.x()) // 눈의 가로 길이 계산
-            return verticalDistance / horizontalDistance // 세로/가로 비율 반환 (눈 개폐 정도)
+            return verticalDistance / (horizontalDistance + 1e-6f) // 세로/가로 비율 반환 (눈 개폐 정도) | 0으로 나누는 것을 방지
         }
 
         // 왼쪽, 오른쪽 눈의 개폐 정도 계산
@@ -516,9 +525,41 @@ class BlinkActivity : AppCompatActivity() {
         }
     }
 
+    private fun setupAlarm() {
+        alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val intent = Intent(this, AlarmReceiver::class.java)
+        alarmIntent = PendingIntent.getBroadcast(
+            this,
+            0,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        // 20분마다 알람 설정
+//        val intervalMillis = 20 * 60 * 1000L // 20분
+        val intervalMillis = 3 * 60 * 1000L // 3분
+        val triggerTime = System.currentTimeMillis() + intervalMillis
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && alarmManager.canScheduleExactAlarms()) {
+            alarmManager.setExactAndAllowWhileIdle(
+                AlarmManager.RTC_WAKEUP,
+                triggerTime,
+                alarmIntent
+            )
+        } else {
+            alarmManager.setAndAllowWhileIdle(
+                AlarmManager.RTC_WAKEUP,
+                triggerTime,
+                alarmIntent
+            )
+        }
+    }
+
     // 액티비티가 종료될 때 호출되는 함수
     override fun onDestroy() {
         super.onDestroy()
+        // 앱이 종료될 때 알람 취소
+        alarmManager.cancel(alarmIntent)
         if (serviceBound) {
             unbindService(connection)
             serviceBound = false
@@ -552,7 +593,7 @@ class BlinkActivity : AppCompatActivity() {
     // 클래스 내부에서 사용할 상수들을 정의
     companion object {
         private const val TAG = "CameraXApp" // 로그 태그: 로그 메시지를 필터링하거나 식별하는 데 사용
-        private const val BLINK_THRESHOLD = 0.5 // 눈 깜빡임 감지 임계값: 이 값보다 작으면 눈을 감은 것으로 판단
+        private const val BLINK_THRESHOLD = 0.3 // 눈 깜빡임 감지 임계값: 이 값보다 작으면 눈을 감은 것으로 판단
         private const val REQUEST_CODE_PERMISSIONS = 10 // 권한 요청 코드: onRequestPermissionsResult에서 이 요청을 식별하는 데 사용
         private const val CAMERA_PERMISSION_REQUEST_CODE = 1001
         private val REQUEST_CODE_POST_NOTIFICATIONS = 101 // 권한 요청 코드
