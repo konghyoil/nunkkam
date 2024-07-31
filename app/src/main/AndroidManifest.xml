@@ -4,6 +4,8 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="com.android.alarm.permission.SET_ALARM"/>
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <uses-feature android:name="android.hardware.camera.front" android:required="true" />
     <uses-feature android:name="android.hardware.camera" android:required="false" />
@@ -19,6 +21,7 @@
         android:theme="@style/Theme.Nunkkam"
         tools:targetApi="31"
         android:usesCleartextTraffic="true">
+
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -27,16 +30,19 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity android:name=".BlinkActivity" /> <!-- BlinkActivity 선언 -->
-        <activity android:name=".TimerFragment" /> <!-- TimerActivity 선언 -->
+        <activity android:name=".TimerFragment" /> <!-- TimerFragment 선언 -->
         <activity android:name=".TimerActivity" /> <!-- TimerActivity 선언 -->
-        <activity android:name=".ChartFragment" /> <!-- ChartActivity 선언 -->
-        <activity android:name=".CalendarFragment" /> <!-- CalendarActivity 선언 -->
-        <activity android:name=".CardFragment" /> <!-- CardActivity 선언 -->
+        <activity android:name=".ChartFragment" /> <!-- ChartFragment 선언 -->
+        <activity android:name=".CalendarFragment" /> <!-- CalendarFragment 선언 -->
+        <activity android:name=".CardFragment" /> <!-- CardFragment 선언 -->
         <activity android:name=".ResultActivity" /> <!-- ResultActivity 선언 -->
         <activity android:name=".LoginActivity" /> <!-- LoginActivity 선언 -->
         <activity android:name=".UserManager" /> <!-- UserManager 선언 -->
         <activity android:name=".MyApplication" /> <!-- MyApplication 선언 -->
+
+        <receiver android:name=".AlarmReceiver" /> <!-- AlarmReceiver 선언 -->
 
     </application>
 

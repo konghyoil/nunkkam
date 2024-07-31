@@ -1,12 +1,18 @@
 package com.its.nunkkam.android
 
+import android.Manifest
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import java.util.UUID
 
 class MainActivity : AppCompatActivity() {
@@ -35,11 +41,14 @@ class MainActivity : AppCompatActivity() {
         googleLoginButton.setOnClickListener {
             // 구글 로그인 처리 (현재는 구현하지 않음)
         }
+
         logoutButton.setOnClickListener {
             Log.d("MainActivity", "Logout button clicked")
             logoutUser()
         }
 
+        createNotificationChannel()
+        requestNotificationPermission()
     }
 
     private fun initializeGuestUser() {
@@ -57,7 +66,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
     private fun navigateToMainFunction() {
         UserManager.initialize(this) // UserManager 초기화
         Log.d("MainActivity", "Navigating to main function")
@@ -71,5 +79,46 @@ class MainActivity : AppCompatActivity() {
         val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)
         finish()
+    }
+
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val name = "Alarm Channel"
+            val descriptionText = "Channel for Alarm"
+            val importance = NotificationManager.IMPORTANCE_HIGH
+            val channel = NotificationChannel("alarmChannel", name, importance).apply {
+                description = descriptionText
+            }
+
+            val notificationManager: NotificationManager =
+                getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
+        }
+    }
+
+    private fun requestNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            when {
+                ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED -> {
+                    // 권한이 이미 허용됨
+                }
+                else -> {
+                    // 권한 요청
+                    requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                }
+            }
+        }
+    }
+
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            // 권한이 허용됨
+            Log.d("MainActivity", "Notification permission granted")
+        } else {
+            // 권한이 거부됨
+            Log.d("MainActivity", "Notification permission denied")
+        }
     }
 }
