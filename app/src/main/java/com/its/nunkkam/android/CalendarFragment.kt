@@ -1,5 +1,6 @@
 package com.its.nunkkam.android
 
+import android.app.AlertDialog
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
@@ -34,7 +35,6 @@ class CalendarFragment : Fragment() {
         Log.d("Fragment", "CalendarFragment onCreateView called")
         return inflater.inflate(R.layout.fragment_calendar, container, false)
     }
-
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -102,10 +102,40 @@ class CalendarFragment : Fragment() {
         val days = getDaysInMonthWithEmptySpaces()  // 현재 월의 일자들을 가져옵니다.
         val infoList = getInfoForDays(days)  // 각 일자에 해당하는 정보를 가져옵니다.
 
-        adapter = CalendarAdapter(days, infoList)  // 어댑터를 생성합니다.
+        adapter = CalendarAdapter(days, infoList) { date, info ->
+            // 날짜 클릭 시 팝업 창 띄우기
+            showDialog(date)
+        }
         recyclerView.adapter = adapter  // RecyclerView에 어댑터를 설정합니다.
 
         updateMonthYearText()  // 월/년 텍스트를 업데이트합니다.
+    }
+
+    private fun showDialog(date: Date?) {
+        if (date == null) return
+
+        val context = requireContext()
+        val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_day_info, null)
+        val tvDialogDate = dialogView.findViewById<TextView>(R.id.tv_dialog_date)
+        val tvDialogInfo = dialogView.findViewById<TextView>(R.id.tv_dialog_info)
+
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        tvDialogDate.text = dateFormat.format(date)
+
+        val blinksForDate = blinksData.filter {
+            dateFormat.format((it["measurement_date"] as com.google.firebase.Timestamp).toDate()) == dateFormat.format(date)
+        }
+
+        val infoText = blinksForDate.joinToString("\n") {
+            "Frequency: ${it["average_frequency_per_minute"]} per minute"
+        }
+
+        tvDialogInfo.text = if (infoText.isNotEmpty()) infoText else "No information available"
+
+        AlertDialog.Builder(context)
+            .setView(dialogView)
+            .setPositiveButton("OK", null)
+            .show()
     }
 
     // 현재 월의 일자들과 이전 월의 빈 공간을 포함한 리스트를 반환하는 함수
