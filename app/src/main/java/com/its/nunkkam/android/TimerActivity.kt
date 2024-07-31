@@ -11,16 +11,20 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.its.nunkkam.android.UserManager.userId
 
 class TimerActivity : AppCompatActivity() {
 
     private lateinit var startButton: Button
     private lateinit var resultButton: Button
-    private lateinit var timerTextView: TextView
     private lateinit var logoutButton: Button
+    private lateinit var deleteAccountButton: Button // 회원탈퇴 버튼 추가
+    private lateinit var timerTextView: TextView
     private lateinit var auth: FirebaseAuth
     private lateinit var googleSignInClient: GoogleSignInClient
+    private val db = FirebaseFirestore.getInstance()
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,6 +34,7 @@ class TimerActivity : AppCompatActivity() {
         startButton = findViewById(R.id.start_button)
         resultButton = findViewById(R.id.result_button)
         logoutButton = findViewById(R.id.logout_button)
+        deleteAccountButton = findViewById(R.id.delete_account_button) // 회원탈퇴 버튼 초기화
         timerTextView = findViewById(R.id.timer_text)
 
         // Firebase Auth 초기화
@@ -40,6 +45,9 @@ class TimerActivity : AppCompatActivity() {
             .requestEmail()
             .build()
         googleSignInClient = GoogleSignIn.getClient(this, gso)
+
+        val currentUser = auth.currentUser
+        Log.d("MainActivity", "Current user after initialization: $currentUser")
 
         startButton.setOnClickListener {
             val intent = Intent(this, BlinkActivity::class.java)
@@ -59,6 +67,16 @@ class TimerActivity : AppCompatActivity() {
         logoutButton.setOnClickListener {
             logoutUser()
         }
+
+        deleteAccountButton.setOnClickListener {
+            deleteUserAccount()
+        }
+        checkCurrentUser()
+    }
+
+    private fun checkCurrentUser() {
+        val currentUser = auth.currentUser
+        Log.d("TimerActivity", "Current user in TimerActivity: $currentUser")
     }
 
     private fun goToResultScreen() {
@@ -90,4 +108,47 @@ class TimerActivity : AppCompatActivity() {
             Log.d("TimerActivity", "MainActivity로 이동")
         }
     }
-}
+
+    private fun deleteUserAccount() {
+        val user = auth.currentUser
+        Log.d("TimerActivity", "Current user: $user")
+
+        user?.let {
+            val userId = it.uid
+            Log.d("TimerActivity", "User ID: $userId")
+
+            // Firestore에서 사용자 데이터 삭제
+            db.collection("USERS").document(userId).delete().addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    Log.d("TimerActivity", "User data deleted from Firestore")
+
+                    // Firebase Authentication에서 사용자 삭제
+                    user.delete().addOnCompleteListener { deleteTask ->
+                        if (deleteTask.isSuccessful) {
+                            Log.d("TimerActivity", "User deleted from Firebase Auth")
+
+                            // SharedPreferences에서 사용자 데이터 삭제
+                            UserManager.clearUserData(this)
+
+                            // 메인 화면으로 이동
+                            val intent = Intent(this, MainActivity::class.java)
+                            startActivity(intent)
+                            finish()
+                        } else {
+                            Log.e("TimerActivity", "Error deleting user from Firebase Auth", deleteTask.exception)
+                        }
+                    }
+                } else {
+                    Log.e("TimerActivity", "Error deleting user data from Firestore", task.exception)
+                }
+            }
+        } ?: run {
+            Log.e("TimerActivity", "User is null")
+        }
+    }
+
+    }
+
+
+
+
