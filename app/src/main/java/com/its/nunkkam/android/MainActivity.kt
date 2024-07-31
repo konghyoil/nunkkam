@@ -112,35 +112,28 @@ class MainActivity : AppCompatActivity() {
 
     // 사용자 정보를 Firestore에 저장하는 함수입니다.
     private fun saveUserToFirestore(user: FirebaseUser?) {
-        val userRef = Firebase.firestore.collection("USERS").document(user?.uid ?: "unknown")
-        val userData = mapOf(
-            "birth_date" to null,
-            "tutorial" to false
-        )
-        userRef.set(userData).addOnSuccessListener {
-            Log.d("MainActivity", "User data saved to Firestore for userId: $userId")
-        }.addOnFailureListener {
-            Log.e("MainActivity", "Error saving user data to Firestore for userId: $userId", it)
-        }
-    }
+        val userId = user?.uid ?: return
+        val userRef = Firebase.firestore.collection("USERS").document(userId)
 
-    // 게스트 사용자를 초기화하는 함수입니다.
-    private fun initializeGuestUser() {
-        val sharedPreferences = getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
-        val deviceModel = Build.MODEL ?: "unknown_device"
-        val userId = "$deviceModel-${UUID.randomUUID()}"
-        UserManager.setUser(userId)  // userId를 설정합니다.
-
-        with(sharedPreferences.edit()) {
-            if (sharedPreferences.getString("user_id", null) == null) {
-                putString("user_id", userId)
-                Log.d("MainActivity", "User ID initialized: $userId")
+        // 사용자 데이터가 이미 존재하는지 확인
+        userRef.get().addOnSuccessListener { document ->
+            if (!document.exists()) {
+                // 사용자 데이터가 존재하지 않는 경우에만 저장
+                val userData = mapOf(
+                    "birth_date" to null,
+                    "tutorial" to false
+                )
+                userRef.set(userData).addOnSuccessListener {
+                    Log.d("MainActivity", "User data saved to Firestore for userId: $userId")
+                }.addOnFailureListener {
+                    Log.e("MainActivity", "Error saving user data to Firestore for userId: $userId", it)
+                }
+            } else {
+                Log.d("MainActivity", "User data already exists for userId: $userId")
             }
-            putString("user_name", "Guest User")
-            putBoolean("is_first_login", true)
-            apply()
+        }.addOnFailureListener {
+            Log.e("MainActivity", "Error checking user data in Firestore for userId: $userId", it)
         }
-        navigateToMainFunction()
     }
 
     private fun signInAnonymously() {
