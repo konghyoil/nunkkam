@@ -1,33 +1,32 @@
-package com.its.nunkkam.android
+package com.its.nunkkam.android // 패키지 선언: 이 코드가 속한 패키지를 지정
 
+// 필요한 라이브러리들을 가져오기
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.app.PendingIntent
-import android.content.Intent
+import android.app.PendingIntent // 지연된 인텐트를 위한 클래스
+import android.content.Intent // 컴포넌트 간 통신을 위한 메시지 객체
 import android.os.Binder
-import android.os.IBinder
-import android.util.Log
+import android.os.IBinder // 서비스와 통신하기 위한 인터페이스
+import android.util.Log // 로그 출력을 위한 클래스
 import androidx.camera.core.* // 카메라 관련 핵심 클래스들
 import androidx.camera.lifecycle.ProcessCameraProvider // 카메라 프로바이더 클래스
 import androidx.core.app.NotificationCompat
-import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat // 컨텍스트 호환성 관련 클래스
 import androidx.lifecycle.LifecycleService
 import com.google.mediapipe.framework.image.BitmapImageBuilder // MediaPipe 이미지 빌더 클래스
-import com.google.mediapipe.framework.image.MPImage
-import com.google.mediapipe.tasks.core.BaseOptions
-import com.google.mediapipe.tasks.vision.core.RunningMode
+import com.google.mediapipe.framework.image.MPImage // MediaPipe 이미지 클래스
+import com.google.mediapipe.tasks.core.BaseOptions // MediaPipe 기본 옵션 클래스
+import com.google.mediapipe.tasks.vision.core.RunningMode // MediaPipe 실행 모드 클래스
 import com.google.mediapipe.tasks.vision.facelandmarker.FaceLandmarker // 얼굴 랜드마크 감지 클래스
-import com.google.mediapipe.tasks.vision.facelandmarker.FaceLandmarkerResult
-import java.util.concurrent.Executors
-import android.content.Context
-import android.os.Build
+import com.google.mediapipe.tasks.vision.facelandmarker.FaceLandmarkerResult // 얼굴 랜드마크 결과 클래스
+import java.util.concurrent.Executors // 실행자 생성 유틸리티 클래스
+import android.content.Context // 애플리케이션 환경에 대한 정보를 제공하는 클래스
 import androidx.camera.view.PreviewView // 카메라 미리보기 뷰 클래스
 import com.google.mediapipe.tasks.components.containers.NormalizedLandmark
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.ScheduledExecutorService
+import java.util.concurrent.ExecutorService // 실행자 서비스 인터페이스
 import java.util.concurrent.TimeUnit
-import kotlin.math.abs
+import kotlin.math.abs // 절대값을 계산하는 수학 함수
 
 class CameraService : LifecycleService() {
     private lateinit var faceLandmarker: FaceLandmarker // 얼굴 랜드마크 감지기
@@ -43,17 +42,25 @@ class CameraService : LifecycleService() {
     // 깜빡임 임계값 정의
     private val BLINK_THRESHOLD = 0.2
 
+    // blinkCount의 현재 값을 반환
     fun getBlinkCount(): Int {
         return blinkCount
+    }
+
+    // blinkCount를 증가시킴 | 눈 깜빡임이 감지될 때마다 호출
+    fun incrementBlinkCount() {
+        blinkCount++
+    }
+
+    // blinkCount를 0으로 초기화 |  리셋 버튼을 눌렀을 때 호출
+    fun resetBlinkCount() {
+        blinkCount = 0
     }
 
     fun getTimeLeftInMillis(): Long {
         return timeLeftInMillis
     }
 
-    fun incrementBlinkCount() {
-        blinkCount++
-    }
 
     // 콜백 인터페이스 정의
     interface CameraCallback {

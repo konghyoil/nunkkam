@@ -46,52 +46,11 @@
         android:background="@android:color/transparent" />
 
     <LinearLayout
+        android:id="@+id/buttonsLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_alignParentBottom="true"
-        android:padding="13dp"
-        android:background="#80000000">
-
-        <TextView
-            android:id="@+id/blinkCountTextView"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:textColor="#FFFFFF"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:text="Total: 0"
-            android:gravity="center" />
-
-        <TextView
-            android:id="@+id/blinkRateTextView"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:textColor="#FFFFFF"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:text="Rate: 0.00"
-            android:gravity="center" />
-
-        <TextView
-            android:id="@+id/fpsTextView"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:textColor="#FFFFFF"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:text="FPS: 0.00"
-            android:gravity="center" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_above="@id/blinkCountTextView"
         android:padding="13dp"
         android:background="#80000000">
 
@@ -101,7 +60,10 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Pause"
-            android:textColor="#FFFFFF" />
+            android:textColor="#FFFFFF"
+            android:background="#006400"
+            android:layout_marginEnd="4dp"
+            android:layout_marginStart="4dp"/>
 
         <Button
             android:id="@+id/restart_button"
@@ -109,7 +71,10 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Restart"
-            android:textColor="#FFFFFF" />
+            android:textColor="#FFFFFF"
+            android:background="#006400"
+            android:layout_marginEnd="4dp"
+            android:layout_marginStart="4dp"/>
 
         <Button
             android:id="@+id/reset_button"
@@ -117,6 +82,98 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Reset"
-            android:textColor="#FFFFFF" />
+            android:textColor="#FFFFFF"
+            android:background="#006400"
+            android:layout_marginEnd="4dp"
+            android:layout_marginStart="4dp"/>
     </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/infoLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_above="@id/buttonsLayout"
+        android:padding="13dp"
+        android:background="#80000000">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Total Blinks"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp"
+                android:textStyle="bold"/>
+
+            <TextView
+                android:id="@+id/blinkCountTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:gravity="center" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Blink Rate"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp"
+                android:textStyle="bold"/>
+
+            <TextView
+                android:id="@+id/blinkRateTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0.00"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:gravity="center" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="FPS"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp"
+                android:textStyle="bold"/>
+
+            <TextView
+                android:id="@+id/fpsTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0.00"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:gravity="center" />
+        </LinearLayout>
+    </LinearLayout>
+
 </RelativeLayout>

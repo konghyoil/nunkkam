@@ -3,45 +3,37 @@ package com.its.nunkkam.android // 패키지 선언: 이 코드가 속한 패키
 // 필요한 라이브러리들을 가져오기
 import android.Manifest // 안드로이드 권한 관련 클래스
 import android.annotation.SuppressLint // 특정 lint 경고를 억제하기 위한 어노테이션
-import android.app.AlarmManager
-import android.app.PendingIntent
-import android.content.ComponentName
-import android.content.Context
-import android.content.Intent
-import android.content.ServiceConnection
+import android.app.AlarmManager // 알람 관리자 클래스
+import android.app.PendingIntent // 지연된 인텐트를 위한 클래스
+import android.content.ComponentName // 컴포넌트 이름을 나타내는 클래스
+import android.content.Context // 애플리케이션 환경에 대한 정보를 제공하는 클래스
+import android.content.Intent // 컴포넌트 간 통신을 위한 메시지 객체
+import android.content.ServiceConnection // 서비스 연결을 위한 인터페이스
 import android.content.pm.PackageManager // 패키지 관리자 클래스
-import android.os.Build
-import android.os.Bundle // 액티비티 생명주기 관련 클래스
-import android.os.CountDownTimer
-import android.os.Handler
-import android.os.IBinder
-import android.os.Looper
+import android.os.Build // 빌드 버전 정보를 제공하는 클래스
+import android.os.Bundle // 키-값 쌍의 데이터를 저장하는 클래스
+import android.os.CountDownTimer // 카운트다운 타이머 클래스
+import android.os.Handler // 메시지와 Runnable 객체를 처리하는 클래스
+import android.os.IBinder // 서비스와 통신하기 위한 인터페이스
+import android.os.Looper // 메시지 루프를 관리하는 클래스
 import android.util.Log // 로그 출력을 위한 클래스
-import android.widget.Button
+import android.widget.Button // 버튼 위젯
 import android.widget.ImageView // 이미지 뷰 위젯
 import android.widget.TextView // 텍스트 뷰 위젯
 import android.widget.Toast // 짧은 메시지를 화면에 표시하는 클래스
 import androidx.appcompat.app.AppCompatActivity // 앱 호환성을 위한 기본 액티비티 클래스
-import androidx.camera.core.* // 카메라 관련 핵심 클래스들
-import androidx.camera.lifecycle.ProcessCameraProvider // 카메라 프로바이더 클래스
 import androidx.camera.view.PreviewView // 카메라 미리보기 뷰 클래스
 import androidx.core.app.ActivityCompat // 액티비티 호환성 관련 클래스
 import androidx.core.content.ContextCompat // 컨텍스트 호환성 관련 클래스
-import com.google.firebase.Timestamp
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.firestore.FieldValue
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.mediapipe.framework.image.BitmapImageBuilder // MediaPipe 이미지 빌더 클래스
-import com.google.mediapipe.framework.image.MPImage
-import com.google.mediapipe.tasks.components.containers.NormalizedLandmark
-import com.google.mediapipe.tasks.core.BaseOptions // MediaPipe 기본 옵션 클래스
-import com.google.mediapipe.tasks.vision.core.RunningMode // MediaPipe 실행 모드 클래스
-import com.google.mediapipe.tasks.vision.facelandmarker.FaceLandmarker // 얼굴 랜드마크 감지 클래스
+import com.google.firebase.Timestamp // Firebase 타임스탬프 클래스
+import com.google.firebase.auth.FirebaseAuth // Firebase 인증 클래스
+import com.google.firebase.auth.FirebaseUser // Firebase 사용자 클래스
+import com.google.firebase.firestore.FieldValue // Firestore 필드 값 조작 클래스
+import com.google.firebase.firestore.FirebaseFirestore // Firestore 데이터베이스 클래스
+import com.google.mediapipe.framework.image.MPImage // MediaPipe 이미지 클래스
+import com.google.mediapipe.tasks.components.containers.NormalizedLandmark // 정규화된 랜드마크 클래스
 import com.google.mediapipe.tasks.vision.facelandmarker.FaceLandmarkerResult // 얼굴 랜드마크 결과 클래스
-import java.util.Date
-import java.util.concurrent.ExecutorService // 실행자 서비스 인터페이스
-import java.util.concurrent.Executors // 실행자 생성 유틸리티 클래스
+import java.util.Date // 날짜 클래스
 import kotlin.math.abs // 절대값을 계산하는 수학 함수
 
 // 주석 규칙 | [외부]: 외부 데이터에서 가저오는 부분을 구분하기 위한 주석
@@ -64,135 +56,140 @@ class BlinkActivity : AppCompatActivity() {
     private lateinit var fpsTextView: TextView // FPS를 표시할 TextView
 
     // 타이머
-    private lateinit var timerTextView: TextView
-    private lateinit var pauseButton: Button
-    private lateinit var restartButton: Button
-    private lateinit var resetButton: Button
+    private lateinit var timerTextView: TextView // 타이머 텍스트 뷰
+    private lateinit var pauseButton: Button // 일시정지 버튼
+    private lateinit var restartButton: Button // 재시작 버튼
+    private lateinit var resetButton: Button // 리셋 버튼
 
-    private var userId: String = ""
-    private var birthDate: Timestamp? = null
-    private var isGoogleLogin: Boolean = false
+    private var userId: String = "" // 사용자 ID
+    private var birthDate: Timestamp? = null // 사용자 생년월일
+    private var isGoogleLogin: Boolean = false // Google 로그인 여부
 
-    private var countDownTimer: CountDownTimer? = null
-    private var timeLeftInMillis: Long = 1200000
-    private var timerRunning: Boolean = false
-    private var startTime: Long = 0
-    private var endTime: Long = 0
-    private var pausedStartTime: Long = 0
-    private var pausedAccumulatedTime: Long = 0
-    private val db = FirebaseFirestore.getInstance()
+    private var countDownTimer: CountDownTimer? = null // 카운트다운 타이머
+    private var timeLeftInMillis: Long = 1200000 // 남은 시간 (밀리초)
+    private var timerRunning: Boolean = false // 타이머 실행 중 여부
+    private var startTime: Long = 0 // 시작 시간
+    private var endTime: Long = 0 // 종료 시간
+    private var pausedStartTime: Long = 0 // 일시정지 시작 시간
+    private var pausedAccumulatedTime: Long = 0 // 누적된 일시정지 시간
+    private val db = FirebaseFirestore.getInstance() // Firestore 데이터베이스 인스턴스
 
     // 카메라 및 포그라운드/백그라운드 구분
-    private lateinit var cameraService: CameraService
-    private var serviceBound = false
+    private lateinit var cameraService: CameraService // 카메라 서비스
+    private var serviceBound = false // 서비스 바인딩 여부
 
     // 알람
-    private lateinit var alarmManager: AlarmManager
-    private lateinit var alarmIntent: PendingIntent
+    private lateinit var alarmManager: AlarmManager // 알람 관리자
+    private lateinit var alarmIntent: PendingIntent // 알람 인텐트
 
-    // ServiceConnection 객체
+    // ServiceConnection 객체: 서비스와의 연결을 관리
     private val connection = object : ServiceConnection {
+        // 서비스 연결 시 호출되는 메서드
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-            Log.d(TAG, "Service connected")
-            val binder = service as CameraService.LocalBinder
-            cameraService = binder.getService()
-            cameraService.setCallback(cameraCallback)
-            serviceBound = true
+            Log.d(TAG, "Service connected") // 서비스 연결 로그
+            val binder = service as CameraService.LocalBinder // 서비스 바인더 획득
+            cameraService = binder.getService() // 서비스 인스턴스 획득
+            cameraService.setCallback(cameraCallback) // 콜백 설정
+            serviceBound = true // 서비스 바인딩 상태 설정
 
-            Log.d(TAG, "Starting camera from onServiceConnected")
-            cameraService.startCamera(viewFinder)
+            Log.d(TAG, "Starting camera from onServiceConnected") // 카메라 시작 로그
+            cameraService.startCamera(viewFinder) // 카메라 시작
         }
 
+        // 서비스 연결 해제 시 호출되는 메서드
         override fun onServiceDisconnected(name: ComponentName?) {
-            Log.d(TAG, "Service disconnected")
-            serviceBound = false
+            Log.d(TAG, "Service disconnected") // 서비스 연결 해제 로그
+            serviceBound = false // 서비스 바인딩 상태 해제
         }
     }
 
+    // 카메라 콜백 객체: 얼굴 랜드마크 결과 처리
     private val cameraCallback = object : CameraService.CameraCallback {
+        // 얼굴 랜드마크 결과 수신 시 호출되는 메서드
         override fun onFaceLandmarkerResult(result: FaceLandmarkerResult, image: MPImage) {
-            Log.d(TAG, "Face landmark result received in BlinkActivity")
-            handleFaceLandmarkerResult(result, image)
+            Log.d(TAG, "Face landmark result received in BlinkActivity") // 결과 수신 로그
+            handleFaceLandmarkerResult(result, image) // 결과 처리
         }
     }
 
     // 초기 UI 설정 메서드
     private fun initViews() {
         // XML에서 정의한 뷰들을 찾아 변수에 할당
-        viewFinder = findViewById(R.id.viewFinder)
-        eyeStatusImageView = findViewById(R.id.eyeStatusImageView)
-        eyeStatusTextView = findViewById(R.id.textViewEyeStatus)
-        fpsTextView = findViewById(R.id.fpsTextView)
+        viewFinder = findViewById(R.id.viewFinder) // 카메라 미리보기 뷰
+        eyeStatusImageView = findViewById(R.id.eyeStatusImageView) // 눈 상태 이미지 뷰
+        eyeStatusTextView = findViewById(R.id.textViewEyeStatus) // 눈 상태 텍스트 뷰
+        fpsTextView = findViewById(R.id.fpsTextView) // FPS 표시 텍스트 뷰
 
         // 깜빡임 카운트 표시 관련 TextView 초기화 및 UI 업데이트
-        blinkCountTextView = findViewById(R.id.blinkCountTextView)
-        blinkRateTextView = findViewById(R.id.blinkRateTextView)
+        blinkCountTextView = findViewById(R.id.blinkCountTextView) // 깜빡임 횟수 텍스트 뷰
+        blinkRateTextView = findViewById(R.id.blinkRateTextView) // 깜빡임 빈도 텍스트 뷰
 
         // 타이머 뷰
-        timerTextView = findViewById(R.id.timer_text)
-        pauseButton = findViewById(R.id.pause_button)
-        restartButton = findViewById(R.id.restart_button)
-        resetButton = findViewById(R.id.reset_button)
+        timerTextView = findViewById(R.id.timer_text) // 타이머 텍스트 뷰
+        pauseButton = findViewById(R.id.pause_button) // 일시정지 버튼
+        restartButton = findViewById(R.id.restart_button) // 재시작 버튼
+        resetButton = findViewById(R.id.reset_button) // 리셋 버튼
 
-        val sharedPreferences = getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
-        userId = sharedPreferences.getString("user_id", null) ?: ""
-        Log.e("BlinkActivity", "User ID_1: $userId")
+        val sharedPreferences = getSharedPreferences("UserPrefs", Context.MODE_PRIVATE) // SharedPreferences 객체 생성
+        userId = sharedPreferences.getString("user_id", null) ?: "" // 사용자 ID 가져오기
+        Log.e("BlinkActivity", "User ID_1: $userId") // 사용자 ID 로그
 
-        isGoogleLogin = intent.getBooleanExtra("isGoogleLogin", false)
+        isGoogleLogin = intent.getBooleanExtra("isGoogleLogin", false) // Google 로그인 여부 확인
 
         if (isGoogleLogin) {
-            // Google 로그인 시 생년월일을 가져오는 로직을 추가합니다.
-            val auth = FirebaseAuth.getInstance()
-            val currentUser = auth.currentUser
+            // Google 로그인 시 생년월일을 가져오는 로직
+            val auth = FirebaseAuth.getInstance() // Firebase 인증 인스턴스 획득
+            val currentUser = auth.currentUser // 현재 사용자 정보 획득
             currentUser?.let {
-                birthDate = getBirthDateFromGoogleAccount(it)
-                Log.e("BlinkActivity", "birthDate: $birthDate")
+                birthDate = getBirthDateFromGoogleAccount(it) // Google 계정에서 생년월일 가져오기
+                Log.e("BlinkActivity", "birthDate: $birthDate") // 생년월일 로그
             }
         }
 
         // 알람
-        alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
-
+        alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager // 알람 매니저 초기화
     }
 
     // 액티비티가 생성될 때 호출되는 함수
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState) // 부모 클래스의 onCreate 메서드 호출
-        setContentView(R.layout.activity_blink) // [외부] 레이아웃 XML 파일을 가져와 화면에 설정
+        setContentView(R.layout.activity_blink) // 레이아웃 XML 파일을 가져와 화면에 설정
 
-        Log.d(TAG, "BlinkActivity onCreate called")
+        Log.d(TAG, "BlinkActivity onCreate called") // 액티비티 생성 로그
 
         initViews() // 초기 UI 및 뷰 설정
 
         // 권한 확인 및 요청
         if (!allPermissionsGranted()) {
-            Log.d(TAG, "Requesting permissions")
-            ActivityCompat.requestPermissions(this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS)
+            Log.d(TAG, "Requesting permissions") // 권한 요청 로그
+            ActivityCompat.requestPermissions(this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS) // 권한 요청
         } else {
-            Log.d(TAG, "All permissions granted")
-            startCameraService()
+            Log.d(TAG, "All permissions granted") // 권한 허용 로그
+            startCameraService() // 카메라 서비스 시작
         }
 
-        updateBlinkUI()
+        updateBlinkUI() // UI 업데이트
 
-        // 타이머 시작
-        startTimer()
+        startTimer() // 타이머 시작
 
-        pauseButton.setOnClickListener { pauseTimer() }
-        restartButton.setOnClickListener { restartTimer() }
-        resetButton.setOnClickListener { resetTimer() }
+        pauseButton.setOnClickListener { pauseTimer() } // 일시정지 버튼 클릭 리스너
+        restartButton.setOnClickListener { restartTimer() } // 재시작 버튼 클릭 리스너
+        resetButton.setOnClickListener {
+            resetTimer() // 기존 타이머 초기화 함수 호출
+            resetBlinkCount() // 눈 깜빡임 카운트 초기화 함수 호출
+        } // 리셋 버튼 클릭 리스너
 
-        setupAlarm()
+        setupAlarm() // 알람 설정
     }
 
     // 서비스 시작 및 바인딩
     private fun startCameraService() {
-        Log.d(TAG, "Starting CameraService")
-        val intent = Intent(this, CameraService::class.java)
-        startService(intent)
-        Log.d(TAG, "CameraService started, waiting before binding")
+        Log.d(TAG, "Starting CameraService") // 서비스 시작 로그
+        val intent = Intent(this, CameraService::class.java) // 서비스 인텐트 생성
+        startService(intent) // 서비스 시작
+        Log.d(TAG, "CameraService started, waiting before binding") // 바인딩 대기 로그
         Handler(Looper.getMainLooper()).postDelayed({
-            bindToService(intent)
+            bindToService(intent) // 서비스 바인딩
         }, 1000) // 1초 대기 후 바인딩
     }
 
@@ -227,7 +224,15 @@ class BlinkActivity : AppCompatActivity() {
         }
     }
 
-    //여기부터
+    private fun resetBlinkCount() {
+        if (::cameraService.isInitialized) {
+            cameraService.resetBlinkCount() // CameraService에서 눈 깜빡임 카운트를 초기화
+            updateBlinkUI() // UI 업데이트
+        } else {
+            Log.e(TAG, "CameraService is not initialized")
+        }
+    }
+
     //홍철 타이머 관련 함수
     private fun startTimer() {
         if (startTime == 0L) {
@@ -278,10 +283,6 @@ class BlinkActivity : AppCompatActivity() {
                 saveMeasurementData()
             }
         }.start()
-
-//        pauseButton.visibility = View.VISIBLE
-//        restartButton.visibility = View.GONE
-//        resetButton.visibility = View.VISIBLE
     }
 
     private fun resetTimer() {
@@ -342,7 +343,7 @@ class BlinkActivity : AppCompatActivity() {
             }
         }
     }
-    // 여기까지
+
     private fun getBirthDateFromGoogleAccount(user: FirebaseUser): Timestamp? {
         // Google 계정에서 생년월일 정보를 가져오는 로직을 여기에 추가합니다.
         // 생년월일 정보는 Google API에서 직접 가져올 수 없습니다.
@@ -473,8 +474,8 @@ class BlinkActivity : AppCompatActivity() {
         runOnUiThread {
             if (::cameraService.isInitialized) {
                 val blinkCount = cameraService.getBlinkCount()
-                blinkCountTextView.text = "Total Blinks: $blinkCount" // 총 깜빡임 횟수 표시
-                blinkRateTextView.text = "Blink Rate: %.2f bpm".format(blinkRate) // 분당 깜빡임 횟수 표시
+                blinkCountTextView.text = "$blinkCount" // 총 깜빡임 횟수 표시
+                blinkRateTextView.text = "%.2f bpm".format(blinkRate) // 분당 깜빡임 횟수 표시
             } else {
                 Log.e(TAG, "CameraService is not initialized")
             }
@@ -485,7 +486,7 @@ class BlinkActivity : AppCompatActivity() {
     @SuppressLint("SetTextI18n")
     private fun updateFpsUI() {
         runOnUiThread {
-            fpsTextView.text = "FPS: %.2f".format(fps) // FPS 표시 업데이트
+            fpsTextView.text = "%.2f".format(fps) // FPS 표시 업데이트
         }
     }
 
@@ -496,7 +497,7 @@ class BlinkActivity : AppCompatActivity() {
             eyeStatusTextView.text = message
             eyeStatusImageView.setImageResource(drawableResId)
             val blinkCount = cameraService.getBlinkCount()
-            blinkCountTextView.text = "Blinks: $blinkCount"
+            blinkCountTextView.text = "$blinkCount"
             Log.d(TAG, "UI updated, Blink count: $blinkCount")
         }
     }
@@ -535,12 +536,11 @@ class BlinkActivity : AppCompatActivity() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        // 20분마다 알람 설정
-//        val intervalMillis = 20 * 60 * 1000L // 20분
-        val intervalMillis = 3 * 60 * 1000L // 3분
+        // 분마다 알람 설정
+        val intervalMillis = 1 * 60 * 1000L // 1분
         val triggerTime = System.currentTimeMillis() + intervalMillis
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && alarmManager.canScheduleExactAlarms()) {
+        if (alarmManager.canScheduleExactAlarms()) {
             alarmManager.setExactAndAllowWhileIdle(
                 AlarmManager.RTC_WAKEUP,
                 triggerTime,
@@ -593,7 +593,7 @@ class BlinkActivity : AppCompatActivity() {
     // 클래스 내부에서 사용할 상수들을 정의
     companion object {
         private const val TAG = "CameraXApp" // 로그 태그: 로그 메시지를 필터링하거나 식별하는 데 사용
-        private const val BLINK_THRESHOLD = 0.3 // 눈 깜빡임 감지 임계값: 이 값보다 작으면 눈을 감은 것으로 판단
+        private const val BLINK_THRESHOLD = 0.25 // 눈 깜빡임 감지 임계값: 이 값보다 작으면 눈을 감은 것으로 판단
         private const val REQUEST_CODE_PERMISSIONS = 10 // 권한 요청 코드: onRequestPermissionsResult에서 이 요청을 식별하는 데 사용
         private const val CAMERA_PERMISSION_REQUEST_CODE = 1001
         private val REQUEST_CODE_POST_NOTIFICATIONS = 101 // 권한 요청 코드
