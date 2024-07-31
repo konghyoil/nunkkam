@@ -17,6 +17,7 @@ import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.its.nunkkam.android.UserManager.userId
@@ -36,12 +37,11 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-
         UserManager.initialize(this) // UserManager를 초기화합니다.
         Log.d("MainActivity", "UserManager initialized with userId: $userId")
 
         // Firebase Auth를 초기화합니다.
-        auth = FirebaseAuth.getInstance()
+        auth = Firebase.auth
 
         // 버튼을 찾아 변수에 할당합니다.
         guestLoginButton = findViewById(R.id.guest_login_button)
@@ -137,29 +137,35 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun signInAnonymously() {
-        auth.signInAnonymously()
-            .addOnCompleteListener(this) { task ->
-                if (task.isSuccessful) {
-                    val user = auth.currentUser
-                    val userId = user?.uid ?: "unknown_device-${UUID.randomUUID()}"
-                    UserManager.setUser(userId)
-                    Log.d("MainActivity", "Guest userId set: $userId")
+        val sharedPreferences = getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
+        val storedUserId = sharedPreferences.getString("user_id", null)
 
-                    val sharedPreferences = getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
-                    with(sharedPreferences.edit()) {
-                        if (sharedPreferences.getString("user_id", null) == null) {
+        if (storedUserId != null) {
+            // 기존 userId가 있으면 이를 사용
+            UserManager.setUser(storedUserId)
+            Log.d(TAG, "Using stored userId: $storedUserId")
+            navigateToMainFunction()
+        } else {
+            auth.signInAnonymously()
+                .addOnCompleteListener(this) { task ->
+                    if (task.isSuccessful) {
+                        val user = auth.currentUser
+                        val userId = user?.uid ?: "${UUID.randomUUID()}"
+                        UserManager.setUser(userId)
+                        Log.d(TAG, "Guest userId set: $userId")
+
+                        with(sharedPreferences.edit()) {
                             putString("user_id", userId)
-                            Log.d("MainActivity", "SharedPreferences userId initialized: $userId")
+                            Log.d(TAG, "SharedPreferences userId initialized: $userId")
+                            putBoolean("is_first_login", true)
+                            apply()
                         }
-                        putString("user_name", "Guest User")
-                        putBoolean("is_first_login", true)
-                        apply()
+                        navigateToMainFunction()
+                    } else {
+                        Log.e(TAG, "Error signing in anonymously", task.exception)
                     }
-                    navigateToMainFunction()
-                } else {
-                    Log.e("MainActivity", "Error signing in anonymously", task.exception)
                 }
-            }
+        }
     }
 
 

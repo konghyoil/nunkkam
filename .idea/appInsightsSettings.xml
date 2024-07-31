@@ -3,15 +3,29 @@
   <component name="AppInsightsSettings">
     <option name="tabSettings">
       <map>
+        <entry key="Android Vitals">
+          <value>
+            <InsightsFilterSettings>
+              <option name="connection">
+                <ConnectionSetting>
+                  <option name="appId" value="com.its.nunkkam.android" />
+                </ConnectionSetting>
+              </option>
+              <option name="signal" value="SIGNAL_UNSPECIFIED" />
+              <option name="timeIntervalDays" value="SEVEN_DAYS" />
+              <option name="visibilityType" value="ALL" />
+            </InsightsFilterSettings>
+          </value>
+        </entry>
         <entry key="Firebase Crashlytics">
           <value>
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
                   <option name="appId" value="com.its.nunkkam.android" />
-                  <option name="mobileSdkAppId" value="1:558791117368:android:d4e5119d4e3826f7ec34cd" />
-                  <option name="projectId" value="nunkkam-cedfd" />
-                  <option name="projectNumber" value="558791117368" />
+                  <option name="mobileSdkAppId" value="1:886745816335:android:082a0106d3e9673e4ef27a" />
+                  <option name="projectId" value="its-nunkkam" />
+                  <option name="projectNumber" value="886745816335" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

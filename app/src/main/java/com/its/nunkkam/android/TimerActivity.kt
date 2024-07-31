@@ -47,7 +47,7 @@ class TimerActivity : AppCompatActivity() {
         googleSignInClient = GoogleSignIn.getClient(this, gso)
 
         val currentUser = auth.currentUser
-        Log.d("MainActivity", "Current user after initialization: $currentUser")
+        Log.d("TimerActivity", "Current user after initialization: $currentUser")
 
         startButton.setOnClickListener {
             val intent = Intent(this, BlinkActivity::class.java)
@@ -62,10 +62,12 @@ class TimerActivity : AppCompatActivity() {
         resultButton.setOnClickListener {
             goToResultScreen()
             Log.d("TimerActivity","userId: $userId")
+            Log.d("TimerActivity","currentUser: $currentUser")
         }
 
         logoutButton.setOnClickListener {
             logoutUser()
+            Log.d("TimerActivity", "userId: $userId")
         }
 
         deleteAccountButton.setOnClickListener {
@@ -107,6 +109,7 @@ class TimerActivity : AppCompatActivity() {
             finish()
             Log.d("TimerActivity", "MainActivity로 이동")
         }
+        Log.d("TimerActivity", "userId: $userId")
     }
 
     private fun deleteUserAccount() {

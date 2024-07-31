@@ -27,9 +27,9 @@ object UserManager {
     fun clearUserData(context: Context) {
         sharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
         with(sharedPreferences.edit()) {
-            remove(USER_ID_KEY)
+//            remove(USER_ID_KEY)
             apply()
         }
-        userId = null
+//        userId = null
     }
 }
