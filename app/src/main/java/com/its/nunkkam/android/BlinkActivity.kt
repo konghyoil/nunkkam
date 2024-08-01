@@ -45,7 +45,6 @@ class BlinkActivity : AppCompatActivity() {
     private lateinit var viewFinder: PreviewView // 카메라 미리보기 뷰
     private lateinit var eyeStatusImageView: ImageView // 눈 상태를 표시할 이미지 뷰
     private lateinit var eyeStatusTextView: TextView // 눈 상태를 표시할 텍스트 뷰
-    private var lastEyeState = true // 마지막으로 감지된 눈 상태 (true: 눈 뜸, false: 눈 감음)
     private lateinit var blinkCountTextView: TextView // 눈 깜빡임 횟수를 표시할 TextView
     private var lastBlinkTime = System.currentTimeMillis() // 마지막 눈 깜빡임이 감지된 시간
     private var blinkRate = 0.0 // 분당 눈 깜빡임 횟수 (blinks per minute)
@@ -354,12 +353,11 @@ class BlinkActivity : AppCompatActivity() {
     // FaceLandmarker 결과 처리 함수
     @Suppress("UNUSED_PARAMETER") // image 파라미터를 현재 사용하지 않음을 컴파일러에 알림
     private fun handleFaceLandmarkerResult(result: FaceLandmarkerResult, image: MPImage) {
-        if (result.faceLandmarks().isEmpty()) {
+        Log.d(TAG, "BlinkActivity: handleFaceLandmarkerResult called")
+        if (result.faceLandmarks().isEmpty()) { // 감지된 얼굴이 없으면 함수 종료
             Log.d(TAG, "No face landmarks detected")
             return
         }
-
-        Log.d(TAG, "BlinkActivity: handleFaceLandmarkerResult called")
 
         // viewFinder가 초기화되지 않았을 경우 로그 출력 후 종료
         if (!this::viewFinder.isInitialized) {
@@ -378,56 +376,13 @@ class BlinkActivity : AppCompatActivity() {
             updateFpsUI() // FPS UI 업데이트
         }
 
-        if (result.faceLandmarks().isEmpty()) return // 감지된 얼굴이 없으면 함수 종료
-
         val landmarks = result.faceLandmarks()[0] // 첫 번째 감지된 얼굴의 랜드마크
 
-        // 눈 랜드마크 좌표 가져오기
-        val leftEyeTop = landmarks[159]     // 159: 왼쪽 눈 위쪽 점
-        val leftEyeBottom = landmarks[145]  // 145: 왼쪽 눈 아래쪽 점
-        val leftEyeInner = landmarks[33]    // 33: 왼쪽 눈 안쪽 점
-        val leftEyeOuter = landmarks[133]   // 133: 왼쪽 눈 바깥쪽 점
-        val rightEyeTop = landmarks[386]    // 386: 오른쪽 눈 위쪽 점
-        val rightEyeBottom = landmarks[374] // 374: 오른쪽 눈 아래쪽 점
-        val rightEyeInner = landmarks[263]  // 263: 오른쪽 눈 안쪽 점
-        val rightEyeOuter = landmarks[362]  // 362: 오른쪽 눈 바깥쪽 점
-
-        // 눈 랜드마크 좌표 로깅 추가
-        Log.d("[8]Landmark" +
-                "q  ", "Landmark coordinates: " +
-                "Left Eye Top (159): $leftEyeTop, " +
-                "Left Eye Bottom (145): $leftEyeBottom, " +
-                "Left Eye Inner (33): $leftEyeInner, " +
-                "Left Eye Outer (133): $leftEyeOuter, " +
-                "Right Eye Top (386): $rightEyeTop, " +
-                "Right Eye Bottom (374): $rightEyeBottom, " +
-                "Right Eye Inner (263): $rightEyeInner, " +
-                "Right Eye Outer (362): $rightEyeOuter")
-
-        // 눈 개폐 정도 계산
-        fun calculateEyeOpenness(top: NormalizedLandmark,
-                                 bottom: NormalizedLandmark,
-                                 inner: NormalizedLandmark,
-                                 outer: NormalizedLandmark
-        ): Float {
-            val verticalDistance = abs(top.y() - bottom.y()) // 눈의 세로 길이 계산
-            val horizontalDistance = abs(outer.x() - inner.x()) // 눈의 가로 길이 계산
-            return verticalDistance / (horizontalDistance + 1e-6f) // 세로/가로 비율 반환 (눈 개폐 정도) | 0으로 나누는 것을 방지
-        }
-
-        // 왼쪽, 오른쪽 눈의 개폐 정도 계산
-        val leftEyeOpenness = calculateEyeOpenness(leftEyeTop, leftEyeBottom, leftEyeInner, leftEyeOuter)
-        val rightEyeOpenness = calculateEyeOpenness(rightEyeTop, rightEyeBottom, rightEyeInner, rightEyeOuter)
-        val averageEyeOpenness = (leftEyeOpenness + rightEyeOpenness) / 2 // 양쪽 눈의 평균 개폐 정도
-
-        Log.d("FaceLandmarks", "Total landmarks detected: ${landmarks.size}, FPS: $fps")
-        Log.d("EyeOpenness", "FPS: $fps, Left Eye: $leftEyeOpenness, Right Eye: $rightEyeOpenness, Average: $averageEyeOpenness")
-
-        val eyesOpen = averageEyeOpenness >= BLINK_THRESHOLD // 눈이 열려있는지 여부 판단
-        Log.d(TAG, "Eyes open: $eyesOpen, Average openness: $averageEyeOpenness")
+        // BlinkDetectionUtil을 사용하여 눈 깜빡임 감지
+        val blinked = BlinkDetectionUtil.detectBlink(landmarks)
 
         // 눈 깜빡임 감지 및 UI 업데이트 로직
-        if (eyesOpen != lastEyeState && !eyesOpen) {
+        if (blinked) {
             Log.d(TAG, "Blink detected")
             cameraService.incrementBlinkCount() // 눈 깜빡임 횟수 증가
             val blinkCount = cameraService.getBlinkCount()
@@ -438,14 +393,26 @@ class BlinkActivity : AppCompatActivity() {
             lastBlinkTime = currentTime // 마지막 깜빡임 시간 업데이트
             updateBlinkUI() // UI 업데이트 함수 호출
         }
-        lastEyeState = eyesOpen // 현재 눈 상태를 마지막 상태로 저장
 
-        // 눈 상태에 따라 UI 업데이트
-        if (!eyesOpen) {
-            updateUI("Eye is closed", R.drawable.eye_closed)    // [외부] drawable/eye_closed.png 이미지 리소스 가져오기
-        } else {
-            updateUI("Eye is open", R.drawable.eye_open)        // [외부] drawable/eye_open.png 이미지 리소스 가져오기
+        // 눈 상태 확인 (열림/닫힘)
+        val leftEyeOpenness = BlinkDetectionUtil.calculateEyeOpenness(landmarks, true)
+        val rightEyeOpenness = BlinkDetectionUtil.calculateEyeOpenness(landmarks, false)
+        val averageEyeOpenness = (leftEyeOpenness + rightEyeOpenness) / 2
+
+        val eyeState = when {
+            averageEyeOpenness < BlinkDetectionUtil.BLINK_THRESHOLD_CLOSE -> "Eye is closed"
+            averageEyeOpenness > BlinkDetectionUtil.BLINK_THRESHOLD_OPEN -> "Eye is open"
+            else -> "Eye is partially open"
         }
+
+        when (eyeState) {
+            "Eye is closed" -> updateUI(eyeState, R.drawable.eye_closed)
+            "Eye is open" -> updateUI(eyeState, R.drawable.eye_open)
+//            else -> updateUI(eyeState, R.drawable.eye_partially_open) // 부분적으로 열린 눈 이미지가 있다면 사용
+        }
+
+        Log.d(TAG, "Eye state: $eyeState, Average openness: $averageEyeOpenness")
+        Log.d("EyeOpenness", "FPS: $fps, Left Eye: $leftEyeOpenness, Right Eye: $rightEyeOpenness")
     }
 
     // 눈 깜빡임 카운트 증가 및 저장 함수 -> TimerFragment로 보내기 위함

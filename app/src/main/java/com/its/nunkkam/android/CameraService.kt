@@ -150,9 +150,14 @@ class CameraService : LifecycleService() {
             .setBaseOptions(baseOptions) // 기본 옵션 설정
             .setRunningMode(RunningMode.LIVE_STREAM) // 실시간 스트림 모드로 설정
             .setNumFaces(1) // 감지할 얼굴 수 설정
-            .setResultListener(this::handleFaceLandmarkerResult) // 결과 처리 리스너 설정
+            .setResultListener(this::onFaceLandmarkerResult) // 결과 처리 리스너 설정
             .build() // FaceLandmarkerOptions 객체 생성 및 반환
         faceLandmarker = FaceLandmarker.createFromOptions(this, options) // FaceLandmarker 객체 생성
+    }
+
+    private fun onFaceLandmarkerResult(result: FaceLandmarkerResult, image: MPImage) {
+        Log.d(TAG, "CameraService: Face landmark result received")
+        callback?.onFaceLandmarkerResult(result, image)
     }
 
     // 카메라 리소스 유지
@@ -220,67 +225,6 @@ class CameraService : LifecycleService() {
         }, ContextCompat.getMainExecutor(this))
     }
 
-    private var lastBlinkTime = 0L
-    private val MIN_BLINK_INTERVAL = 100 // 100ms
-
-    // 눈 깜빡임 감지 메서드
-    private fun detectBlink(result: FaceLandmarkerResult): Boolean {
-        val landmarks = result.faceLandmarks()[0]
-
-        // 눈 랜드마크 좌표 가져오기
-        val leftEyeTop = landmarks[159]     // 159: 왼쪽 눈 위쪽 점
-        val leftEyeBottom = landmarks[145]  // 145: 왼쪽 눈 아래쪽 점
-        val leftEyeInner = landmarks[33]    // 33: 왼쪽 눈 안쪽 점
-        val leftEyeOuter = landmarks[133]   // 133: 왼쪽 눈 바깥쪽 점
-        val rightEyeTop = landmarks[386]    // 386: 오른쪽 눈 위쪽 점
-        val rightEyeBottom = landmarks[374] // 374: 오른쪽 눈 아래쪽 점
-        val rightEyeInner = landmarks[263]  // 263: 오른쪽 눈 안쪽 점
-        val rightEyeOuter = landmarks[362]  // 362: 오른쪽 눈 바깥쪽 점
-
-        // 눈 개폐 정도 계산
-        val leftEyeOpenness = calculateEyeOpenness(leftEyeTop, leftEyeBottom, leftEyeInner, leftEyeOuter)
-        val rightEyeOpenness = calculateEyeOpenness(rightEyeTop, rightEyeBottom, rightEyeInner, rightEyeOuter)
-        val averageEyeOpenness = (leftEyeOpenness + rightEyeOpenness) / 2
-
-        val currentTime = System.currentTimeMillis()
-        val isBlink = averageEyeOpenness < BLINK_THRESHOLD
-
-        Log.d(TAG, "CameraService: Average eye openness: $averageEyeOpenness, Threshold: $BLINK_THRESHOLD")
-
-        if (isBlink && (currentTime - lastBlinkTime) > MIN_BLINK_INTERVAL) {
-            lastBlinkTime = currentTime
-            return true
-        }
-
-        return false
-    }
-
-    // 눈 개폐 정도 계산 메서드
-    private fun calculateEyeOpenness(top: NormalizedLandmark, bottom: NormalizedLandmark, inner: NormalizedLandmark, outer: NormalizedLandmark): Float {
-        val verticalDistance = abs(top.y() - bottom.y())
-        val horizontalDistance = abs(outer.x() - inner.x())
-        return verticalDistance / horizontalDistance
-    }
-
-    // 눈 깜빡임 감지 결과 처리 메서드
-    private fun handleFaceLandmarkerResult(result: FaceLandmarkerResult, image: MPImage) {
-        Log.d(TAG, "CameraService: Face landmark result received")
-        if (result.faceLandmarks().isEmpty()) {
-            Log.d(TAG, "CameraService: No face landmarks detected")
-            return
-        }
-
-        val blinked = detectBlink(result)
-        Log.d(TAG, "CameraService: Blink detected: $blinked")
-        if (blinked) {
-            incrementBlinkCount()
-            Log.d(TAG, "CameraService: Blink count incremented: $blinkCount")
-            updateNotification(blinkCount, timeLeftInMillis)
-        }
-
-        callback?.onFaceLandmarkerResult(result, image)
-    }
-
     private var callback: CameraCallback? = null
 
     fun setCallback(callback: CameraCallback) {
@@ -308,7 +252,7 @@ class CameraService : LifecycleService() {
         } catch (e: Exception) {
             Log.e(TAG, "CameraService: Error in onStartCommand", e)
         }
-//        return super.onStartCommand(intent, flags, startId)
+
         return START_STICKY // 서비스가 중단되었을 때 다시 시작하도록 설정
     }
 
