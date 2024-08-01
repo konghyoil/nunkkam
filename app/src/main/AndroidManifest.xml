@@ -42,7 +42,7 @@
         <activity android:name=".UserManager" /> <!-- UserManager 선언 -->
         <activity android:name=".MyApplication" /> <!-- MyApplication 선언 -->
 
-        <receiver android:name=".AlarmReceiver" /> <!-- AlarmReceiver 선언 -->
+        <receiver android:name=".MeasurementAlarmReceiver" /> <!-- AlarmReceiver 선언 -->
 
     </application>
 
