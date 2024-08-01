@@ -26,6 +26,7 @@
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
     <application
+        android:name=".MyApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -56,7 +57,6 @@
         <activity android:name=".ResultActivity" /> <!-- ResultActivity 선언 -->
         <activity android:name=".LoginActivity" /> <!-- LoginActivity 선언 -->
         <activity android:name=".UserManager" /> <!-- UserManager 선언 -->
-        <activity android:name=".MyApplication" /> <!-- MyApplication 선언 -->
 
         <!-- 포그라운드 서비스 선언 -->
         <service

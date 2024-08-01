@@ -19,40 +19,25 @@ class TimerActivity : AppCompatActivity() {
     private lateinit var startButton: Button
     private lateinit var resultButton: Button
     private lateinit var logoutButton: Button
-    private lateinit var deleteAccountButton: Button // 회원탈퇴 버튼 추가
+    private lateinit var deleteAccountButton: Button
     private lateinit var timerTextView: TextView
     private lateinit var auth: FirebaseAuth
     private lateinit var googleSignInClient: GoogleSignInClient
     private val db = FirebaseFirestore.getInstance()
 
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_timer)
 
+        val app = application as MyApplication
+        auth = app.auth
+        googleSignInClient = app.googleSignInClient
+
         startButton = findViewById(R.id.start_button)
         resultButton = findViewById(R.id.result_button)
         logoutButton = findViewById(R.id.logout_button)
-        deleteAccountButton = findViewById(R.id.delete_account_button) // 회원탈퇴 버튼 초기화
+        deleteAccountButton = findViewById(R.id.delete_account_button)
         timerTextView = findViewById(R.id.timer_text)
-
-        // Firebase Auth 초기화
-        auth = FirebaseAuth.getInstance()
-
-        // GoogleSignInClient 초기화
-        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestEmail()
-            .build()
-        googleSignInClient = GoogleSignIn.getClient(this, gso)
-
-        val currentUser = auth.currentUser
-        Log.d("TimerActivity", "Current user after initialization: $currentUser")
-
-        startButton.setOnClickListener {
-            val intent = Intent(this, BlinkActivity::class.java)
-            startActivity(intent)
-        }
 
         startButton.setOnClickListener {
             val intent = Intent(this, BlinkActivity::class.java)
@@ -61,8 +46,7 @@ class TimerActivity : AppCompatActivity() {
 
         resultButton.setOnClickListener {
             goToResultScreen()
-            Log.d("TimerActivity","userId: $userId")
-            Log.d("TimerActivity","currentUser: $currentUser")
+            Log.d("TimerActivity", "userId: $userId")
         }
 
         logoutButton.setOnClickListener {
@@ -84,6 +68,7 @@ class TimerActivity : AppCompatActivity() {
     private fun goToResultScreen() {
         val intent = Intent(this, ResultActivity::class.java)
         startActivity(intent)
+        checkCurrentUser()
     }
 
     private fun logoutUser() {
@@ -99,9 +84,9 @@ class TimerActivity : AppCompatActivity() {
                 Log.d("TimerActivity", "Google 로그아웃 실패: ${it.exception?.message}")
             }
 
-            // SharedPreferences에서 로그아웃 처리
-            UserManager.clearUserData(this)
-            Log.d("TimerActivity", "SharedPreferences 데이터 삭제 성공")
+            // 사용자 데이터 초기화 (삭제하지 않음)
+            UserManager.clearUserData()
+            Log.d("TimerActivity", "UserManager 데이터 초기화 성공")
 
             // MainActivity로 이동
             val intent = Intent(this, MainActivity::class.java)
@@ -109,49 +94,46 @@ class TimerActivity : AppCompatActivity() {
             finish()
             Log.d("TimerActivity", "MainActivity로 이동")
         }
-        Log.d("TimerActivity", "userId: $userId")
     }
 
     private fun deleteUserAccount() {
+        // FirebaseAuth 인스턴스를 통해 현재 사용자 정보를 가져옴
         val user = auth.currentUser
-        Log.d("TimerActivity", "Current user: $user")
 
+        // 현재 사용자가 존재하는 경우 아래의 작업을 수행
         user?.let {
-            val userId = it.uid
-            Log.d("TimerActivity", "User ID: $userId")
+            val userId = it.uid // 현재 사용자의 고유 ID를 가져옴
 
-            // Firestore에서 사용자 데이터 삭제
+            // Firestore에서 사용자 데이터를 삭제
             db.collection("USERS").document(userId).delete().addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     Log.d("TimerActivity", "User data deleted from Firestore")
 
-                    // Firebase Authentication에서 사용자 삭제
+                    // Firebase Authentication에서 사용자 계정을 삭제
                     user.delete().addOnCompleteListener { deleteTask ->
                         if (deleteTask.isSuccessful) {
                             Log.d("TimerActivity", "User deleted from Firebase Auth")
 
                             // SharedPreferences에서 사용자 데이터 삭제
-                            UserManager.clearUserData(this)
+                            UserManager.deleteUserData(this)
 
-                            // 메인 화면으로 이동
+                            // 메인 화면(MainActivity)으로 이동
                             val intent = Intent(this, MainActivity::class.java)
                             startActivity(intent)
                             finish()
                         } else {
+                            // Firebase Auth에서 사용자 삭제 중 오류 발생 시 로그 출력
                             Log.e("TimerActivity", "Error deleting user from Firebase Auth", deleteTask.exception)
                         }
                     }
                 } else {
+                    // Firestore에서 사용자 데이터 삭제 중 오류 발생 시 로그 출력
                     Log.e("TimerActivity", "Error deleting user data from Firestore", task.exception)
                 }
             }
         } ?: run {
+            // 현재 사용자가 null인 경우 로그 출력
             Log.e("TimerActivity", "User is null")
         }
     }
-
-    }
-
-
-
-
+}
