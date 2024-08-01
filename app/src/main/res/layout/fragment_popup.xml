@@ -55,14 +55,13 @@
                 android:textSize="16sp"
                 android:textAlignment="center" />
 
-            <Button
+            <ImageButton
                 android:id="@+id/previous_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="<"
-                android:textSize="24sp"
-                android:textColor="#D9D9D9"
-                android:backgroundTint="#0D3D39"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/ic_arrow_left"
+                android:contentDescription="이전"
+                android:background="@android:color/transparent"
                 android:layout_alignParentBottom="true"
                 android:layout_toStartOf="@id/page_indicator"
                 android:layout_marginBottom="16dp"
@@ -79,14 +78,13 @@
                 android:layout_marginBottom="16dp"
                 android:textSize="16sp" />
 
-            <Button
+            <ImageButton
                 android:id="@+id/next_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text=">"
-                android:textSize="24sp"
-                android:textColor="#D9D9D9"
-                android:backgroundTint="#0D3D39"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/ic_arrow_right"
+                android:contentDescription="다음"
+                android:background="@android:color/transparent"
                 android:layout_alignParentBottom="true"
                 android:layout_toEndOf="@id/page_indicator"
                 android:layout_marginBottom="16dp"
