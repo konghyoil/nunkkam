@@ -13,7 +13,6 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 
-
 class CardFragment : Fragment() {
 
     private lateinit var resultTextView: TextView
@@ -56,8 +55,20 @@ class CardFragment : Fragment() {
         } else {
             Log.e("CardFragment", "User ID is null")
         }
+
+        // 팝업 버튼 클릭 리스너 추가
+        // 수정된 부분: popupButton을 클릭하면 showPopup() 함수 호출
+        view.findViewById<TextView>(R.id.popupButton).setOnClickListener {
+            showPopup()
+        }
     }
 
+    // 팝업 표시 함수 추가
+    // PopupFragment를 생성하고 표시하는 함수
+    private fun showPopup() {
+        val popupFragment = PopupFragment.newInstance()
+        popupFragment.show(childFragmentManager, "popup")
+    }
 
     // Firestore에서 최신 데이터를 가져오는 함수
     private fun fetchLatestRatePerMinute(userId: String) {
