@@ -7,6 +7,7 @@ import android.util.Log
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -58,6 +59,10 @@ class TimerActivity : AppCompatActivity() {
             deleteUserAccount()
         }
         checkCurrentUser()
+
+        // AlarmFragment 추가
+        addAlarmFragment()
+
     }
 
     private fun checkCurrentUser() {
@@ -135,5 +140,12 @@ class TimerActivity : AppCompatActivity() {
             // 현재 사용자가 null인 경우 로그 출력
             Log.e("TimerActivity", "User is null")
         }
+    }
+
+    private fun addAlarmFragment() {
+        val fragment: Fragment = AlarmFragment()
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.alarm_fragment_container, fragment)
+            .commit()
     }
 }

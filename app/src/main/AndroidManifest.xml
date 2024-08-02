@@ -66,6 +66,8 @@
             android:exported="false" />
 
         <receiver android:name=".AlarmReceiver" />
+        <receiver android:name=".MeasurementAlarmReceiver" />
+        <receiver android:name=".AlarmReceiver2" />
 
     </application>
 
