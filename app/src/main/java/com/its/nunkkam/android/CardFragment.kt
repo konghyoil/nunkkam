@@ -1,23 +1,33 @@
 package com.its.nunkkam.android
 
 import android.content.Context
+import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
 
 class CardFragment : Fragment() {
 
     private lateinit var resultTextView: TextView
     private lateinit var eyeTypeTextView: TextView
     private lateinit var eyeTypeImageView: ImageView
+    private lateinit var shareButton: Button
     private val db = Firebase.firestore
 
     companion object {
@@ -45,6 +55,17 @@ class CardFragment : Fragment() {
         resultTextView = view.findViewById(R.id.resultTextView)
         eyeTypeTextView = view.findViewById(R.id.textView3)
         eyeTypeImageView = view.findViewById(R.id.imageView)
+        shareButton = view.findViewById(R.id.shareButton)
+
+
+        // 공유 버튼 클릭 리스너 설정
+        shareButton.setOnClickListener {
+            val bitmap = getBitmapFromView(view)
+            bitmap?.let {
+                saveBitmapAndShare(it)
+            }
+        }
+
 
         val sharedPreferences = requireContext().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
         val userId = sharedPreferences.getString("user_id", null)
@@ -63,6 +84,46 @@ class CardFragment : Fragment() {
         }
     }
 
+    // View를 Bitmap으로 변환하는 함수
+    private fun getBitmapFromView(view: View): Bitmap? {
+        val returnedBitmap = Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(returnedBitmap)
+        val bgDrawable = view.background
+        if (bgDrawable != null) {
+            bgDrawable.draw(canvas)
+        } else {
+            canvas.drawColor(Color.WHITE)
+        }
+        view.draw(canvas)
+        return returnedBitmap
+    }
+
+    // Bitmap을 저장하고 공유하는 함수
+    private fun saveBitmapAndShare(bitmap: Bitmap) {
+        val context = requireContext()
+        try {
+            val file = File(context.getExternalFilesDir(null), "fragment_image.png")
+            val outputStream = FileOutputStream(file)
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
+            outputStream.flush()
+            outputStream.close()
+            shareImage(file)
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+    }
+
+    // 이미지를 공유하는 함수
+    private fun shareImage(file: File) {
+        val context = requireContext()
+        val uri = FileProvider.getUriForFile(context, "com.its.nunkkam.android.provider", file)
+        val intent = Intent(Intent.ACTION_SEND).apply {
+            type = "image/png"
+            putExtra(Intent.EXTRA_STREAM, uri)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+        startActivity(Intent.createChooser(intent, "Share Image"))
+    }
     // 팝업 표시 함수 추가
     // PopupFragment를 생성하고 표시하는 함수
     private fun showPopup() {
