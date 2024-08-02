@@ -84,7 +84,7 @@ class TimerActivity : AppCompatActivity() {
                 Log.d("TimerActivity", "Google 로그아웃 실패: ${it.exception?.message}")
             }
 
-            // 사용자 데이터 초기화 (삭제하지 않음)
+            // 사용자 데이터 초기화
             UserManager.clearUserData()
             Log.d("TimerActivity", "UserManager 데이터 초기화 성공")
 
@@ -97,12 +97,10 @@ class TimerActivity : AppCompatActivity() {
     }
 
     private fun deleteUserAccount() {
-        // FirebaseAuth 인스턴스를 통해 현재 사용자 정보를 가져옴
         val user = auth.currentUser
 
-        // 현재 사용자가 존재하는 경우 아래의 작업을 수행
         user?.let {
-            val userId = it.uid // 현재 사용자의 고유 ID를 가져옴
+            val userId = it.uid
 
             // Firestore에서 사용자 데이터를 삭제
             db.collection("USERS").document(userId).delete().addOnCompleteListener { task ->
@@ -114,7 +112,7 @@ class TimerActivity : AppCompatActivity() {
                         if (deleteTask.isSuccessful) {
                             Log.d("TimerActivity", "User deleted from Firebase Auth")
 
-                            // SharedPreferences에서 사용자 데이터 삭제
+                            // UserManager에서 사용자 데이터 삭제
                             UserManager.deleteUserData(this)
 
                             // 메인 화면(MainActivity)으로 이동
@@ -122,17 +120,14 @@ class TimerActivity : AppCompatActivity() {
                             startActivity(intent)
                             finish()
                         } else {
-                            // Firebase Auth에서 사용자 삭제 중 오류 발생 시 로그 출력
                             Log.e("TimerActivity", "Error deleting user from Firebase Auth", deleteTask.exception)
                         }
                     }
                 } else {
-                    // Firestore에서 사용자 데이터 삭제 중 오류 발생 시 로그 출력
                     Log.e("TimerActivity", "Error deleting user data from Firestore", task.exception)
                 }
             }
         } ?: run {
-            // 현재 사용자가 null인 경우 로그 출력
             Log.e("TimerActivity", "User is null")
         }
     }
