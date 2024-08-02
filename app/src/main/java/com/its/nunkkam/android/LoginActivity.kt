@@ -1,14 +1,21 @@
 package com.its.nunkkam.android
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
-import android.view.View
 import android.widget.Button
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 
 class LoginActivity : AppCompatActivity() {
     private lateinit var guestLoginButton: Button
     private lateinit var googleLoginButton: Button
+
+    private val PERMISSION_REQUEST_CODE = 1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,5 +37,17 @@ class LoginActivity : AppCompatActivity() {
             // 구글 로그인 처리
             // 여기에서 Google Sign-In 통합
         }
+
+        // 알림 권한 요청
+        requestNotificationPermission()
     }
+
+    private fun requestNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.POST_NOTIFICATIONS), PERMISSION_REQUEST_CODE)
+            }
+        }
+    }
+
 }

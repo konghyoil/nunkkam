@@ -36,7 +36,7 @@
             />
     </LinearLayout>
 
-    <!-- Measurement Alarm settings layout -->
+    <!-- Alarm settings layout -->
     <LinearLayout
         android:id="@+id/alarmSettingsLayout"
         android:layout_below="@id/tabLayout"
@@ -46,7 +46,37 @@
         android:padding="16dp"
         android:background="#263238">
 
-        <!-- Existing alarm settings... -->
+        <!-- Alarm On/Off Switch -->
+        <Switch
+            android:id="@+id/switchAlarm"
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:padding="8dp"
+            android:text="알람 설정"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp" />
+
+        <!-- Alarm Interval Setting -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="8dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="알람 주기 설정"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp" />
+
+            <Button
+                android:id="@+id/btnInterval"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0분" />
+        </LinearLayout>
 
     </LinearLayout>
 
