@@ -11,21 +11,17 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.NumberPicker
-import android.widget.Switch
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
+import com.its.nunkkam.android.databinding.FragmentAlarmBinding
 import java.util.*
 
 class AlarmFragment : Fragment() {
 
-    private lateinit var switchAlarm: Switch
-    private lateinit var btnInterval: Button
-    private lateinit var switchSound: Switch
-    private lateinit var switchVibration: Switch
-    private lateinit var btnMeasurementAlarm: Button
-    private lateinit var btnManageAlarm: Button
+    // View Binding 객체 선언
+    private var _binding: FragmentAlarmBinding? = null
+    private val binding get() = _binding!!
 
     private var alarmManager: AlarmManager? = null
     private var pendingIntent: PendingIntent? = null
@@ -33,58 +29,19 @@ class AlarmFragment : Fragment() {
     private var isManageAlarm = false
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_alarm, container, false)
+        // View Binding을 사용하여 레이아웃 인플레이트
+        _binding = FragmentAlarmBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        switchAlarm = view.findViewById(R.id.switchAlarm)
-        btnInterval = view.findViewById(R.id.btnInterval)
-        switchSound = view.findViewById(R.id.switchSound)
-        switchVibration = view.findViewById(R.id.switchVibration)
-        btnMeasurementAlarm = view.findViewById(R.id.btnMeasurementAlarm)
-        btnManageAlarm = view.findViewById(R.id.btnManageAlarm)
-
+        // AlarmManager 초기화
         alarmManager = requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
-        // 알람 간격 설정 버튼 클릭 리스너
-        btnInterval.setOnClickListener {
-            showIntervalPickerDialog()
-        }
-
-        // 알람 활성화/비활성화 스위치 리스너
-        switchAlarm.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) {
-                setAlarm()
-            } else {
-                cancelAlarm()
-            }
-        }
-
-        // 알림음 설정 스위치 리스너
-        switchSound.setOnCheckedChangeListener { _, isChecked ->
-            // 알림음 설정 저장
-            saveSoundSetting(isChecked)
-        }
-
-        // 진동 설정 스위치 리스너
-        switchVibration.setOnCheckedChangeListener { _, isChecked ->
-            // 진동 설정 저장
-            saveVibrationSetting(isChecked)
-        }
-
-        // 측정 알람 버튼 클릭 리스너
-        btnMeasurementAlarm.setOnClickListener {
-            isManageAlarm = false
-            updateAlarmView()
-        }
-
-        // 관리 알람 버튼 클릭 리스너
-        btnManageAlarm.setOnClickListener {
-            isManageAlarm = true
-            updateAlarmView()
-        }
+        // 버튼 및 스위치 리스너 설정
+        setupListeners()
 
         // 초기 뷰 설정
         updateAlarmView()
@@ -93,6 +50,45 @@ class AlarmFragment : Fragment() {
         createNotificationChannel()
     }
 
+    private fun setupListeners() {
+        // 알람 간격 설정 버튼 클릭 리스너
+        binding.btnInterval.setOnClickListener {
+            showIntervalPickerDialog()
+        }
+
+        // 알람 활성화/비활성화 스위치 리스너
+        binding.switchAlarm.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                setAlarm()
+            } else {
+                cancelAlarm()
+            }
+        }
+
+        // 알림음 설정 스위치 리스너
+        binding.switchSound.setOnCheckedChangeListener { _, isChecked ->
+            saveSoundSetting(isChecked)
+        }
+
+        // 진동 설정 스위치 리스너
+        binding.switchVibration.setOnCheckedChangeListener { _, isChecked ->
+            saveVibrationSetting(isChecked)
+        }
+
+        // 측정 알람 버튼 클릭 리스너
+        binding.btnMeasurementAlarm.setOnClickListener {
+            isManageAlarm = false
+            updateAlarmView()
+        }
+
+        // 관리 알람 버튼 클릭 리스너
+        binding.btnManageAlarm.setOnClickListener {
+            isManageAlarm = true
+            updateAlarmView()
+        }
+    }
+
+    // 알람 간격 선택 다이얼로그 표시
     private fun showIntervalPickerDialog() {
         val dialogView = layoutInflater.inflate(R.layout.dialog_interval_picker, null)
         val numberPickerHours = dialogView.findViewById<NumberPicker>(R.id.numberPickerHours)
@@ -108,8 +104,8 @@ class AlarmFragment : Fragment() {
                 val hours = numberPickerHours.value
                 val minutes = numberPickerMinutes.value
                 val intervalText = "${hours}시간 ${minutes}분"
-                btnInterval.text = intervalText
-                if (switchAlarm.isChecked) {
+                binding.btnInterval.text = intervalText
+                if (binding.switchAlarm.isChecked) {
                     setAlarm()
                 }
             }
@@ -117,18 +113,23 @@ class AlarmFragment : Fragment() {
             .show()
     }
 
+    // 알람 설정
     private fun setAlarm() {
-        val intervalText = btnInterval.text.toString()
+        val intervalText = binding.btnInterval.text.toString()
         val intervalParts = intervalText.split(" ")
         val hours = intervalParts[0].replace("시간", "").toInt()
         val minutes = intervalParts[1].replace("분", "").toInt()
         val intervalMillis = (hours * 3600 + minutes * 60) * 1000L
 
-        // AlarmReceiver를 AlarmReceiver2로 변경
         val intent = Intent(context, AlarmReceiver2::class.java).apply {
             putExtra("isManageAlarm", isManageAlarm)
         }
-        pendingIntent = PendingIntent.getBroadcast(context, if (isManageAlarm) 1 else 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+        pendingIntent = PendingIntent.getBroadcast(
+            context,
+            if (isManageAlarm) 1 else 0,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
 
         val triggerTime = System.currentTimeMillis() + intervalMillis
 
@@ -139,36 +140,39 @@ class AlarmFragment : Fragment() {
         }
     }
 
+    // 알람 취소
     private fun cancelAlarm() {
         pendingIntent?.let { alarmManager?.cancel(it) }
     }
 
+    // 알림음 설정 저장
     private fun saveSoundSetting(isEnabled: Boolean) {
-        // SharedPreferences를 사용하여 설정 저장
         val sharedPrefs = requireContext().getSharedPreferences("AlarmSettings", Context.MODE_PRIVATE)
         sharedPrefs.edit().putBoolean("sound_enabled", isEnabled).apply()
     }
 
+    // 진동 설정 저장
     private fun saveVibrationSetting(isEnabled: Boolean) {
-        // SharedPreferences를 사용하여 설정 저장
         val sharedPrefs = requireContext().getSharedPreferences("AlarmSettings", Context.MODE_PRIVATE)
         sharedPrefs.edit().putBoolean("vibration_enabled", isEnabled).apply()
     }
 
+    // 알람 뷰 업데이트 (측정 알람 / 관리 알람)
     private fun updateAlarmView() {
         if (isManageAlarm) {
-            view?.findViewById<View>(R.id.alarmSettingsLayout)?.visibility = View.GONE
-            view?.findViewById<View>(R.id.manageAlarmSettingsLayout)?.visibility = View.VISIBLE
-            btnManageAlarm.setBackgroundResource(R.drawable.button_selected)
-            btnMeasurementAlarm.setBackgroundResource(R.drawable.button_unselected)
+            binding.alarmSettingsLayout.visibility = View.GONE
+            binding.manageAlarmSettingsLayout.visibility = View.VISIBLE
+            binding.btnManageAlarm.setBackgroundResource(R.drawable.button_selected)
+            binding.btnMeasurementAlarm.setBackgroundResource(R.drawable.button_unselected)
         } else {
-            view?.findViewById<View>(R.id.alarmSettingsLayout)?.visibility = View.VISIBLE
-            view?.findViewById<View>(R.id.manageAlarmSettingsLayout)?.visibility = View.GONE
-            btnMeasurementAlarm.setBackgroundResource(R.drawable.btton_selected)
-            btnManageAlarm.setBackgroundResource(R.drawable.button_unselectedu)
+            binding.alarmSettingsLayout.visibility = View.VISIBLE
+            binding.manageAlarmSettingsLayout.visibility = View.GONE
+            binding.btnMeasurementAlarm.setBackgroundResource(R.drawable.button_selected)
+            binding.btnManageAlarm.setBackgroundResource(R.drawable.button_unselected)
         }
     }
 
+    // 알림 채널 생성 (Android 8.0 이상에서 필요)
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val name = "알람 채널"
@@ -181,5 +185,10 @@ class AlarmFragment : Fragment() {
                 requireContext().getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.createNotificationChannel(channel)
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }
