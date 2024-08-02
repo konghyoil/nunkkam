@@ -1,48 +1,48 @@
-package com.its.nunkkam.android
+package com.its.nunkkam.android                                      // 패키지 선언
 
-import android.content.Context
-import android.content.SharedPreferences
+import android.content.Context                                       // Android Context 클래스 임포트
+import android.content.SharedPreferences                             // SharedPreferences 클래스 임포트
 
-object UserManager {
-    private const val PREF_NAME = "UserPrefs"
-    private const val USER_ID_KEY = "user_id"
-    private const val LOGIN_TYPE_KEY = "login_type"
-    const val LOGIN_TYPE_GOOGLE = "google"
-    private lateinit var sharedPreferences: SharedPreferences
+object UserManager {                                                 // UserManager 싱글톤 객체 선언
+    private const val PREF_NAME = "UserPrefs"                        // SharedPreferences 이름 상수
+    private const val USER_ID_KEY = "user_id"                        // 사용자 ID 키 상수
+    private const val LOGIN_TYPE_KEY = "login_type"                  // 로그인 타입 키 상수
+    const val LOGIN_TYPE_GOOGLE = "google"                           // Google 로그인 타입 상수
+    private lateinit var sharedPreferences: SharedPreferences        // SharedPreferences 객체 선언
 
-    var userId: String? = null
+    var userId: String? = null                                       // 사용자 ID 변수 (외부에서 직접 설정 불가)
         private set
-    var loginType: String? = null
+    var loginType: String? = null                                    // 로그인 타입 변수 (외부에서 직접 설정 불가)
         private set
 
-    fun initialize(context: Context) {
-        sharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
-        userId = sharedPreferences.getString(USER_ID_KEY, null)
-        loginType = sharedPreferences.getString(LOGIN_TYPE_KEY, null)
+    fun initialize(context: Context) {                               // UserManager 초기화 함수
+        sharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)  // SharedPreferences 초기화
+        userId = sharedPreferences.getString(USER_ID_KEY, null)      // 저장된 사용자 ID 불러오기
+        loginType = sharedPreferences.getString(LOGIN_TYPE_KEY, null)  // 저장된 로그인 타입 불러오기
     }
 
-    fun setUser(userId: String, loginType: String) {
-        this.userId = userId
-        this.loginType = loginType
+    fun setUser(userId: String, loginType: String) {                 // 사용자 정보 설정 함수
+        this.userId = userId                                         // 사용자 ID 설정
+        this.loginType = loginType                                   // 로그인 타입 설정
 
-        with(sharedPreferences.edit()) {
-            putString(USER_ID_KEY, userId)
-            putString(LOGIN_TYPE_KEY, loginType)
-            apply()
+        with(sharedPreferences.edit()) {                             // SharedPreferences에 정보 저장
+            putString(USER_ID_KEY, userId)                           // 사용자 ID 저장
+            putString(LOGIN_TYPE_KEY, loginType)                     // 로그인 타입 저장
+            apply()                                                  // 변경사항 적용
         }
     }
 
-    fun clearUserData() {
-        userId = null
-        loginType = null
-        with(sharedPreferences.edit()) {
-            clear()
-            apply()
+    fun clearUserData() {                                            // 사용자 데이터 초기화 함수
+        userId = null                                                // 사용자 ID 초기화
+        loginType = null                                             // 로그인 타입 초기화
+        with(sharedPreferences.edit()) {                             // SharedPreferences 데이터 초기화
+            clear()                                                  // 모든 데이터 삭제
+            apply()                                                  // 변경사항 적용
         }
     }
 
-    fun deleteUserData(context: Context) {
-        sharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
-        clearUserData()
+    fun deleteUserData(context: Context) {                           // 사용자 데이터 삭제 함수
+        sharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)  // SharedPreferences 재초기화
+        clearUserData()                                              // 사용자 데이터 초기화 함수 호출
     }
 }

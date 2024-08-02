@@ -1,62 +1,59 @@
-package com.its.nunkkam.android
+package com.its.nunkkam.android                                      // 패키지 선언
 
-import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
-import androidx.fragment.app.DialogFragment
+import android.os.Bundle                                             // Bundle 클래스 임포트
+import android.view.LayoutInflater                                   // LayoutInflater 클래스 임포트
+import android.view.View                                             // View 클래스 임포트
+import android.view.ViewGroup                                        // ViewGroup 클래스 임포트
+import android.widget.ImageView                                      // ImageView 위젯 임포트
+import android.widget.TextView                                       // TextView 위젯 임포트
+import androidx.fragment.app.DialogFragment                          // DialogFragment 클래스 임포트
 
-class PopupFragment : DialogFragment() {
+class PopupFragment : DialogFragment() {                             // DialogFragment를 상속받는 PopupFragment 클래스 정의
 
-    private lateinit var imageView: ImageView
-    private lateinit var textDescription: TextView
-    private lateinit var pageIndicator: TextView
-    private var currentPage = 1
+    private lateinit var imageView: ImageView                        // 이미지를 표시할 ImageView 선언
+    private lateinit var textDescription: TextView                   // 설명을 표시할 TextView 선언
+    private lateinit var pageIndicator: TextView                     // 페이지 번호를 표시할 TextView 선언
+    private var currentPage = 1                                      // 현재 페이지 번호
 
-    override fun onCreate(savedInstanceState: Bundle?) {
+    override fun onCreate(savedInstanceState: Bundle?) {             // Fragment 생성 시 호출되는 메서드
         super.onCreate(savedInstanceState)
-        setStyle(STYLE_NO_TITLE, R.style.PopupDialogTheme)
+        setStyle(STYLE_NO_TITLE, R.style.PopupDialogTheme)           // 다이얼로그 스타일 설정
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_popup, container, false)
+        return inflater.inflate(R.layout.fragment_popup, container, false)  // 레이아웃 인플레이트
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {  // 뷰 생성 후 호출되는 메서드
         super.onViewCreated(view, savedInstanceState)
 
-        imageView = view.findViewById(R.id.image)
-        textDescription = view.findViewById(R.id.text_description)
-        pageIndicator = view.findViewById(R.id.page_indicator)
+        imageView = view.findViewById(R.id.image)                    // ImageView 초기화
+        textDescription = view.findViewById(R.id.text_description)   // 설명 TextView 초기화
+        pageIndicator = view.findViewById(R.id.page_indicator)       // 페이지 인디케이터 TextView 초기화
 
-        view.findViewById<View>(R.id.previous_button).setOnClickListener { showPreviousPage() }
-        view.findViewById<View>(R.id.next_button).setOnClickListener { showNextPage() }
-        view.findViewById<View>(R.id.x_button).setOnClickListener { dismiss() }
+        view.findViewById<View>(R.id.previous_button).setOnClickListener { showPreviousPage() }  // 이전 버튼 클릭 리스너 설정
+        view.findViewById<View>(R.id.next_button).setOnClickListener { showNextPage() }          // 다음 버튼 클릭 리스너 설정
+        view.findViewById<View>(R.id.x_button).setOnClickListener { dismiss() }                  // 닫기 버튼 클릭 리스너 설정
 
-        updatePage()
+        updatePage()                                                 // 초기 페이지 업데이트
     }
 
-    // 이전 페이지를 표시하는 함수
-    private fun showPreviousPage() {
+    private fun showPreviousPage() {                                 // 이전 페이지 표시 메서드
         if (currentPage > 1) {
             currentPage--
             updatePage()
         }
     }
 
-    // 다음 페이지를 표시하는 함수
-    private fun showNextPage() {
+    private fun showNextPage() {                                     // 다음 페이지 표시 메서드
         if (currentPage < 6) {
             currentPage++
             updatePage()
         }
     }
 
-    // 페이지 내용을 업데이트하는 함수
-    private fun updatePage() {
-        val (imageRes, description) = when (currentPage) {
+    private fun updatePage() {                                       // 페이지 내용 업데이트 메서드
+        val (imageRes, description) = when (currentPage) {           // 현재 페이지에 따른 이미지와 설명 선택
             1 -> Pair(R.drawable.step1, "1. 눈을 뜬 상태에서 안구를 위아래로 움직인다. 5회 이상 반복한다.")
             2 -> Pair(R.drawable.step2, "2. 눈을 감았다가 뜨고, 다시 1번 과정을 반복한다.")
             3 -> Pair(R.drawable.step3, "3. 이번에는 안구를 오른쪽에서 왼쪽으로 움직인다. 5회 이상 반복한다.")
@@ -66,12 +63,12 @@ class PopupFragment : DialogFragment() {
             else -> Pair(R.drawable.step1, "")
         }
 
-        imageView.setImageResource(imageRes)
-        textDescription.text = description
-        pageIndicator.text = "$currentPage/6"
+        imageView.setImageResource(imageRes)                         // 선택된 이미지 설정
+        textDescription.text = description                           // 선택된 설명 텍스트 설정
+        pageIndicator.text = "$currentPage/6"                        // 페이지 인디케이터 텍스트 업데이트
     }
 
     companion object {
-        fun newInstance() = PopupFragment()
+        fun newInstance() = PopupFragment()                          // PopupFragment 인스턴스 생성 메서드
     }
 }
