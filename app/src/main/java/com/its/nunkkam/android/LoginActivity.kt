@@ -1,33 +1,53 @@
-package com.its.nunkkam.android                                      // 패키지 선언
+package com.its.nunkkam.android
 
-import android.content.Intent                                        // Intent 클래스 임포트
-import android.os.Bundle                                             // Bundle 클래스 임포트
-import android.view.View                                             // View 클래스 임포트
-import android.widget.Button                                         // Button 위젯 임포트
-import androidx.appcompat.app.AppCompatActivity                      // AppCompatActivity 클래스 임포트
+import android.Manifest
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
+import android.os.Bundle
+import android.widget.Button
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 
-class LoginActivity : AppCompatActivity() {                          // AppCompatActivity를 상속받는 LoginActivity 클래스 정의
-    private lateinit var guestLoginButton: Button                    // 게스트 로그인 버튼 선언
-    private lateinit var googleLoginButton: Button                   // Google 로그인 버튼 선언
+class LoginActivity : AppCompatActivity() {
+    private lateinit var guestLoginButton: Button
+    private lateinit var googleLoginButton: Button
 
-    override fun onCreate(savedInstanceState: Bundle?) {             // 액티비티 생성 시 호출되는 메서드
-        super.onCreate(savedInstanceState)                           // 부모 클래스의 onCreate 메서드 호출
-        setContentView(R.layout.activity_login)                      // 레이아웃 설정
+    private val PERMISSION_REQUEST_CODE = 1
 
-        guestLoginButton = findViewById(R.id.guest_login_button)     // 게스트 로그인 버튼 초기화
-        googleLoginButton = findViewById(R.id.google_login_button)   // Google 로그인 버튼 초기화
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_login) // XML 레이아웃 파일 설정
 
-        // 게스트 로그인 버튼 클릭 리스너 설정
+        guestLoginButton = findViewById(R.id.guest_login_button)
+        googleLoginButton = findViewById(R.id.google_login_button)
+
+        // 게스트 로그인 버튼 클릭 시 이벤트 처리
         guestLoginButton.setOnClickListener {
             // 게스트 로그인 처리
-            val intent = Intent(this, MainActivity::class.java)      // MainActivity로 이동하는 인텐트 생성
-            startActivity(intent)                                    // MainActivity 시작
+            // 예를 들어, 새로운 액티비티 시작
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
         }
 
-        // Google 로그인 버튼 클릭 리스너 설정
+        // 구글 로그인 버튼 클릭 시 이벤트 처리
         googleLoginButton.setOnClickListener {
-            // Google 로그인 처리
-            // 여기에 Google Sign-In 통합 코드를 추가해야 함
+            // 구글 로그인 처리
+            // 여기에서 Google Sign-In 통합
+        }
+
+        // 알림 권한 요청
+        requestNotificationPermission()
+    }
+
+    private fun requestNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.POST_NOTIFICATIONS), PERMISSION_REQUEST_CODE)
+            }
         }
     }
+
 }
