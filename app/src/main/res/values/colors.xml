@@ -6,4 +6,45 @@
     <color name="button_text">#D9D9D9</color> <!-- 버튼 텍스트 색상 -->
     <color name="background_teal">#0D3D39</color> <!-- 카드 배경색 -->
 
+    <!-- 추가된 색상 -->
+    <color name="gray_d9d9d9">#D9D9D9</color>
+    <color name="black_000015">#000015</color>
+    <color name="green_00800b">#00800B</color>
+    <color name="teal_2e8069">#2E8069</color>
+    <color name="gray_50_d9d9d9">#80D9D9D9</color>
+    <color name="pink_df43cd">#DF43CD</color>
+    <color name="orange_ff7f00">#FF7F00</color>
+    <color name="green_009d90">#009D90</color>
+    <color name="cyan_0cdae0">#0CDAE0</color>
+    <color name="green_5b8960">#5B8960</color>
+    <color name="light_cyan_5cffd1">#5CFFD1</color>
+    <color name="light_blue_bd7aff">#BDF7FF</color>
+    <color name="yellow_fce38d">#FCE38D</color>
+    <color name="green_00ff00">#00FF00</color>
+    <color name="teal_066d7b">#066D7B</color>
+    <color name="purple_702267">#702267</color>
+    <color name="gray_50_747775">#80747775</color>
+    <color name="red_e7542c">#E7542C</color>
+    <color name="red_ff0000">#FF0000</color>
+    <color name="green_70_00800b">#B300800B</color>
+    <color name="green_40_00800b">#6600800B</color>
+    <color name="green_90_00800b">#E600800B</color>
+    <color name="cyan_100_5cffd1">#FF5CFFD1</color>
+    <color name="cyan_70_5cffd1">#B35CFFD1</color>
+    <color name="cyan_50_5cffd1">#805CFFD1</color>
+    <color name="cyan_40_5cffd1">#665CFFD1</color>
+    <color name="green_50_2e8069">#802E8069</color>
+    <color name="green_70_2e8069">#B32E8069</color>
+    <color name="green_80_2e8069">#CC2E8069</color>
+    <color name="green_30_2e8069">#4D2E8069</color>
+    <color name="green_40_2e8069">#662E8069</color>
+    <color name="orange_50_ff7f00">#80FF7F00</color>
+    <color name="orange_30_ff7f00">#4DFF7F00</color>
+    <color name="orange_80_ff7f00">#CCFF7F00</color>
+    <color name="pink_100_df43cd">#FFDF43CD</color>
+    <color name="pink_90_df43cd">#E6DF43CD</color>
+    <color name="pink_50_df43cd">#80DF43CD</color>
+    <color name="pink_20_df43cd">#33DF43CD</color>
+    <color name="gray_50_ffffff">#80FFFFFF</color>
+    <color name="yellow_30_fce38d">#4DFCE38D</color>
 </resources>
