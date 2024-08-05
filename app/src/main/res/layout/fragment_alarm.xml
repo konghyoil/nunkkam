@@ -3,40 +3,71 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context=".AlarmFragment">
+    android:orientation="vertical">
 
-    <!-- Tab layout for selecting alarm type -->
-    <include
-        android:id="@+id/tabLayout"
-        layout="@layout/layout_alarm_tabs" />
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="#004D40"
+        android:padding="8dp">
 
-    <!-- Alarm settings layout -->
+        <Button
+            android:id="@+id/btnMeasurementAlarm"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="측정 알람"
+            android:textColor="#FFFFFF"
+            android:background="@drawable/button_unselected"
+            android:textStyle="bold"
+            tools:ignore="DuplicateIds" />
+
+        <Button
+            android:id="@+id/btnManageAlarm"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="관리 알람"
+            android:textColor="#FFFFFF"
+            android:background="@drawable/button_unselected"/>
+    </LinearLayout>
+
     <LinearLayout
-        android:id="@+id/alarmSettingsLayout"
+        android:id="@+id/layout_measurement_alarm"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="16dp"
-        android:background="#263238">
+        android:background="#263238"
+        android:visibility="visible">
 
-        <!-- Alarm On/Off Switch -->
+        <TextView
+            android:id="@+id/tvMeasurementAlarmType"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="측정 알람"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"
+            android:layout_marginBottom="16dp"/>
+
         <Switch
-            android:id="@+id/switchAlarm"
+            android:id="@+id/switchMeasurementAlarm"
             android:layout_width="match_parent"
             android:layout_height="55dp"
             android:padding="8dp"
             android:text="알람 설정"
             android:textColor="#FFFFFF"
             android:textSize="16sp"
-            tools:ignore="UseSwitchCompatOrMaterialXml" />
+            android:layout_marginBottom="16dp" />
 
-        <!-- Alarm Interval Setting -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:padding="8dp">
+            android:padding="8dp"
+            android:layout_marginBottom="16dp">
 
             <TextView
                 android:layout_width="0dp"
@@ -47,10 +78,55 @@
                 android:textSize="16sp" />
 
             <Button
-                android:id="@+id/btnInterval"
+                android:id="@+id/btnMeasurementInterval"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="0분" />
         </LinearLayout>
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/layout_manage_alarm"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:background="#263238"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/tvManageAlarmType"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="관리 알람"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"
+            android:layout_marginBottom="16dp"/>
+
+        <Switch
+            android:id="@+id/switchManageAlarm"
+            android:layout_width="match_parent"
+            android:layout_height="51dp"
+            android:layout_marginBottom="16dp"
+            android:text="알람 켜기/끄기"
+            android:textColor="#FFFFFF" />
+
+        <Button
+            android:id="@+id/btnManageInterval"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="알람 주기 설정"
+            android:layout_marginBottom="16dp"/>
+
+        <TextView
+            android:id="@+id/tvCurrentInterval"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="현재 설정: 설정되지 않음"
+            android:textColor="#FFFFFF"
+            android:layout_marginBottom="16dp"/>
     </LinearLayout>
 </LinearLayout>
