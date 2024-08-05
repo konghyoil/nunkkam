@@ -1,45 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".AlarmFragment">
 
     <!-- Tab layout for selecting alarm type -->
-    <LinearLayout
+    <include
         android:id="@+id/tabLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:background="#004D40"
-        android:padding="8dp">
-
-        <Button
-            android:id="@+id/btnMeasurementAlarm"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="측정 알람"
-            android:textSize="16sp"
-            android:textColor="#FFFFFF"
-            android:background="@drawable/button_selected"
-            android:textStyle="bold"/>
-
-        <Button
-            android:id="@+id/btnManageAlarm"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="관리 알람"
-            android:textColor="#FFFFFF"
-            android:background="@drawable/button_unselected"
-            />
-    </LinearLayout>
+        layout="@layout/layout_alarm_tabs" />
 
     <!-- Alarm settings layout -->
     <LinearLayout
         android:id="@+id/alarmSettingsLayout"
-        android:layout_below="@id/tabLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -54,7 +28,8 @@
             android:padding="8dp"
             android:text="알람 설정"
             android:textColor="#FFFFFF"
-            android:textSize="16sp" />
+            android:textSize="16sp"
+            tools:ignore="UseSwitchCompatOrMaterialXml" />
 
         <!-- Alarm Interval Setting -->
         <LinearLayout
@@ -77,21 +52,5 @@
                 android:layout_height="wrap_content"
                 android:text="0분" />
         </LinearLayout>
-
     </LinearLayout>
-
-    <!-- Manage Alarm settings layout -->
-    <LinearLayout
-        android:id="@+id/manageAlarmSettingsLayout"
-        android:layout_below="@id/tabLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp"
-        android:background="#263238"
-        android:visibility="gone">
-
-        <!-- Add manage alarm specific settings here -->
-
-    </LinearLayout>
-</RelativeLayout>
+</LinearLayout>
