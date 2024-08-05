@@ -54,16 +54,16 @@ class CardFragment : Fragment() {                                    // Fragment
         eyeTypeImageView = view.findViewById(R.id.imageView)         // 눈 타입 ImageView 초기화
         shareButton = view.findViewById(R.id.shareButton)            // 공유 버튼 초기화
 
-        shareButton.setOnClickListener {                             // 공유 버튼 클릭 리스너 설정
-            val bitmap = getBitmapFromView(view)                     // 현재 뷰를 비트맵으로 변환
+        shareButton.setOnClickListener {
+            shareButton.visibility = View.GONE // 먼저 버튼 숨기기
+            val bitmap = getBitmapFromView(view)
             bitmap?.let {
-                saveBitmapAndShare(it)                               // 비트맵 저장 및 공유
+                saveBitmapAndShare(it)
             }
         }
 
         val sharedPreferences = requireContext().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
         val userId = sharedPreferences.getString("user_id", null)    // SharedPreferences에서 사용자 ID 가져오기
-        val isGoogleLogin = sharedPreferences.getBoolean("is_google_login", false)  // Google 로그인 여부 확인
 
         if (userId != null) {
             fetchLatestRatePerMinute(userId)                         // 최신 깜빡임 빈도 데이터 가져오기
