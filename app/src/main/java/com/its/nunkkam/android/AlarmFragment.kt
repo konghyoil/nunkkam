@@ -14,6 +14,7 @@ import android.widget.NumberPicker
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import com.its.nunkkam.android.databinding.FragmentAlarmBinding
+import android.widget.Toast
 import java.util.*
 
 class AlarmFragment : Fragment() {
@@ -69,8 +70,10 @@ class AlarmFragment : Fragment() {
         binding.switchMeasurementAlarm.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
                 setupDailyAlarm()
+                Toast.makeText(context, "알림on", Toast.LENGTH_SHORT).show()
             } else {
                 cancelAlarm(false)
+                Toast.makeText(context, "알림off", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -85,8 +88,10 @@ class AlarmFragment : Fragment() {
         binding.switchManageAlarm.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
                 setupRepeatingAlarm()
+                Toast.makeText(context, "알림on", Toast.LENGTH_SHORT).show()
             } else {
                 cancelAlarm(true)
+                Toast.makeText(context, "알림off", Toast.LENGTH_SHORT).show()
             }
         }
     }
