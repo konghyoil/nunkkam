@@ -39,7 +39,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="16dp"
-        android:background="#263238"
+        android:background="#171D1B"
         android:visibility="visible">
 
         <TextView
@@ -56,11 +56,14 @@
             android:id="@+id/switchMeasurementAlarm"
             android:layout_width="match_parent"
             android:layout_height="55dp"
+            android:layout_marginBottom="16dp"
             android:padding="8dp"
             android:text="알람 설정"
             android:textColor="#FFFFFF"
             android:textSize="16sp"
-            android:layout_marginBottom="16dp" />
+            android:thumbTint="@color/dark_thumb"
+            android:trackTint="@color/dark_theme_font_track" />
+
 
         <LinearLayout
             android:layout_width="match_parent"
