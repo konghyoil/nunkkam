@@ -71,9 +71,8 @@ class CardFragment : Fragment() {                                    // Fragment
             Log.e("CardFragment", "User ID is null")                 // 사용자 ID가 null인 경우 로그 출력
         }
 
-        view.findViewById<TextView>(R.id.popupButton).setOnClickListener {  // 팝업 버튼 클릭 리스너 설정
-            showPopup()                                              // 팝업 표시
-        }
+        // 수정: popupButton 관련 코드 제거
+        // 팝업 버튼과 관련된 코드가 이 위치에 있었으나, 메뉴바로 이동되어 제거되었습니다.
     }
 
     private fun getBitmapFromView(view: View): Bitmap? {             // View를 Bitmap으로 변환하는 메서드

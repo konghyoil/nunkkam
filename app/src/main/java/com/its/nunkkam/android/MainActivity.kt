@@ -4,6 +4,7 @@ import android.content.Intent                                        // 인텐�
 import android.os.Bundle                                             // Bundle 클래스 임포트
 import android.util.Log                                              // 로깅을 위한 Log 클래스 임포트
 import android.widget.Button                                         // Button 위젯 임포트
+import android.widget.ImageButton
 import androidx.activity.result.contract.ActivityResultContracts     // 액티비티 결과 계약 임포트
 import androidx.appcompat.app.AppCompatActivity                      // AppCompatActivity 임포트
 import com.google.android.gms.auth.api.signin.GoogleSignIn           // Google 로그인 관련 클래스 임포트
@@ -18,7 +19,7 @@ import com.google.firebase.ktx.Firebase                              // Firebase
 class MainActivity : AppCompatActivity() {                           // MainActivity 클래스 정의, AppCompatActivity 상속
 
     private lateinit var auth: FirebaseAuth                          // Firebase 인증 객체 선언
-    private lateinit var googleLoginButton: Button                   // Google 로그인 버튼 객체 선언
+    private lateinit var googleLoginButton: ImageButton                   // Google 로그인 버튼 객체 선언
 
     override fun onCreate(savedInstanceState: Bundle?) {             // 액티비티 생성 시 호출되는 메서드
         super.onCreate(savedInstanceState)                           // 부모 클래스의 onCreate 메서드 호출
