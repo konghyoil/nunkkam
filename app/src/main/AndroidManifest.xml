@@ -7,9 +7,9 @@
     <!-- 카메라 사용 권한 -->
     <uses-permission android:name="android.permission.CAMERA" />
     <!-- 포그라운드 서비스 권한 -->
-<!--    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />-->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <!-- 포그라운드 서비스 카메라 권한 -->
-<!--    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CAMERA" />-->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CAMERA" />
 
     <!-- 알람 관련 권한 -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
