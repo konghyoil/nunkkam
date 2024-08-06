@@ -1,19 +1,22 @@
 package com.its.nunkkam.android
 
+import android.app.AlarmManager
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import java.util.Date
 
 class AlarmReceiver2 : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         Log.d("AlarmReceiver2", "onReceive called")
 
-        createNotificationChannel(context) // 알림 채널 생성
+        createNotificationChannel(context)
 
         val isManageAlarm = intent.getBooleanExtra("isManageAlarm", false)
         Log.d("AlarmReceiver2", "isManageAlarm: $isManageAlarm")
@@ -28,25 +31,47 @@ class AlarmReceiver2 : BroadcastReceiver() {
         Log.d("AlarmReceiver2", "Sound Enabled: $isSoundEnabled, Vibration Enabled: $isVibrationEnabled")
 
         val notification = NotificationCompat.Builder(context, "alarmChannel")
-            .setSmallIcon(R.drawable.ic_notification) // 실제 존재하는 아이콘 리소스 사용
+            .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle(notificationTitle)
             .setContentText(notificationText)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setAutoCancel(true)
 
-        if (isSoundEnabled) {
+        if (isSoundEnabled && isVibrationEnabled) {
+            notification.setDefaults(NotificationCompat.DEFAULT_ALL)
+        } else if (isSoundEnabled) {
             notification.setDefaults(NotificationCompat.DEFAULT_SOUND)
-            Log.d("AlarmReceiver2", "Sound is enabled")
-        }
-
-        if (isVibrationEnabled) {
+        } else if (isVibrationEnabled) {
             notification.setDefaults(NotificationCompat.DEFAULT_VIBRATE)
-            Log.d("AlarmReceiver2", "Vibration is enabled")
+        } else {
+            notification.setDefaults(0)
         }
 
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.notify(if (isManageAlarm) 1002 else 1001, notification.build())
         Log.d("AlarmReceiver2", "Notification sent")
+
+        // 다음 알람 설정
+        if (isManageAlarm) {
+            val intervalMillis = intent.getLongExtra("intervalMillis", 0)
+            if (intervalMillis > 0) {
+                val nextAlarmTime = System.currentTimeMillis() + intervalMillis
+                val nextIntent = Intent(context, AlarmReceiver2::class.java).apply {
+                    putExtra("isManageAlarm", true)
+                    putExtra("intervalMillis", intervalMillis)
+                }
+                val nextPendingIntent = PendingIntent.getBroadcast(
+                    context, 1002, nextIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                )
+                val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+                alarmManager.setExactAndAllowWhileIdle(
+                    AlarmManager.RTC_WAKEUP,
+                    nextAlarmTime,
+                    nextPendingIntent
+                )
+                Log.d("AlarmReceiver2", "Next repeating alarm set for ${Date(nextAlarmTime)}")
+            }
+        }
     }
 
     private fun createNotificationChannel(context: Context) {
@@ -62,3 +87,5 @@ class AlarmReceiver2 : BroadcastReceiver() {
         }
     }
 }
+
+
