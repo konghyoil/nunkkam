@@ -6,6 +6,7 @@ import android.app.TimePickerDialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.SystemClock
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -25,7 +26,6 @@ class AlarmFragment : Fragment() {
 
     // AlarmManager 객체
     private var alarmManager: AlarmManager? = null
-
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         // View Binding 초기화
@@ -69,8 +69,15 @@ class AlarmFragment : Fragment() {
         // 알람 켜기/끄기 스위치 리스너
         binding.switchMeasurementAlarm.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
-                setupDailyAlarm()
-                Toast.makeText(context, "알림on", Toast.LENGTH_SHORT).show()
+                val currentText = binding.btnMeasurementInterval.text.toString()
+                val timeParts = currentText.split(":")
+                if (timeParts.size == 2) {
+                    val hour = timeParts[0].toInt()
+                    val minute = timeParts[1].toInt()
+                    setupDailyAlarm(hour, minute)
+                } else {
+                    Toast.makeText(context, "알람 시간을 설정해주세요.", Toast.LENGTH_SHORT).show()
+                }
             } else {
                 cancelAlarm(false)
                 Toast.makeText(context, "알림off", Toast.LENGTH_SHORT).show()
@@ -87,8 +94,15 @@ class AlarmFragment : Fragment() {
         // 알람 켜기/끄기 스위치 리스너
         binding.switchManageAlarm.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
-                setupRepeatingAlarm()
-                Toast.makeText(context, "알림on", Toast.LENGTH_SHORT).show()
+                val intervalText = binding.btnManageInterval.text.toString()
+                val parts = intervalText.split("시간 ", "분")
+                if (parts.size == 2) {
+                    val hours = parts[0].toInt()
+                    val minutes = parts[1].toInt()
+                    setupRepeatingAlarm(hours, minutes)
+                } else {
+                    Toast.makeText(context, "알람 주기를 설정해주세요.", Toast.LENGTH_SHORT).show()
+                }
             } else {
                 cancelAlarm(true)
                 Toast.makeText(context, "알림off", Toast.LENGTH_SHORT).show()
@@ -145,24 +159,34 @@ class AlarmFragment : Fragment() {
             putExtra("isManageAlarm", false)
         }
         val pendingIntent = PendingIntent.getBroadcast(
-            context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            context, 1001, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        // 알람 시간 설정
-        val calendar: Calendar = Calendar.getInstance().apply {
+        // KTC 시간 기준으로 알람 시간 설정
+        val calendar: Calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
             set(Calendar.HOUR_OF_DAY, hour)
             set(Calendar.MINUTE, minute)
             set(Calendar.SECOND, 0)
             set(Calendar.MILLISECOND, 0)
-            if (before(Calendar.getInstance())) {
+            if (before(Calendar.getInstance(TimeZone.getTimeZone("UTC")))) {
                 add(Calendar.DAY_OF_MONTH, 1)
             }
         }
 
-        // 일일 반복 알람 설정
+        // 현재 시간과 알람 시간의 차이 계산
+        val now = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
+        val diffInMillis = calendar.timeInMillis - now.timeInMillis
+        val diffInHours = diffInMillis / (1000 * 60 * 60)
+        val diffInMinutes = (diffInMillis / (1000 * 60)) % 60
+        val diffInSeconds = (diffInMillis / 1000) % 60
+
+        // Toast 메시지로 알림
+        Toast.makeText(context, "알람이 ${diffInHours}시간 ${diffInMinutes}분 ${diffInSeconds}초 후에 울립니다.", Toast.LENGTH_LONG).show()
+
+        // 일일 반복 알람 설정 (KTC 기준)
         alarmManager?.setRepeating(
-            AlarmManager.RTC_WAKEUP,
-            calendar.timeInMillis,
+            AlarmManager.ELAPSED_REALTIME_WAKEUP,
+            SystemClock.elapsedRealtime() + diffInMillis,
             AlarmManager.INTERVAL_DAY,
             pendingIntent
         )
@@ -174,13 +198,13 @@ class AlarmFragment : Fragment() {
             putExtra("isManageAlarm", true)
         }
         val pendingIntent = PendingIntent.getBroadcast(
-            context, 1, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            context, 1002, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
         // 알람 간격 계산 (밀리초 단위)
         val intervalMillis = (hours * 60 * 60 * 1000 + minutes * 60 * 1000).toLong()
 
-        // 반복 알람 설정
+        // 반복 알람 설정 (로컬 시간 기준)
         alarmManager?.setRepeating(
             AlarmManager.RTC_WAKEUP,
             System.currentTimeMillis() + intervalMillis,
@@ -193,7 +217,7 @@ class AlarmFragment : Fragment() {
         // 알람 취소를 위한 인텐트 생성
         val intent = Intent(context, AlarmReceiver2::class.java)
         val pendingIntent = PendingIntent.getBroadcast(
-            context, if (isManageAlarm) 1 else 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            context, if (isManageAlarm) 1002 else 1001, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
         // 알람 취소
         alarmManager?.cancel(pendingIntent)
