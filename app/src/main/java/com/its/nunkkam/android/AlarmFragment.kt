@@ -163,18 +163,19 @@ class AlarmFragment : Fragment() {
         )
 
         // KTC 시간 기준으로 알람 시간 설정
-        val calendar: Calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
+        val timeZone = TimeZone.getTimeZone("Asia/Seoul")
+        val calendar: Calendar = Calendar.getInstance(timeZone).apply {
             set(Calendar.HOUR_OF_DAY, hour)
             set(Calendar.MINUTE, minute)
             set(Calendar.SECOND, 0)
             set(Calendar.MILLISECOND, 0)
-            if (before(Calendar.getInstance(TimeZone.getTimeZone("UTC")))) {
+            if (before(Calendar.getInstance(timeZone))) {
                 add(Calendar.DAY_OF_MONTH, 1)
             }
         }
-
+        Log.d("alarmfragment","setupDailyAlarm : hour: ${hour}시, minute: ${minute}")
         // 현재 시간과 알람 시간의 차이 계산
-        val now = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
+        val now = Calendar.getInstance(timeZone)
         val diffInMillis = calendar.timeInMillis - now.timeInMillis
         val diffInHours = diffInMillis / (1000 * 60 * 60)
         val diffInMinutes = (diffInMillis / (1000 * 60)) % 60
@@ -203,7 +204,7 @@ class AlarmFragment : Fragment() {
 
         // 알람 간격 계산 (밀리초 단위)
         val intervalMillis = (hours * 60 * 60 * 1000 + minutes * 60 * 1000).toLong()
-
+        Log.d("alarmfragment","setupRepeatingAlarm intervalMillis: ${intervalMillis/60000}")
         // 반복 알람 설정 (로컬 시간 기준)
         alarmManager?.setRepeating(
             AlarmManager.RTC_WAKEUP,
