@@ -6,45 +6,92 @@
     <color name="button_text">#D9D9D9</color> <!-- 버튼 텍스트 색상 -->
     <color name="background_teal">#0D3D39</color> <!-- 카드 배경색 -->
 
-    <!-- 추가된 색상 -->
-    <color name="gray_d9d9d9">#D9D9D9</color>
-    <color name="black_000015">#000015</color>
-    <color name="green_00800b">#00800B</color>
-    <color name="teal_2e8069">#2E8069</color>
-    <color name="gray_50_d9d9d9">#80D9D9D9</color>
-    <color name="pink_df43cd">#DF43CD</color>
-    <color name="orange_ff7f00">#FF7F00</color>
-    <color name="green_009d90">#009D90</color>
-    <color name="cyan_0cdae0">#0CDAE0</color>
-    <color name="green_5b8960">#5B8960</color>
-    <color name="light_cyan_5cffd1">#5CFFD1</color>
-    <color name="light_blue_bd7aff">#BDF7FF</color>
-    <color name="yellow_fce38d">#FCE38D</color>
-    <color name="green_00ff00">#00FF00</color>
-    <color name="teal_066d7b">#066D7B</color>
-    <color name="purple_702267">#702267</color>
-    <color name="gray_50_747775">#80747775</color>
-    <color name="red_e7542c">#E7542C</color>
-    <color name="red_ff0000">#FF0000</color>
-    <color name="green_70_00800b">#B300800B</color>
-    <color name="green_40_00800b">#6600800B</color>
-    <color name="green_90_00800b">#E600800B</color>
-    <color name="cyan_100_5cffd1">#FF5CFFD1</color>
-    <color name="cyan_70_5cffd1">#B35CFFD1</color>
-    <color name="cyan_50_5cffd1">#805CFFD1</color>
-    <color name="cyan_40_5cffd1">#665CFFD1</color>
-    <color name="green_50_2e8069">#802E8069</color>
-    <color name="green_70_2e8069">#B32E8069</color>
-    <color name="green_80_2e8069">#CC2E8069</color>
-    <color name="green_30_2e8069">#4D2E8069</color>
-    <color name="green_40_2e8069">#662E8069</color>
-    <color name="orange_50_ff7f00">#80FF7F00</color>
-    <color name="orange_30_ff7f00">#4DFF7F00</color>
-    <color name="orange_80_ff7f00">#CCFF7F00</color>
-    <color name="pink_100_df43cd">#FFDF43CD</color>
-    <color name="pink_90_df43cd">#E6DF43CD</color>
-    <color name="pink_50_df43cd">#80DF43CD</color>
-    <color name="pink_20_df43cd">#33DF43CD</color>
-    <color name="gray_50_ffffff">#80FFFFFF</color>
-    <color name="yellow_30_fce38d">#4DFCE38D</color>
+    <!-- Dark Colors -->
+    <color name="dark_theme_font_track">#D9D9D9</color>
+    <color name="dark_grey">#171D1B</color>
+    <color name="dark_dark">#000000</color>
+    <color name="dark_50dark">#80000000</color> <!-- 50% Opacity -->
+    <color name="dark_10dark">#1A000000</color> <!-- 10% Opacity -->
+    <color name="dark_40dark">#66000000</color> <!-- 40% Opacity -->
+    <color name="dark_30dark">#4D000000</color> <!-- 30% Opacity -->
+    <color name="dark_20dark">#33000000</color> <!-- 20% Opacity -->
+    <color name="dark_darkergrey">#2E2E2E</color>
+    <color name="dark_80grey">#80747775</color> <!-- 50% Opacity -->
+    <color name="dark_button3">#80D9D9D9</color> <!-- 50% Opacity -->
+    <color name="dark_white">#FFFFFF</color>
+    <color name="dark_button4">#4DD9D9D9</color> <!-- 30% Opacity -->
+    <color name="dark_button2">#B3D9D9D9</color> <!-- 70% Opacity -->
+    <color name="dark_thumb">#747474</color>
+
+    <!-- Skyblue Colors -->
+    <color name="skyblue1">#FFFFFF</color>
+    <color name="skyblue2">#000015</color>
+    <color name="skyblue3">#D9D9D9</color>
+    <color name="skyblue4_90">#E60CDAE0</color> <!-- 90% Opacity -->
+    <color name="skyblue5_30">#4D066D7B</color> <!-- 30% Opacity -->
+    <color name="skyblue6_60">#99BDFAFF</color> <!-- 60% Opacity -->
+    <color name="skyblue7">#0DCAE0</color>
+    <color name="skyblue8">#000000</color>
+    <color name="skyblue9_50">#80747775</color> <!-- 50% Opacity -->
+    <color name="skyblue10_50">#80FFFFFF</color> <!-- 50% Opacity -->
+
+    <!-- Purple Colors -->
+    <color name="purple1">#000000</color>
+    <color name="purple2">#8E8E93</color>
+    <color name="purple3">#D9D9D9</color>
+    <color name="purple4_50">#80DF43CD</color> <!-- 50% Opacity -->
+    <color name="purple5">#171D1B</color>
+    <color name="purple6">#2E2E2E</color>
+    <color name="purple7_50">#80702267</color> <!-- 50% Opacity -->
+    <color name="purple8_50">#80747775</color> <!-- 50% Opacity -->
+    <color name="purple9_50">#80D9D9D9</color> <!-- 50% Opacity -->
+    <color name="purple10_90">#E6DF43CD</color> <!-- 90% Opacity -->
+    <color name="purple11_70">#B3DF43CD</color> <!-- 70% Opacity -->
+    <color name="purple12_20">#33DF43CD</color> <!-- 20% Opacity -->
+    <color name="purple13">#FFFFFF</color>
+
+    <!-- Orange Colors -->
+    <color name="orange1">#D9D9D9</color>
+    <color name="orange2">#FF7F00</color>
+    <color name="orange3">#171D1B</color>
+    <color name="orange4">#FCE38D</color>
+    <color name="orange5_50">#80D9D9D9</color> <!-- 50% Opacity -->
+    <color name="orange6_50">#80FF7F00</color> <!-- 50% Opacity -->
+    <color name="orange7_80">#CCFF7F00</color> <!-- 80% Opacity -->
+    <color name="orange8">#2E2E2E</color>
+    <color name="orange9_50">#80747775</color> <!-- 50% Opacity -->
+    <color name="orange10">#E7542C</color>
+    <color name="orange11_50">#80E7542C</color> <!-- 50% Opacity -->
+    <color name="orange12_30">#4DFF7F00</color> <!-- 30% Opacity -->
+    <color name="orange13">#FFFFFF</color>
+
+    <!-- Lightgreen Colors -->
+    <color name="lightgreen_thumb">#D9D9D9</color>
+    <color name="lightgreen_button1">#00FF00</color>
+    <color name="lightgreen_button2">#01B805</color>
+    <color name="lightgreen_button3">#00800B</color>
+    <color name="lightgreen_button4">#023E0F</color>
+    <color name="lightgreen_darktheme">#041211</color>
+    <color name="lightgreen_track">#01B805</color>
+    <color name="lightgreen_white">#FFFFFF</color>
+    <color name="lightgreen_active">#028809</color>
+    <color name="lightgreen_deactive">#E600800B</color>
+    <color name="lightgreen8_50">#023E0F</color>
+    <color name="lightgreen_grey">#2E2E2E</color>
+
+
+    <!-- Mint Colors -->
+    <color name="mint_button1">#5CFFD1</color>
+    <color name="mint_button2">#45C09D</color>
+    <color name="mint_button3">#2E8069</color>
+    <color name="mint_button4">#246553</color>
+    <color name="mint_white">#FFFFFF</color>
+    <color name="mint_font">#D9D9D9</color>
+    <color name="mint_90darkmint">#E62E8069</color> <!-- 90% Opacity -->
+    <color name="mint_50mint">#805CFFD1</color> <!-- 50% Opacity -->
+    <color name="mint_30darkgreen">#4D2E8968</color> <!-- 30% Opacity -->
+    <color name="mint_70lightmint">#B35CFFD1</color> <!-- 70% Opacity -->
+    <color name="mint_70darkmint">#B32E8069</color> <!-- 70% Opacity -->
+    <color name="mint_30darkmint">#4D2E8069</color> <!-- 30% Opacity -->
+    <color name="mint_track">#359378</color>
 </resources>
