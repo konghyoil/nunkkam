@@ -6,7 +6,6 @@ import android.app.TimePickerDialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.os.SystemClock
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -80,7 +79,6 @@ class AlarmFragment : Fragment() {
                 }
             } else {
                 cancelAlarm(false)
-                Toast.makeText(context, "알림off", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -105,7 +103,6 @@ class AlarmFragment : Fragment() {
                 }
             } else {
                 cancelAlarm(true)
-                Toast.makeText(context, "알림off", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -173,7 +170,8 @@ class AlarmFragment : Fragment() {
                 add(Calendar.DAY_OF_MONTH, 1)
             }
         }
-        Log.d("alarmfragment","setupDailyAlarm : hour: ${hour}시, minute: ${minute}")
+        Log.d("AlarmFragment","setupDailyAlarm: hour: ${hour}시, minute: ${minute}")
+
         // 현재 시간과 알람 시간의 차이 계산
         val now = Calendar.getInstance(timeZone)
         val diffInMillis = calendar.timeInMillis - now.timeInMillis
@@ -186,8 +184,8 @@ class AlarmFragment : Fragment() {
 
         // 일일 반복 알람 설정 (KTC 기준)
         alarmManager?.setRepeating(
-            AlarmManager.ELAPSED_REALTIME_WAKEUP,
-            SystemClock.elapsedRealtime() + diffInMillis,
+            AlarmManager.RTC_WAKEUP,
+            calendar.timeInMillis,
             AlarmManager.INTERVAL_DAY,
             pendingIntent
         )
@@ -204,7 +202,8 @@ class AlarmFragment : Fragment() {
 
         // 알람 간격 계산 (밀리초 단위)
         val intervalMillis = (hours * 60 * 60 * 1000 + minutes * 60 * 1000).toLong()
-        Log.d("alarmfragment","setupRepeatingAlarm intervalMillis: ${intervalMillis/60000}")
+        Log.d("AlarmFragment","setupRepeatingAlarm: intervalMillis: ${intervalMillis / 60000}분")
+
         // 반복 알람 설정 (로컬 시간 기준)
         alarmManager?.setRepeating(
             AlarmManager.RTC_WAKEUP,
@@ -222,6 +221,7 @@ class AlarmFragment : Fragment() {
         )
         // 알람 취소
         alarmManager?.cancel(pendingIntent)
+        Toast.makeText(context, "알림off", Toast.LENGTH_SHORT).show()
     }
 
     override fun onDestroyView() {
