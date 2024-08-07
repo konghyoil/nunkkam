@@ -14,93 +14,69 @@
         app:cardBackgroundColor="#009D90"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.5">
+        app:layout_constraintTop_toTopOf="parent">
 
         <!-- CardView 내부 ConstraintLayout 설정 -->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="232dp"
+            android:layout_height="wrap_content"
             android:padding="16dp">
 
-            <!-- 첫 번째 TextView 설정 -->
-            <TextView
-                android:id="@+id/textView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="16dp"
-                android:fontFamily="sans-serif-black"
-                android:text="측정결과"
-                android:textColor="#D9D9D9"
-                android:textSize="22sp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <!-- 결과를 표시하는 TextView 설정 -->
-            <TextView
-                android:id="@+id/resultTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="8dp"
-                android:fontFamily="sans-serif-black"
-                android:text="측정 결과"
-                android:textColor="#D9D9D9"
-                android:textSize="30sp"
-                android:visibility="visible"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textView" />
-
             <!-- 공유하기 버튼 설정 -->
-
-            <!-- 이미지뷰 설정 -->
-
+            <!-- 수정: 버튼을 맨 위로 이동 -->
             <Button
                 android:id="@+id/shareButton"
-                android:layout_width="122dp"
-                android:layout_height="53dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="13dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:backgroundTint="#FF08756A"
                 android:contentDescription="Share Button"
                 android:fontFamily="sans-serif-black"
                 android:text="공유하기"
                 android:textColorLink="#000000"
                 android:textSize="18sp"
-                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.464"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/resultTextView"
-                app:layout_constraintVertical_bias="1.0" />
+                app:layout_constraintTop_toTopOf="parent" />
 
+            <!-- 첫 번째 TextView 설정 -->
+            <!-- 결과를 표시하는 TextView 설정 -->
+            <TextView
+                android:id="@+id/resultTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-black"
+                android:text="측정 결과"
+                android:textColor="#D9D9D9"
+                android:textSize="30sp"
+                android:visibility="visible"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <!-- 이미지뷰 설정 -->
             <ImageView
                 android:id="@+id/imageView"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:layout_marginTop="5dp"
-                android:layout_marginEnd="16dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
+                android:layout_width="115dp"
+                android:layout_height="115dp"
+                android:layout_marginTop="16dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/resultTextView"
                 app:srcCompat="@drawable/falcon" />
 
             <!-- 세 번째 TextView 설정 -->
             <TextView
                 android:id="@+id/textView3"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:layout_marginEnd="16dp"
+                android:layout_width="266dp"
+                android:layout_height="36dp"
+                android:layout_marginTop="48dp"
                 android:fontFamily="sans-serif-black"
+                android:minHeight="100dp"
                 android:text="당신은 '매'의 눈을 가졌습니다!"
                 android:textColor="#D9D9D9"
+                android:textSize="18sp"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/imageView" />
-
-            <!-- 수정된 부분: popupButton 제거 -->
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toEndOf="@+id/imageView"
+                app:layout_constraintTop_toBottomOf="@+id/resultTextView" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>

@@ -46,54 +46,82 @@ class ChartFragment : Fragment() {
         setupAverageBlinkGraph(userId)
     }
 
-    // 평균 눈 깜빡임 그래프를 설정하는 함수
+    // 수정: 평균 눈 깜빡임 그래프를 설정하는 함수
     private fun setupAverageBlinkGraph(userId: String) {
-        // AnyChartView 찾기
         val anyChartView: AnyChartView = requireView().findViewById(R.id.any_chart_view2)
-        // 컬럼 차트 생성
         val column = AnyChart.column()
 
-        // 차트 스타일 설정
-        column.background().fill("#0D3D39")
-        column.title("평균 눈 깜빡임 수치 (*분당 평균)")
-        column.title().padding(0.0, 0.0, 10.0, 0.0)
-        column.title().fontColor("#009D90")
-        column.title().fontSize(16)
-        column.title().background().fill("#FFFFFF")
+        column.background().fill("#D9D9D9")
+        column.title().enabled(false)
 
-        // Firestore에서 데이터 가져오기
         firestore.collection("USERS").document(userId)
             .get()
             .addOnSuccessListener { document ->
                 if (document != null && document.exists()) {
                     val blinkData = document.get("blinks") as? List<Map<String, Any>>
-                    if (blinkData != null) {
-                        // 주간 평균 데이터 생성
+                    if (blinkData != null && blinkData.isNotEmpty()) {
                         val data = generateWeeklyAverageData(blinkData)
-                        val series = column.column(data)
-                        series.color("#009D90")
+                        if (data.isNotEmpty()) {
+                            val series = column.column(data)
 
-                        // 축 설정
-                        column.xAxis(0).title("").labels().fontSize(12).fontColor("#009D90")
-                        column.yAxis(0).title("").labels().fontSize(12).fontColor("#009D90")
+                            // 수정: 막대 색상 및 모양 설정
+                            series.fill(
+                                "function() { " +
+                                        "if (this.x === '최근') return '#2E2E2E'; " +
+                                        "else return '#888888'; " +
+                                        "}"
+                            )
 
-                        // 레이블 설정
-                        column.labels().enabled(true)
-                        column.labels().position("top")
-                        column.labels().fontSize(12)
-                        column.labels().fontColor("#009D90")
+                            // 수정: 축 설정
+                            column.xAxis(0).labels().fontColor("#888888")
+                            column.yAxis(0).labels().fontColor("#888888")
 
-                        // 차트 설정
-                        anyChartView.setChart(column)
+                            // 수정: 레이블 설정
+                            column.labels().enabled(true)
+                            column.labels().position("top")
+                            column.labels().fontColor(
+                                "function() { " +
+                                        "if (this.x === '최근') return '#2E2E2E'; " +
+                                        "else return '#888888'; " +
+                                        "}"
+                            )
+
+                            // 수정: x축 레이블 설정
+                            column.xAxis(0).labels().fontColor(
+                                "function() { " +
+                                        "if (this.value === '최근') return '#2E2E2E'; " +
+                                        "else return '#888888'; " +
+                                        "}"
+                            )
+
+                            // 추가: y축 범위 설정
+                            column.yScale().minimum(0)
+                            column.yScale().maximum(60)  // 적절한 최대값 설정
+
+                            // 추가: 애니메이션 추가
+                            column.animation(true)
+
+                            anyChartView.setChart(column)
+                        } else {
+                            Log.e("ChartFragment", "No data to display")
+                            // 에러 메시지 표시
+                        }
+                    } else {
+                        Log.e("ChartFragment", "Blink data is null or empty")
+                        // 에러 메시지 표시
                     }
+                } else {
+                    Log.e("ChartFragment", "Document does not exist")
+                    // 에러 메시지 표시
                 }
             }
             .addOnFailureListener { exception ->
-                println("문서 가져오기 오류: $exception")
+                Log.e("ChartFragment", "Error fetching document", exception)
+                // 에러 메시지 표시
             }
     }
 
-    // 주간 평균 데이터를 생성하는 함수
+    // 수정: 주간 평균 데이터를 생성하는 함수
     private fun generateWeeklyAverageData(blinkData: List<Map<String, Any>>): List<DataEntry> {
         val data = mutableListOf<DataEntry>()
         val calendar = Calendar.getInstance()
@@ -139,14 +167,18 @@ class ChartFragment : Fragment() {
             data.add(ValueDataEntry(weekLabel, weeklyAverage))
         }
 
-        // 최근 데이터 추가
-        val recentBlink = blinkData.maxByOrNull { (it["measurement_date"] as Timestamp).seconds }
-        val recentAverage = recentBlink?.let {
-            when (val value = it["average_frequency_per_minute"]) {
-                is Long -> value.toDouble()
-                is Double -> value
-                else -> 0.0
-            }.roundToInt()
+        // 수정: 데이터가 없는 경우 처리
+        if (data.isEmpty()) {
+            // 최근 6주 동안의 빈 데이터 추가
+            for (i in 5 downTo 0) {
+                val weekLabel = getWeekLabel(Calendar.getInstance().apply { add(Calendar.WEEK_OF_YEAR, -i) }.time)
+                data.add(ValueDataEntry(weekLabel, 0))
+            }
+        }
+
+        // 수정: 최근 데이터 추가 (없으면 0으로)
+        val recentAverage = blinkData.lastOrNull()?.let {
+            (it["average_frequency_per_minute"] as? Number)?.toDouble()?.roundToInt() ?: 0
         } ?: 0
         data.add(ValueDataEntry("최근", recentAverage))
 

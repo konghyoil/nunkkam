@@ -22,6 +22,10 @@
     <color name="dark_button4">#4DD9D9D9</color> <!-- 30% Opacity -->
     <color name="dark_button2">#B3D9D9D9</color> <!-- 70% Opacity -->
     <color name="dark_thumb">#747474</color>
+    <color name="dark_label">#505050</color>
+    <color name="dark_lightbar">#888888</color>
+    <color name="dark_darkbar">#2E2E2E</color>
+
 
     <!-- Skyblue Colors -->
     <color name="skyblue1">#FFFFFF</color>
