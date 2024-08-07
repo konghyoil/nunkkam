@@ -15,6 +15,7 @@ import android.widget.ImageView
 import android.widget.PopupMenu
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -122,7 +123,7 @@ class TimerActivity : AppCompatActivity() {
                     true
                 }
                 R.id.action_delete_account -> {
-                    deleteUserAccount()
+                    showDeleteAccountWarning()
                     true
                 }
                 else -> false
@@ -130,6 +131,19 @@ class TimerActivity : AppCompatActivity() {
         }
         popupMenu.show()
     }
+
+    private fun showDeleteAccountWarning() {
+        val builder = AlertDialog.Builder(this)
+        builder.setMessage("회원 탈퇴를 하면 모든 회원 정보가 삭제됩니다.\n회원을 탈퇴하시겠습니까?")
+            .setPositiveButton("예") { dialog, id ->
+                deleteUserAccount()
+            }
+            .setNegativeButton("아니요") { dialog, id ->
+                dialog.dismiss()
+            }
+        builder.create().show()
+    }
+
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_main, menu)
