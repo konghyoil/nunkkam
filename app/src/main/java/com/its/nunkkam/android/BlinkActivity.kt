@@ -47,13 +47,8 @@ class BlinkActivity : AppCompatActivity() {
     private lateinit var eyeStatusImageView: ImageView // 눈 상태를 표시할 이미지 뷰
     private lateinit var eyeStatusTextView: TextView // 눈 상태를 표시할 텍스트 뷰
     private lateinit var blinkCountTextView: TextView // 눈 깜빡임 횟수를 표시할 TextView
-    private var lastBlinkTime = System.currentTimeMillis() // 마지막 눈 깜빡임이 감지된 시간
-    private var blinkRate = 0.0 // 분당 눈 깜빡임 횟수 (blinks per minute)
-    private lateinit var blinkRateTextView: TextView // 분당 눈 깜빡임 횟수를 표시할 TextView
-    private var frameCounter = 0 // 프레임 카운터
-    private var lastFpsUpdateTime = System.currentTimeMillis() // 마지막 FPS 업데이트 시간
-    private var fps = 0f // 현재 FPS
     private lateinit var fpsTextView: TextView // FPS를 표시할 TextView
+    private lateinit var blinkRateTextView: TextView // 분당 눈 깜빡임 횟수를 표시할 TextView
 
     // 타이머
     private lateinit var timerTextView: TextView // 타이머 텍스트 뷰
@@ -229,7 +224,7 @@ class BlinkActivity : AppCompatActivity() {
 
     private fun resetBlinkCount() {
         if (::cameraService.isInitialized) {
-            cameraService.resetBlinkCount() // CameraService에서 눈 깜빡임 카운트를 초기화
+            blinkDetectionUtil.resetBlinkCount() // blinkDetectionUtil에서 눈 깜빡임 카운트를 초기화
             updateBlinkUI() // UI 업데이트
         } else {
             Log.e(TAG, "CameraService is not initialized")
@@ -368,16 +363,9 @@ class BlinkActivity : AppCompatActivity() {
             return
         }
 
-        frameCounter++ // 프레임 카운터 증가
+        blinkDetectionUtil.updateFps() // FPS 업데이트
 
-        // FPS 계산
-        val currentTime = System.currentTimeMillis() // 현재 시간 기록
-        if (currentTime - lastFpsUpdateTime >= 1000) { // 1초마다 FPS 업데이트
-            fps = frameCounter * 1000f / (currentTime - lastFpsUpdateTime) // FPS 계산
-            frameCounter = 0 // 프레임 카운터 초기화
-            lastFpsUpdateTime = currentTime // 마지막 FPS 업데이트 시간 갱신
-            updateFpsUI() // FPS UI 업데이트
-        }
+        updateFpsUI() // FPS UI 업데이트
 
         val landmarks = result.faceLandmarks()[0] // 첫 번째 감지된 얼굴의 랜드마크
 
@@ -387,13 +375,9 @@ class BlinkActivity : AppCompatActivity() {
         // 눈 깜빡임 감지 및 UI 업데이트 로직
         if (blinked) {
             Log.d(TAG, "Blink detected")
-            cameraService.incrementBlinkCount() // 눈 깜빡임 횟수 증가
-            val blinkCount = cameraService.getBlinkCount()
-            Log.d(TAG, "Total blinks: $blinkCount")
-
-            val timeDiff = (currentTime - lastBlinkTime) / 1000.0 // 마지막 깜빡임과의 시간 차이를 초 단위로 계산
-            blinkRate = 60.0 / timeDiff // 분당 깜빡임 횟수 계산 (60초 / 깜빡임 간격)
-            lastBlinkTime = currentTime // 마지막 깜빡임 시간 업데이트
+            blinkDetectionUtil.incrementBlinkCount() // 눈 깜빡임 횟수 증가
+            blinkDetectionUtil.updateBlinkRate() // Blink Rate 업데이트
+            blinkDetectionUtil.setLastBlinkTime(blinkDetectionUtil.getCurrentTime()) // 마지막 깜빡임 시간 업데이트
             updateBlinkUI() // UI 업데이트 함수 호출
         }
 
@@ -415,19 +399,19 @@ class BlinkActivity : AppCompatActivity() {
         }
 
         Log.d(TAG, "Eye state: $eyeState, Average openness: $averageEyeOpenness")
-        Log.d("EyeOpenness", "FPS: $fps, Left Eye: $leftEyeOpenness, Right Eye: $rightEyeOpenness")
+        Log.d("EyeOpenness", "FPS: ${blinkDetectionUtil.getFps()}, Left Eye: $leftEyeOpenness, Right Eye: $rightEyeOpenness")
     }
 
     // 눈 깜빡임 카운트 증가 및 저장 함수 -> TimerFragment로 보내기 위함
     private fun updateBlinkCount() {
-        cameraService.incrementBlinkCount() // 눈 깜빡임 횟수 증가
+        blinkDetectionUtil.incrementBlinkCount() // 눈 깜빡임 횟수 증가
         saveBlinkCountToPreferences()
         updateBlinkUI()
     }
 
     private fun saveBlinkCountToPreferences() {
         if (this::cameraService.isInitialized) {
-            val blinkCount = cameraService.getBlinkCount()
+            val blinkCount = blinkDetectionUtil.getBlinkCount()
             val sharedPref = getSharedPreferences("MyApp", Context.MODE_PRIVATE)
             with(sharedPref.edit()) {
                 putInt("blink_count", blinkCount)
@@ -443,9 +427,9 @@ class BlinkActivity : AppCompatActivity() {
     private fun updateBlinkUI() {
         runOnUiThread {
             if (::cameraService.isInitialized) {
-                val blinkCount = cameraService.getBlinkCount()
+                val blinkCount = blinkDetectionUtil.getBlinkCount()
                 blinkCountTextView.text = "$blinkCount" // 총 깜빡임 횟수 표시
-                blinkRateTextView.text = "%.2f bpm".format(blinkRate) // 분당 깜빡임 횟수 표시
+                blinkRateTextView.text = "%.2f bpm".format(blinkDetectionUtil.getBlinkRate()) // 분당 깜빡임 횟수 표시
             } else {
                 Log.e(TAG, "CameraService is not initialized")
             }
@@ -456,7 +440,7 @@ class BlinkActivity : AppCompatActivity() {
     @SuppressLint("SetTextI18n")
     private fun updateFpsUI() {
         runOnUiThread {
-            fpsTextView.text = "%.2f".format(fps) // FPS 표시 업데이트
+            fpsTextView.text = "%.2f".format(blinkDetectionUtil.getFps()) // FPS 표시 업데이트
         }
     }
 
@@ -466,7 +450,7 @@ class BlinkActivity : AppCompatActivity() {
             Log.d(TAG, "Updating UI: message=$message, drawableResId=$drawableResId")
             eyeStatusTextView.text = message
             eyeStatusImageView.setImageResource(drawableResId)
-            val blinkCount = cameraService.getBlinkCount()
+            val blinkCount = blinkDetectionUtil.getBlinkCount()
             blinkCountTextView.text = "$blinkCount"
             Log.d(TAG, "UI updated, Blink count: $blinkCount")
         }

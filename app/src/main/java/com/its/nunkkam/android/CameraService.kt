@@ -33,34 +33,7 @@ class CameraService : LifecycleService() {
     private lateinit var cameraExecutor: ExecutorService // 카메라 작업 실행을 위한 실행자
     private var imageAnalysis: ImageAnalysis? = null
     private val binder = LocalBinder()
-    private var timeLeftInMillis: Long = 1200000
-
-    private var blinkCount = 0 // 눈 깜빡임 총 횟수를 저장하는 변수
-
-    private var isForeground = false // 포그라운드 여부를 나타내는 변수
-
-    // 깜빡임 임계값 정의
-    private val BLINK_THRESHOLD = 0.2
-
-    // blinkCount의 현재 값을 반환
-    fun getBlinkCount(): Int {
-        return blinkCount
-    }
-
-    // blinkCount를 증가시킴 | 눈 깜빡임이 감지될 때마다 호출
-    fun incrementBlinkCount() {
-        blinkCount++
-    }
-
-    // blinkCount를 0으로 초기화 |  리셋 버튼을 눌렀을 때 호출
-    fun resetBlinkCount() {
-        blinkCount = 0
-    }
-
-    fun getTimeLeftInMillis(): Long {
-        return timeLeftInMillis
-    }
-
+    private val blinkDetectionUtil = BlinkDetectionUtil()
 
     // 콜백 인터페이스 정의
     interface CameraCallback {
@@ -78,7 +51,7 @@ class CameraService : LifecycleService() {
     }
 
     private fun updateNotification(blinkCount: Int, timeLeft: Long) {
-        var timeFormatted = getTimeLeftInMillis()
+        var timeFormatted = blinkDetectionUtil.getFormattedTime()
         Log.d(TAG, "CameraService: Updating notification: Blinks = $blinkCount, Time Left = $timeFormatted") // 로그 추가
 
         val notification = NotificationCompat.Builder(this, CHANNEL_ID)
@@ -121,7 +94,7 @@ class CameraService : LifecycleService() {
             // 주기적으로 알림을 업데이트하는 스케줄러 추가
             localExecutor.scheduleWithFixedDelay({
                 Log.d(TAG, "CameraService: Scheduled task running")
-                updateNotification(blinkCount, timeLeftInMillis)
+                updateNotification(blinkDetectionUtil.getBlinkCount(), blinkDetectionUtil.getTimeLeftInMillis())
             }, 0, 1, TimeUnit.MINUTES)
 
             Log.d(TAG, "CameraService: onCreate completed successfully")
@@ -248,7 +221,7 @@ class CameraService : LifecycleService() {
             val notification: Notification = createNotification()
             startForeground(NOTIFICATION_ID, notification)
             setupFaceLandmarker() // MediaPipe FaceLandmarker 설정
-            isForeground = true
+            blinkDetectionUtil.setForeground(true)
         } catch (e: Exception) {
             Log.e(TAG, "CameraService: Error in onStartCommand", e)
         }

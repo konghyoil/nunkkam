@@ -151,6 +151,25 @@ private var blinkCount = 0 // 눈 깜빡임 총 횟수를 저장하는 변수
         return String.format("%02d:%02d", minutes, seconds)//00:%02d:%02d
     }
 
+    /** Blink Rate 업데이트 함수 */
+    fun updateBlinkRate() {
+        val currentTime = System.currentTimeMillis()
+        val timeDiff = (currentTime - lastBlinkTime) / 1000.0 // 마지막 깜빡임과의 시간 차이를 초 단위로 계산
+        blinkRate = if (timeDiff > 0) 60.0 / timeDiff else 0.0 // 분당 깜빡임 횟수 계산 (60초 / 깜빡임 간격)
+    }
+
+    /** FPS 업데이트 함수 */
+    fun updateFps() {
+        frameCounter++
+        val currentTime = System.currentTimeMillis()
+        val elapsedMillis = currentTime - lastFpsUpdateTime
+        if (elapsedMillis >= 1000) { // 1초마다 FPS 계산
+            fps = frameCounter / (elapsedMillis / 1000f)
+            lastFpsUpdateTime = currentTime
+            frameCounter = 0
+        }
+    }
+
     companion object {
         // 깜빡임 임계값 정의
         private val BLINK_THRESHOLD = 0.2
