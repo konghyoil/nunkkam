@@ -7,14 +7,24 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
 import android.widget.Button
+import android.widget.ImageView
+import android.widget.PopupMenu
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.CircleCrop
+import com.bumptech.glide.request.RequestOptions
 import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.FirebaseAuth
@@ -25,12 +35,14 @@ class TimerActivity : AppCompatActivity() {
 
     private lateinit var startButton: Button
     private lateinit var resultButton: Button
-    private lateinit var logoutButton: Button
-    private lateinit var deleteAccountButton: Button
+//    private lateinit var logoutButton: Button
+//    private lateinit var deleteAccountButton: Button
     private lateinit var timerTextView: TextView
     private lateinit var auth: FirebaseAuth
     private lateinit var googleSignInClient: GoogleSignInClient
     private val db = FirebaseFirestore.getInstance()
+    private lateinit var profileImageView: ImageView
+
 
     // 알림 권한 요청을 위한 상수
     private val PERMISSION_REQUEST_CODE = 1001
@@ -43,11 +55,21 @@ class TimerActivity : AppCompatActivity() {
         auth = app.auth
         googleSignInClient = app.googleSignInClient
 
+        profileImageView = findViewById(R.id.profile_image_view)
+
+        // 사용자 프로필 이미지 로드
+        loadUserProfileImage()
+
         startButton = findViewById(R.id.start_button)
         resultButton = findViewById(R.id.result_button)
-        logoutButton = findViewById(R.id.logout_button)
-        deleteAccountButton = findViewById(R.id.delete_account_button)
+//        logoutButton = findViewById(R.id.logout_button)
+//        deleteAccountButton = findViewById(R.id.delete_account_button)
         timerTextView = findViewById(R.id.timer_text)
+
+        // 프로필 이미지 클릭 리스너 설정
+        profileImageView.setOnClickListener { view ->
+            showPopupMenu(view)
+        }
 
         startButton.setOnClickListener {
             val intent = Intent(this, BlinkActivity::class.java)
@@ -59,15 +81,15 @@ class TimerActivity : AppCompatActivity() {
             Log.d("TimerActivity", "userId: $userId")
         }
 
-        logoutButton.setOnClickListener {
-            logoutUser()
-            Log.d("TimerActivity", "userId: $userId")
-        }
-
-        deleteAccountButton.setOnClickListener {
-            deleteUserAccount()
-        }
-        checkCurrentUser()
+//        logoutButton.setOnClickListener {
+//            logoutUser()
+//            Log.d("TimerActivity", "userId: $userId")
+//        }
+//
+//        deleteAccountButton.setOnClickListener {
+//            deleteUserAccount()
+//        }
+//        checkCurrentUser()
 
         // AlarmFragment 추가
         addAlarmFragment()
@@ -75,6 +97,59 @@ class TimerActivity : AppCompatActivity() {
         // 알림 권한 요청
         requestNotificationPermission()
     }
+    private fun loadUserProfileImage() {
+        val account: GoogleSignInAccount? = GoogleSignIn.getLastSignedInAccount(this)
+        account?.let {
+            val personPhoto = it.photoUrl
+            if (personPhoto != null) {
+                Glide.with(this)
+                    .load(personPhoto)
+                    .apply(RequestOptions.bitmapTransform(CircleCrop()))
+                    .into(profileImageView)
+            } else {
+                // 프로필 사진이 없는 경우 기본 아이콘 사용
+                profileImageView.setImageResource(R.drawable.ic_account)
+            }
+        }
+    }
+
+    private fun showPopupMenu(view: View) {
+        val popupMenu = PopupMenu(this, view)
+        popupMenu.menuInflater.inflate(R.menu.menu_main, popupMenu.menu)
+        popupMenu.setOnMenuItemClickListener { item ->
+            when (item.itemId) {
+                R.id.action_logout -> {
+                    logoutUser()
+                    true
+                }
+                R.id.action_delete_account -> {
+                    showDeleteAccountWarning()
+                    true
+                }
+                else -> false
+            }
+        }
+        popupMenu.show()
+    }
+
+    private fun showDeleteAccountWarning() {
+        val builder = AlertDialog.Builder(this)
+        builder.setMessage("회원 탈퇴를 하면 모든 회원 정보가 삭제됩니다.\n회원을 탈퇴하시겠습니까?")
+            .setPositiveButton("예") { dialog, id ->
+                deleteUserAccount()
+            }
+            .setNegativeButton("아니요") { dialog, id ->
+                dialog.dismiss()
+            }
+        builder.create().show()
+    }
+
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_main, menu)
+        return true
+    }
+
 
     private fun requestNotificationPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {

@@ -16,6 +16,7 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
 
     <!-- 카메라 사용 선언 -->
     <uses-feature android:name="android.hardware.camera.front" android:required="true" />
@@ -23,6 +24,8 @@
 
     <!-- 시리얼 번호를 가져오기 위한 권한 -->
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+
+<!--    구글 클라이언트 권한-->
 
     <application
         android:name=".MyApplication"
@@ -72,9 +75,14 @@
             android:authorities="${applicationId}.provider"
             android:exported="false"
             android:grantUriPermissions="true">
+            <!-- File Provider 설정 -->
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
+            <!-- Google Sign-In 클라이언트 ID 설정 -->
+            <meta-data
+                android:name="com.google.android.gms.signin.internal.CLIENT_ID"
+                android:value="YOUR_CLIENT_ID" />
         </provider>
     </application>
 
