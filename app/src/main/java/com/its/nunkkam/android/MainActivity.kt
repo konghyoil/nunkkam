@@ -1,12 +1,17 @@
 package com.its.nunkkam.android                                      // 패키지 선언
 
+import android.Manifest
 import android.content.Intent                                        // 인텐트 클래스 임포트
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle                                             // Bundle 클래스 임포트
 import android.util.Log                                              // 로깅을 위한 Log 클래스 임포트
 import android.widget.Button                                         // Button 위젯 임포트
 import android.widget.ImageButton
 import androidx.activity.result.contract.ActivityResultContracts     // 액티비티 결과 계약 임포트
 import androidx.appcompat.app.AppCompatActivity                      // AppCompatActivity 임포트
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.google.android.gms.auth.api.signin.GoogleSignIn           // Google 로그인 관련 클래스 임포트
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount    // Google 계정 정보 클래스 임포트
 import com.google.android.gms.common.api.ApiException                // API 예외 처리 클래스 임포트
@@ -37,7 +42,33 @@ class MainActivity : AppCompatActivity() {                           // MainActi
             signInGoogle()                                           // Google 로그인 메서드 호출
         }
 
+        checkAndRequestPermissions()                                 // 권한 확인 및 요청
+
         checkUserStatus()                                            // 사용자 상태 확인 메서드 호출
+    }
+
+    private fun checkAndRequestPermissions() {
+        val permissionsToRequest = mutableListOf<String>()
+
+        // 카메라 권한 확인
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            permissionsToRequest.add(Manifest.permission.CAMERA)
+        }
+
+        // 포그라운드 서비스 권한 확인
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.FOREGROUND_SERVICE) != PackageManager.PERMISSION_GRANTED) {
+            permissionsToRequest.add(Manifest.permission.FOREGROUND_SERVICE)
+        }
+
+        // 알림 권한 확인 (안드로이드 13 이상에서 필요)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            permissionsToRequest.add(Manifest.permission.POST_NOTIFICATIONS)
+        }
+
+        // 필요한 권한 요청
+        if (permissionsToRequest.isNotEmpty()) {
+            ActivityCompat.requestPermissions(this, permissionsToRequest.toTypedArray(), REQUEST_CODE_PERMISSIONS)
+        }
     }
 
     public override fun onStart() {                                  // 액티비티가 시작될 때 호출되는 메서드
@@ -135,5 +166,7 @@ class MainActivity : AppCompatActivity() {                           // MainActi
 
     companion object {                                               // 동반 객체
         private const val TAG = "MainActivity"                       // 로깅을 위한 태그
+        private const val REQUEST_CODE_PERMISSIONS = 10 // 권한 요청 코드: onRequestPermissionsResult에서 이 요청을 식별하는 데 사용
+
     }
 }

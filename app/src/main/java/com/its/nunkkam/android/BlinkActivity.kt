@@ -43,6 +43,7 @@ class BlinkActivity : AppCompatActivity() {
 
     // 클래스 내부에서 사용할 변수들을 선언
     private lateinit var viewFinder: PreviewView // 카메라 미리보기 뷰
+    private lateinit var blinkDetectionUtil: BlinkDetectionUtil
     private lateinit var eyeStatusImageView: ImageView // 눈 상태를 표시할 이미지 뷰
     private lateinit var eyeStatusTextView: TextView // 눈 상태를 표시할 텍스트 뷰
     private lateinit var blinkCountTextView: TextView // 눈 깜빡임 횟수를 표시할 TextView
@@ -65,12 +66,6 @@ class BlinkActivity : AppCompatActivity() {
     private var isGoogleLogin: Boolean = false // Google 로그인 여부
 
     private var countDownTimer: CountDownTimer? = null // 카운트다운 타이머
-    private var timeLeftInMillis: Long = 1200000 // 남은 시간 (밀리초)
-    private var timerRunning: Boolean = false // 타이머 실행 중 여부
-    private var startTime: Long = 0 // 시작 시간
-    private var endTime: Long = 0 // 종료 시간
-    private var pausedStartTime: Long = 0 // 일시정지 시작 시간
-    private var pausedAccumulatedTime: Long = 0 // 누적된 일시정지 시간
     private val db = FirebaseFirestore.getInstance() // Firestore 데이터베이스 인스턴스
 
     // 카메라 및 포그라운드/백그라운드 구분
@@ -115,6 +110,15 @@ class BlinkActivity : AppCompatActivity() {
     private fun initViews() {
         // XML에서 정의한 뷰들을 찾아 변수에 할당
         viewFinder = findViewById(R.id.viewFinder) // 카메라 미리보기 뷰
+        if (!::viewFinder.isInitialized) {
+            Log.e(TAG, "viewFinder가 제대로 초기화되지 않았습니다.")
+            return  // 초기화 실패 시 더 이상 진행하지 않음
+        } else {
+            Log.d(TAG, "viewFinder 초기화 완료")
+        }
+
+        blinkDetectionUtil = BlinkDetectionUtil()
+
         eyeStatusImageView = findViewById(R.id.eyeStatusImageView) // 눈 상태 이미지 뷰
         eyeStatusTextView = findViewById(R.id.textViewEyeStatus) // 눈 상태 텍스트 뷰
         fpsTextView = findViewById(R.id.fpsTextView) // FPS 표시 텍스트 뷰
@@ -234,79 +238,78 @@ class BlinkActivity : AppCompatActivity() {
 
     //홍철 타이머 관련 함수
     private fun startTimer() {
-        if (startTime == 0L) {
-            startTime = System.currentTimeMillis()
+        if (blinkDetectionUtil.getStartTime() == 0L) {
+            blinkDetectionUtil.setStartTime(System.currentTimeMillis())
         }
-        if (pausedStartTime != 0L) {
-            pausedAccumulatedTime += System.currentTimeMillis() - pausedStartTime
+
+        if (blinkDetectionUtil.getPausedStartTime() != 0L) {
+            blinkDetectionUtil.addPausedAccumulatedTime(System.currentTimeMillis() - blinkDetectionUtil.getPausedStartTime())
         }
+
         countDownTimer?.cancel()
-        countDownTimer = object : CountDownTimer(timeLeftInMillis, 1000) {
+        countDownTimer = object : CountDownTimer(blinkDetectionUtil.getTimeLeftInMillis(), 1000) {
             override fun onTick(millisUntilFinished: Long) {
-                timeLeftInMillis = millisUntilFinished
+                blinkDetectionUtil.setTimeLeftInMillis(millisUntilFinished)
                 updateTimerText()
             }
 
             override fun onFinish() {
-                timerRunning = false
-                endTime = System.currentTimeMillis()
+                blinkDetectionUtil.setTimerRunning(false)
+                blinkDetectionUtil.setEndTime(System.currentTimeMillis())
                 saveMeasurementData()
             }
         }.start()
 
-        timerRunning = true
+        blinkDetectionUtil.setTimerRunning(true)
     }
 
     private fun pauseTimer() {
         countDownTimer?.cancel()
-        timerRunning = false
-        pausedStartTime = System.currentTimeMillis()
+        blinkDetectionUtil.setTimerRunning(false)
+        blinkDetectionUtil.setPausedStartTime(System.currentTimeMillis())
     }
 
     private fun restartTimer() {
-        timerRunning = true
-        if (pausedStartTime != 0L) {
-            pausedAccumulatedTime += System.currentTimeMillis() - pausedStartTime
-            pausedStartTime = 0L
+        blinkDetectionUtil.setTimerRunning(true)
+        if (blinkDetectionUtil.getPausedStartTime() != 0L) {
+            blinkDetectionUtil.addPausedAccumulatedTime(System.currentTimeMillis() - blinkDetectionUtil.getPausedStartTime())
+            blinkDetectionUtil.setPausedStartTime(0L)
         }
         countDownTimer?.cancel()
-        countDownTimer = object : CountDownTimer(timeLeftInMillis, 1000) {
+        countDownTimer = object : CountDownTimer(blinkDetectionUtil.getTimeLeftInMillis(), 1000) {
             override fun onTick(millisUntilFinished: Long) {
-                timeLeftInMillis = millisUntilFinished
+                blinkDetectionUtil.setTimeLeftInMillis(millisUntilFinished)
                 updateTimerText()
             }
 
             override fun onFinish() {
-                timerRunning = false
-                startTime = System.currentTimeMillis()
+                blinkDetectionUtil.setTimerRunning(false)
+                blinkDetectionUtil.setStartTime(System.currentTimeMillis())
                 saveMeasurementData()
             }
         }.start()
     }
 
     private fun resetTimer() {
-        endTime = System.currentTimeMillis()
+        blinkDetectionUtil.setEndTime(System.currentTimeMillis())
         saveMeasurementData()
 
         countDownTimer?.cancel()
-        timeLeftInMillis = 1200000
+        blinkDetectionUtil.setTimeLeftInMillis(1200000)
         updateTimerText()
-        timerRunning = false
-        startTime = 0
-        endTime = 0
-        pausedStartTime = 0
-        pausedAccumulatedTime = 0
+        blinkDetectionUtil.setTimerRunning(false)
+        blinkDetectionUtil.setStartTime(0)
+        blinkDetectionUtil.setEndTime(0)
+        blinkDetectionUtil.setPausedStartTime(0)
+        blinkDetectionUtil.setPausedAccumulatedTime(0)
 
         // TimerFragment로 돌아가도록 설정
-        finish()
+        finish() // requireActivity().finish()
     }
 
     @SuppressLint("DefaultLocale")
     private fun updateTimerText() {
-        val minutes = (timeLeftInMillis / 1000) / 60
-        val seconds = (timeLeftInMillis / 1000) % 60
-        val timeFormatted = String.format("00:%02d:%02d", minutes, seconds)
-        timerTextView.text = timeFormatted
+        timerTextView.text = blinkDetectionUtil.getFormattedTime()
     }
 
     private fun saveMeasurementData() {
@@ -315,10 +318,10 @@ class BlinkActivity : AppCompatActivity() {
             return
         }
 
-        val measurementTimeInSeconds = (endTime - startTime - pausedAccumulatedTime) / 1000
+        val measurementTimeInSeconds = (blinkDetectionUtil.getEndTime() - blinkDetectionUtil.getStartTime() - blinkDetectionUtil.getPausedAccumulatedTime()) / 1000
         val measurementTimeInMinutes = measurementTimeInSeconds / 60.0
-        val measurementTime = Timestamp(Date(startTime))
-        val count = cameraService.getBlinkCount()
+        val measurementTime = Timestamp(Date(blinkDetectionUtil.getStartTime()))
+        val count = blinkDetectionUtil.getBlinkCount()
 
         val blinkData = hashMapOf(
             "count" to count,
