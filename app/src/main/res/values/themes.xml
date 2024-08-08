@@ -11,7 +11,7 @@
     <style name="ButtonStyle" parent="Widget.MaterialComponents.Button">
         <item name="android:textColor">@color/button_text</item>
         <item name="android:backgroundTint">@color/button_background</item>
-        <item name="cornerRadius">@dimen/button_radius</item>
+        <item name="cornerRadius">@dimen/button_radius</item>4
     </style>
 
 

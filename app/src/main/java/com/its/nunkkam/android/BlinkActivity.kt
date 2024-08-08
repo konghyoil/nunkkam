@@ -40,10 +40,11 @@ import kotlin.math.abs // 절대값을 계산하는 수학 함수
 
 // BlinkActivity 클래스 정의: 앱의 눈 깜빡임 화면을 담당
 class BlinkActivity : AppCompatActivity() {
+    private lateinit var blinkDetectionUtil: BlinkDetectionUtil
+    private lateinit var landmarkDetectionManager: LandmarkDetectionManager
 
     // 클래스 내부에서 사용할 변수들을 선언
     private lateinit var viewFinder: PreviewView // 카메라 미리보기 뷰
-    private lateinit var blinkDetectionUtil: BlinkDetectionUtil
     private lateinit var eyeStatusImageView: ImageView // 눈 상태를 표시할 이미지 뷰
     private lateinit var eyeStatusTextView: TextView // 눈 상태를 표시할 텍스트 뷰
     private lateinit var blinkCountTextView: TextView // 눈 깜빡임 횟수를 표시할 TextView
@@ -79,10 +80,11 @@ class BlinkActivity : AppCompatActivity() {
             val binder = service as CameraService.LocalBinder // 서비스 바인더 획득
             cameraService = binder.getService() // 서비스 인스턴스 획득
             cameraService.setCallback(cameraCallback) // 콜백 설정
+            cameraService.setLandmarkDetectionManager(landmarkDetectionManager)
             serviceBound = true // 서비스 바인딩 상태 설정
 
             Log.d(TAG, "Starting camera from onServiceConnected") // 카메라 시작 로그
-            cameraService.startCamera(viewFinder) // 카메라 시작
+            cameraService.startCamera(viewFinder) // 카메라 시작 | viewFinder 전달
         }
 
         // 서비스 연결 해제 시 호출되는 메서드
@@ -97,7 +99,8 @@ class BlinkActivity : AppCompatActivity() {
         // 얼굴 랜드마크 결과 수신 시 호출되는 메서드
         override fun onFaceLandmarkerResult(result: FaceLandmarkerResult, image: MPImage) {
             Log.d(TAG, "Face landmark result received in BlinkActivity") // 결과 수신 로그
-            handleFaceLandmarkerResult(result, image) // 결과 처리
+//            handleFaceLandmarkerResult(result, image) // 결과 처리
+            handleFaceLandmarkerResult(result)
         }
     }
 
@@ -111,8 +114,6 @@ class BlinkActivity : AppCompatActivity() {
         } else {
             Log.d(TAG, "viewFinder 초기화 완료")
         }
-
-        blinkDetectionUtil = BlinkDetectionUtil()
 
         eyeStatusImageView = findViewById(R.id.eyeStatusImageView) // 눈 상태 이미지 뷰
         eyeStatusTextView = findViewById(R.id.textViewEyeStatus) // 눈 상태 텍스트 뷰
@@ -153,17 +154,17 @@ class BlinkActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState) // 부모 클래스의 onCreate 메서드 호출
         setContentView(R.layout.activity_blink) // 레이아웃 XML 파일을 가져와 화면에 설정
 
-        Log.d(TAG, "BlinkActivity onCreate called") // 액티비티 생성 로그
-
         initViews() // 초기 UI 및 뷰 설정
+        blinkDetectionUtil = BlinkDetectionUtil()
+        blinkDetectionUtil.setStartTime(System.currentTimeMillis())
+        landmarkDetectionManager = LandmarkDetectionManager(this)
 
-        // 권한 확인 및 요청
-        if (!allPermissionsGranted()) {
-            Log.d(TAG, "Requesting permissions") // 권한 요청 로그
-            ActivityCompat.requestPermissions(this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS) // 권한 요청
-        } else {
-            Log.d(TAG, "All permissions granted") // 권한 허용 로그
+        landmarkDetectionManager.initialize {
             startCameraService() // 카메라 서비스 시작
+        }
+
+        landmarkDetectionManager.setResultListener { result ->
+            handleFaceLandmarkerResult(result)
         }
 
         updateBlinkUI() // UI 업데이트
@@ -182,44 +183,9 @@ class BlinkActivity : AppCompatActivity() {
 
     // 서비스 시작 및 바인딩
     private fun startCameraService() {
-        Log.d(TAG, "Starting CameraService") // 서비스 시작 로그
         val intent = Intent(this, CameraService::class.java) // 서비스 인텐트 생성
         startService(intent) // 서비스 시작
-        Log.d(TAG, "CameraService started, waiting before binding") // 바인딩 대기 로그
-        Handler(Looper.getMainLooper()).postDelayed({
-            bindToService(intent) // 서비스 바인딩
-        }, 1000) // 1초 대기 후 바인딩
-    }
-
-    private var bindingAttempts = 0
-    private val MAX_BINDING_ATTEMPTS = 3
-
-    private fun bindToService(intent: Intent) {
-        if (bindingAttempts < MAX_BINDING_ATTEMPTS) {
-            Log.d(TAG, "Binding to CameraService, attempt ${bindingAttempts + 1}")
-            try {
-                val bound = bindService(intent, connection, Context.BIND_AUTO_CREATE)
-                if (!bound) {
-                    Log.e(TAG, "Failed to bind to CameraService, bindService returned false")
-                    bindingAttempts++
-                    Handler(Looper.getMainLooper()).postDelayed({
-                        bindToService(intent)
-                    }, 2000)
-                } else {
-                    Log.d(TAG, "Successfully bound to CameraService")
-                    bindingAttempts = 0
-                }
-            } catch (e: Exception) {
-                Log.e(TAG, "Exception while binding to CameraService", e)
-                bindingAttempts++
-                Handler(Looper.getMainLooper()).postDelayed({
-                    bindToService(intent)
-                }, 2000)
-            }
-        } else {
-            Log.e(TAG, "Max binding attempts reached")
-            Toast.makeText(this, "Failed to start camera service", Toast.LENGTH_LONG).show()
-        }
+        bindService(intent, connection, Context.BIND_AUTO_CREATE)
     }
 
     private fun resetBlinkCount() {
@@ -231,7 +197,7 @@ class BlinkActivity : AppCompatActivity() {
         }
     }
 
-    //홍철 타이머 관련 함수
+    // 타이머 관련 함수
     private fun startTimer() {
         if (blinkDetectionUtil.getStartTime() == 0L) {
             blinkDetectionUtil.setStartTime(System.currentTimeMillis())
@@ -262,6 +228,7 @@ class BlinkActivity : AppCompatActivity() {
         countDownTimer?.cancel()
         blinkDetectionUtil.setTimerRunning(false)
         blinkDetectionUtil.setPausedStartTime(System.currentTimeMillis())
+        landmarkDetectionManager.pauseDetection() // 얼굴 인식 일시정지
     }
 
     private fun restartTimer() {
@@ -283,6 +250,7 @@ class BlinkActivity : AppCompatActivity() {
                 saveMeasurementData()
             }
         }.start()
+        landmarkDetectionManager.resumeDetection() // 얼굴 인식 재개
     }
 
     private fun resetTimer() {
@@ -299,7 +267,7 @@ class BlinkActivity : AppCompatActivity() {
         blinkDetectionUtil.setPausedAccumulatedTime(0)
 
         // TimerFragment로 돌아가도록 설정
-        finish() // requireActivity().finish()
+        finish()
     }
 
     @SuppressLint("DefaultLocale")
@@ -350,7 +318,13 @@ class BlinkActivity : AppCompatActivity() {
 
     // FaceLandmarker 결과 처리 함수
     @Suppress("UNUSED_PARAMETER") // image 파라미터를 현재 사용하지 않음을 컴파일러에 알림
-    private fun handleFaceLandmarkerResult(result: FaceLandmarkerResult, image: MPImage) {
+    private fun handleFaceLandmarkerResult(result: FaceLandmarkerResult) { //, image: MPImage) {
+        val isEyeClosed = landmarkDetectionManager.checkIfEyesClosed(result)
+        blinkDetectionUtil.updateBlinkCount(isEyeClosed)
+        blinkDetectionUtil.updateBlinkRate()
+        updateBlinkUI()
+        updateEyeStateUI(isEyeClosed)
+
         Log.d(TAG, "BlinkActivity: handleFaceLandmarkerResult called")
         if (result.faceLandmarks().isEmpty()) { // 감지된 얼굴이 없으면 함수 종료
             Log.d(TAG, "No face landmarks detected")
@@ -367,39 +341,41 @@ class BlinkActivity : AppCompatActivity() {
 
         updateFpsUI() // FPS UI 업데이트
 
-        val landmarks = result.faceLandmarks()[0] // 첫 번째 감지된 얼굴의 랜드마크
+        Log.d(TAG, "Current state - Blink count: ${blinkDetectionUtil.getBlinkCount()}, Blink rate: ${blinkDetectionUtil.getBlinkRate()}")
 
-        // BlinkDetectionUtil을 사용하여 눈 깜빡임 감지
-        val blinked = BlinkDetectionUtil.detectBlink(landmarks)
-
-        // 눈 깜빡임 감지 및 UI 업데이트 로직
-        if (blinked) {
-            Log.d(TAG, "Blink detected")
-            blinkDetectionUtil.incrementBlinkCount() // 눈 깜빡임 횟수 증가
-            blinkDetectionUtil.updateBlinkRate() // Blink Rate 업데이트
-            blinkDetectionUtil.setLastBlinkTime(blinkDetectionUtil.getCurrentTime()) // 마지막 깜빡임 시간 업데이트
-            updateBlinkUI() // UI 업데이트 함수 호출
-        }
-
-        // 눈 상태 확인 (열림/닫힘)
-        val leftEyeOpenness = BlinkDetectionUtil.calculateEyeOpenness(landmarks, true)
-        val rightEyeOpenness = BlinkDetectionUtil.calculateEyeOpenness(landmarks, false)
-        val averageEyeOpenness = (leftEyeOpenness + rightEyeOpenness) / 2
-
-        val eyeState = when {
-            averageEyeOpenness < BlinkDetectionUtil.BLINK_THRESHOLD_CLOSE -> "Eye is closed"
-            averageEyeOpenness > BlinkDetectionUtil.BLINK_THRESHOLD_OPEN -> "Eye is open"
-            else -> "Eye is partially open"
-        }
-
-        when (eyeState) {
-            "Eye is closed" -> updateUI(eyeState, R.drawable.eye_closed)
-            "Eye is open" -> updateUI(eyeState, R.drawable.eye_open)
-//            else -> updateUI(eyeState, R.drawable.eye_partially_open) // 부분적으로 열린 눈 이미지가 있다면 사용
-        }
-
-        Log.d(TAG, "Eye state: $eyeState, Average openness: $averageEyeOpenness")
-        Log.d("EyeOpenness", "FPS: ${blinkDetectionUtil.getFps()}, Left Eye: $leftEyeOpenness, Right Eye: $rightEyeOpenness")
+//        val landmarks = result.faceLandmarks()[0] // 첫 번째 감지된 얼굴의 랜드마크
+//
+//        // BlinkDetectionUtil을 사용하여 눈 깜빡임 감지
+//        val blinked = BlinkDetectionUtil.detectBlink(landmarks)
+//
+//        // 눈 깜빡임 감지 및 UI 업데이트 로직
+//        if (blinked) {
+//            Log.d(TAG, "Blink detected")
+//            blinkDetectionUtil.incrementBlinkCount() // 눈 깜빡임 횟수 증가
+//            blinkDetectionUtil.updateBlinkRate() // Blink Rate 업데이트
+//            blinkDetectionUtil.setLastBlinkTime(blinkDetectionUtil.getCurrentTime()) // 마지막 깜빡임 시간 업데이트
+//            updateBlinkUI() // UI 업데이트 함수 호출
+//        }
+//
+//        // 눈 상태 확인 (열림/닫힘)
+//        val leftEyeOpenness = BlinkDetectionUtil.calculateEyeOpenness(landmarks, true)
+//        val rightEyeOpenness = BlinkDetectionUtil.calculateEyeOpenness(landmarks, false)
+//        val averageEyeOpenness = (leftEyeOpenness + rightEyeOpenness) / 2
+//
+//        val eyeState = when {
+//            averageEyeOpenness < BlinkDetectionUtil.BLINK_THRESHOLD_CLOSE -> "Eye is closed"
+//            averageEyeOpenness > BlinkDetectionUtil.BLINK_THRESHOLD_OPEN -> "Eye is open"
+//            else -> "Eye is partially open"
+//        }
+//
+//        when (eyeState) {
+//            "Eye is closed" -> updateUI(eyeState, R.drawable.eye_closed)
+//            "Eye is open" -> updateUI(eyeState, R.drawable.eye_open)
+////            else -> updateUI(eyeState, R.drawable.eye_partially_open) // 부분적으로 열린 눈 이미지가 있다면 사용
+//        }
+//
+//        Log.d(TAG, "Eye state: $eyeState, Average openness: $averageEyeOpenness")
+//        Log.d("EyeOpenness", "FPS: ${blinkDetectionUtil.getFps()}, Left Eye: $leftEyeOpenness, Right Eye: $rightEyeOpenness")
     }
 
     // 눈 깜빡임 카운트 증가 및 저장 함수 -> TimerFragment로 보내기 위함
@@ -426,13 +402,12 @@ class BlinkActivity : AppCompatActivity() {
     @SuppressLint("SetTextI18n")
     private fun updateBlinkUI() {
         runOnUiThread {
-            if (::cameraService.isInitialized) {
-                val blinkCount = blinkDetectionUtil.getBlinkCount()
-                blinkCountTextView.text = "$blinkCount" // 총 깜빡임 횟수 표시
-                blinkRateTextView.text = "%.2f bpm".format(blinkDetectionUtil.getBlinkRate()) // 분당 깜빡임 횟수 표시
-            } else {
-                Log.e(TAG, "CameraService is not initialized")
-            }
+            val blinkCount = blinkDetectionUtil.getBlinkCount()
+            val blinkRate = blinkDetectionUtil.getBlinkRate()
+            blinkCountTextView.text = "$blinkCount" // 총 깜빡임 횟수 표시
+            blinkRateTextView.text = "%.2f bpm".format(blinkRate) // 분당 깜빡임 횟수 표시
+//            blinkRateTextView.text = String.format("%.2f bpm", blinkRate)
+            Log.d(TAG, "UI updated - Blink count: $blinkCount, Blink rate: $blinkRate")
         }
     }
 
@@ -453,6 +428,15 @@ class BlinkActivity : AppCompatActivity() {
             val blinkCount = blinkDetectionUtil.getBlinkCount()
             blinkCountTextView.text = "$blinkCount"
             Log.d(TAG, "UI updated, Blink count: $blinkCount")
+        }
+    }
+
+    private fun updateEyeStateUI(isEyeClosed: Boolean) {
+        runOnUiThread {
+            val eyeState = if (isEyeClosed) "Eye is closed" else "Eye is open"
+            val drawableResId = if (isEyeClosed) R.drawable.eye_closed else R.drawable.eye_open
+            eyeStatusTextView.text = eyeState
+            eyeStatusImageView.setImageResource(drawableResId)
         }
     }
 
@@ -512,6 +496,9 @@ class BlinkActivity : AppCompatActivity() {
     // 액티비티가 종료될 때 호출되는 함수
     override fun onDestroy() {
         super.onDestroy()
+
+        landmarkDetectionManager.onDestroy()
+
         // 앱이 종료될 때 알람 취소
         alarmManager.cancel(alarmIntent)
         if (serviceBound) {
