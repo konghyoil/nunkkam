@@ -4,4 +4,9 @@
     <dimen name="button_width">332dp</dimen>
     <dimen name="button_height">57.5dp</dimen>
     <dimen name="button_text_size">16sp</dimen>
+
+    <!-- 차트의 bar 부분 수정  -->
+    <dimen name="bar_width">24dp</dimen>
+    <dimen name="bar_spacing">23dp</dimen>
+    <dimen name="max_bar_height">200dp</dimen>
 </resources>
