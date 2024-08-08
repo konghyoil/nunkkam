@@ -7,6 +7,7 @@ import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.util.Log
 import androidx.core.app.NotificationCompat
@@ -25,30 +26,45 @@ class AlarmReceiver2 : BroadcastReceiver() {
         val notificationText = if (isManageAlarm) "눈 건강을 위해 관리를 진행해주세요." else "눈 건강을 위해 측정을 진행해주세요."
         Log.d("AlarmReceiver2", "Notification Title: $notificationTitle, Text: $notificationText")
 
-        val sharedPrefs = context.getSharedPreferences("AlarmSettings", Context.MODE_PRIVATE)
-        val isSoundEnabled = sharedPrefs.getBoolean("sound_enabled", true)
-        val isVibrationEnabled = sharedPrefs.getBoolean("vibration_enabled", true)
+        val sharedPrefs = context.getSharedPreferences("AlarmPreferences", Context.MODE_PRIVATE)
+        val isSoundEnabled = if (isManageAlarm) {
+            sharedPrefs.getBoolean("manageSoundEnabled", true)
+        } else {
+            sharedPrefs.getBoolean("measurementSoundEnabled", true)
+        }
+        val isVibrationEnabled = if (isManageAlarm) {
+            sharedPrefs.getBoolean("manageVibrationEnabled", true)
+        } else {
+            sharedPrefs.getBoolean("measurementVibrationEnabled", true)
+        }
         Log.d("AlarmReceiver2", "Sound Enabled: $isSoundEnabled, Vibration Enabled: $isVibrationEnabled")
 
-        val notification = NotificationCompat.Builder(context, "alarmChannel")
+        val notificationBuilder = NotificationCompat.Builder(context, "alarmChannel")
             .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle(notificationTitle)
             .setContentText(notificationText)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setAutoCancel(true)
 
-        if (isSoundEnabled && isVibrationEnabled) {
-            notification.setDefaults(NotificationCompat.DEFAULT_ALL)
-        } else if (isSoundEnabled) {
-            notification.setDefaults(NotificationCompat.DEFAULT_SOUND)
-        } else if (isVibrationEnabled) {
-            notification.setDefaults(NotificationCompat.DEFAULT_VIBRATE)
+        // 소리 설정
+        if (isSoundEnabled) {
+            val soundUri: Uri = android.provider.Settings.System.DEFAULT_NOTIFICATION_URI
+            notificationBuilder.setSound(soundUri)
+            Log.d("AlarmReceiver2", "Sound is enabled")
         } else {
-            notification.setDefaults(0)
+            notificationBuilder.setSound(null)
+        }
+
+        // 진동 설정
+        if (isVibrationEnabled) {
+            notificationBuilder.setVibrate(longArrayOf(0, 1000, 500, 1000))
+            Log.d("AlarmReceiver2", "Vibration is enabled")
+        } else {
+            notificationBuilder.setVibrate(null)
         }
 
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.notify(if (isManageAlarm) 1002 else 1001, notification.build())
+        notificationManager.notify(if (isManageAlarm) 1002 else 1001, notificationBuilder.build())
         Log.d("AlarmReceiver2", "Notification sent")
 
         // 다음 알람 설정
@@ -87,5 +103,3 @@ class AlarmReceiver2 : BroadcastReceiver() {
         }
     }
 }
-
-

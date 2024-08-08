@@ -5,33 +5,18 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <TextView
+        android:id="@+id/alarm_tab_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:background="#004D40"
-        android:padding="8dp">
-
-        <Button
-            android:id="@+id/btnMeasurementAlarm"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="측정 알람"
-            android:textColor="#FFFFFF"
-            android:background="@drawable/button_unselected"
-            android:textStyle="bold"
-            tools:ignore="DuplicateIds" />
-
-        <Button
-            android:id="@+id/btnManageAlarm"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="관리 알람"
-            android:textColor="#FFFFFF"
-            android:background="@drawable/button_unselected"/>
-    </LinearLayout>
+        android:padding="10dp"
+        android:paddingStart="16dp"
+        android:text="측정 알람 주기 관리"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="#FFFFFF"
+        android:background="@drawable/rounded_background"
+        android:letterSpacing="0.05" />
 
     <LinearLayout
         android:id="@+id/layout_measurement_alarm"
@@ -42,35 +27,48 @@
         android:background="#171D1B"
         android:visibility="visible">
 
-        <TextView
-            android:id="@+id/tvMeasurementAlarmType"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="측정 알람"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:textColor="#FFFFFF"
-            android:layout_marginBottom="16dp"/>
-
-        <Switch
-            android:id="@+id/switchMeasurementAlarm"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="55dp"
-            android:layout_marginBottom="16dp"
-            android:padding="8dp"
-            android:text="알람 설정"
-            android:textColor="#FFFFFF"
-            android:textSize="16sp"
-            android:thumbTint="@color/dark_thumb"
-            android:trackTint="@color/dark_theme_font_track" />
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
 
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="알람 설정"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:letterSpacing="0.05" />
+
+            <View
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:background="#888888"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp" />
+
+            <Switch
+                android:id="@+id/switchMeasurementAlarm"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:thumbTint="@color/dark_thumb"
+                android:trackTint="@color/dark_theme_font_track" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#888888"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:padding="8dp"
-            android:layout_marginBottom="16dp">
+            android:gravity="center_vertical">
 
             <TextView
                 android:layout_width="0dp"
@@ -78,16 +76,97 @@
                 android:layout_weight="1"
                 android:text="알람 주기 설정"
                 android:textColor="#FFFFFF"
-                android:textSize="16sp" />
+                android:textSize="16sp"
+                android:letterSpacing="0.05" />
+
+            <View
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:background="#888888"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp" />
 
             <Button
                 android:id="@+id/btnMeasurementInterval"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:backgroundTint="#d9d9d9"
                 android:text="0분" />
         </LinearLayout>
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#888888"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp" />
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="알람음"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:letterSpacing="0.05" />
+
+            <View
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:background="#888888"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp" />
+
+            <Switch
+                android:id="@+id/switchMeasurementSound"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:thumbTint="@color/dark_thumb"
+                android:trackTint="@color/dark_theme_font_track"/>
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#888888"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="진동"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:letterSpacing="0.05" />
+
+            <View
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:background="#888888"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp" />
+
+            <Switch
+                android:id="@+id/switchMeasurementVibration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:thumbTint="@color/dark_thumb"
+                android:trackTint="@color/dark_theme_font_track"/>
+        </LinearLayout>
     </LinearLayout>
 
     <LinearLayout
@@ -99,37 +178,171 @@
         android:background="#263238"
         android:visibility="gone">
 
-        <TextView
-            android:id="@+id/tvManageAlarmType"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="관리 알람"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:textColor="#FFFFFF"
-            android:layout_marginBottom="16dp"/>
-
-        <Switch
-            android:id="@+id/switchManageAlarm"
-            android:layout_width="match_parent"
-            android:layout_height="51dp"
-            android:layout_marginBottom="16dp"
-            android:text="알람 켜기/끄기"
-            android:textColor="#FFFFFF" />
-
-        <Button
-            android:id="@+id/btnManageInterval"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="알람 주기 설정"
-            android:layout_marginBottom="16dp"/>
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
 
-        <TextView
-            android:id="@+id/tvCurrentInterval"
-            android:layout_width="wrap_content"
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="알람 설정"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:letterSpacing="0.05" />
+
+            <View
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:background="#888888"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp" />
+
+            <Switch
+                android:id="@+id/switchManageAlarm"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#888888"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="현재 설정: 설정되지 않음"
-            android:textColor="#FFFFFF"
-            android:layout_marginBottom="16dp"/>
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="알람 주기 설정"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:letterSpacing="0.05" />
+
+            <View
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:background="#888888"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp" />
+
+            <Button
+                android:id="@+id/btnManageInterval"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:backgroundTint="#d9d9d9"
+                android:text="0시간 0분 마다" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#888888"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="알람음"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:letterSpacing="0.05" />
+
+            <View
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:background="#888888"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp" />
+
+            <Switch
+                android:id="@+id/switchManageSound"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#888888"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="진동"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:letterSpacing="0.05" />
+
+            <View
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:background="#888888"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp" />
+
+            <Switch
+                android:id="@+id/switchManageVibration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
     </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        >
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnMeasurementAlarm"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="측정 알람"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:background="@drawable/button_background"
+            tools:ignore="DuplicateIds" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnManageAlarm"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="관리 알람"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:background="@drawable/button_background" />
+
+    </LinearLayout>
+
 </LinearLayout>
