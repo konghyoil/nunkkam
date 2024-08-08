@@ -34,6 +34,21 @@ class CameraService : LifecycleService() {
     private var imageAnalysis: ImageAnalysis? = null
     private val binder = LocalBinder()
     private val blinkDetectionUtil = BlinkDetectionUtil()
+    private lateinit var landmarkDetectionManager: LandmarkDetectionManager
+
+    fun setLandmarkDetectionManager(manager: LandmarkDetectionManager) {
+        landmarkDetectionManager = manager
+    }
+
+    private fun setupImageAnalysis() {
+        imageAnalysis = ImageAnalysis.Builder().build().also {
+            it.setAnalyzer(cameraExecutor) { imageProxy ->
+                val mpImage = imageProxy.toMPImage() // ImageProxy를 MPImage로 변환
+                landmarkDetectionManager.detectAsync(mpImage, imageProxy.imageInfo.timestamp)
+                imageProxy.close()
+            }
+        }
+    }
 
     // 콜백 인터페이스 정의
     interface CameraCallback {
@@ -89,7 +104,6 @@ class CameraService : LifecycleService() {
             // 카메라 작업을 위한 단일 스레드 스케줄링 실행자 생성
             val localExecutor = Executors.newSingleThreadScheduledExecutor()
             cameraExecutor = localExecutor
-            setupFaceLandmarker()
 
             // 주기적으로 알림을 업데이트하는 스케줄러 추가
             localExecutor.scheduleWithFixedDelay({
@@ -104,6 +118,7 @@ class CameraService : LifecycleService() {
             stopSelf()
         }
     }
+
     private fun createNotificationChannel() {
         val serviceChannel = NotificationChannel(
             CHANNEL_ID,
@@ -112,20 +127,6 @@ class CameraService : LifecycleService() {
         )
         val manager = getSystemService(NotificationManager::class.java)
         manager.createNotificationChannel(serviceChannel)
-    }
-
-    private fun setupFaceLandmarker() {
-        // FaceLandmarker 설정
-        val baseOptions = BaseOptions.builder() // [외부] 얼굴 랜드마크 모델 파일(face_landmarker.task) 가져오기
-            .setModelAssetPath("face_landmarker.task") // 모델 파일 경로 설정
-            .build() // BaseOptions 객체 생성 및 반환
-        val options = FaceLandmarker.FaceLandmarkerOptions.builder()
-            .setBaseOptions(baseOptions) // 기본 옵션 설정
-            .setRunningMode(RunningMode.LIVE_STREAM) // 실시간 스트림 모드로 설정
-            .setNumFaces(1) // 감지할 얼굴 수 설정
-            .setResultListener(this::onFaceLandmarkerResult) // 결과 처리 리스너 설정
-            .build() // FaceLandmarkerOptions 객체 생성 및 반환
-        faceLandmarker = FaceLandmarker.createFromOptions(this, options) // FaceLandmarker 객체 생성
     }
 
     private fun onFaceLandmarkerResult(result: FaceLandmarkerResult, image: MPImage) {
@@ -164,13 +165,14 @@ class CameraService : LifecycleService() {
                         }
 
                         // 프레임 분석 수행
-                        val bitmap = imageProxy.toBufferBitmap()
-                        val mpImage = BitmapImageBuilder(bitmap).build()
+                        val mpImage = imageProxy.toMPImage() // ImageProxy를 MPImage로 변환
                         faceLandmarker.detectAsync(mpImage, imageProxy.imageInfo.timestamp)
                         imageProxy.close()
                     }
                 }
                 Log.d(TAG, "CameraService: ImageAnalysis configured")
+
+                setupImageAnalysis()
 
                 val cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA
                 Log.d(TAG, "CameraService: CameraSelector set to front camera")
@@ -220,7 +222,6 @@ class CameraService : LifecycleService() {
             // 알림 생성
             val notification: Notification = createNotification()
             startForeground(NOTIFICATION_ID, notification)
-            setupFaceLandmarker() // MediaPipe FaceLandmarker 설정
             blinkDetectionUtil.setForeground(true)
         } catch (e: Exception) {
             Log.e(TAG, "CameraService: Error in onStartCommand", e)
