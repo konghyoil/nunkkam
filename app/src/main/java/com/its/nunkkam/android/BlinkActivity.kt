@@ -478,13 +478,22 @@ class BlinkActivity : AppCompatActivity() {
         val intervalMillis = 1 * 60 * 1000L // 1분
         val triggerTime = System.currentTimeMillis() + intervalMillis
 
-        if (alarmManager.canScheduleExactAlarms()) {
-            alarmManager.setExactAndAllowWhileIdle(
-                AlarmManager.RTC_WAKEUP,
-                triggerTime,
-                alarmIntent
-            )
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) { // API 레벨 31 이상인지 확인
+            if (alarmManager.canScheduleExactAlarms()) {
+                alarmManager.setExactAndAllowWhileIdle(
+                    AlarmManager.RTC_WAKEUP,
+                    triggerTime,
+                    alarmIntent
+                )
+            } else {
+                alarmManager.setAndAllowWhileIdle(
+                    AlarmManager.RTC_WAKEUP,
+                    triggerTime,
+                    alarmIntent
+                )
+            }
         } else {
+            // API 레벨 31 이하에서는 canScheduleExactAlarms 메서드를 사용할 수 없으므로 그냥 setAndAllowWhileIdle를 호출합니다.
             alarmManager.setAndAllowWhileIdle(
                 AlarmManager.RTC_WAKEUP,
                 triggerTime,
