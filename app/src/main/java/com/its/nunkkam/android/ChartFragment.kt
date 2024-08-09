@@ -133,8 +133,7 @@ class ChartFragment : Fragment() {
         val barSpacing = resources.getDimensionPixelSize(R.dimen.bar_spacing)
         val maxBarHeight = resources.getDimensionPixelSize(R.dimen.max_bar_height)
 
-        // 전체 차트의 너비를 계산 (7개의 막대와 간격, 여백 추가)
-        val totalChartWidth = (barWidth + barSpacing) * 7 - barSpacing + 60 // 60dp 여백 추가
+        val totalChartWidth = (barWidth + barSpacing) * 7 - barSpacing + 60
 
         val chartLayout = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
@@ -161,11 +160,14 @@ class ChartFragment : Fragment() {
                 layoutParams = LinearLayout.LayoutParams(barWidth + barSpacing, LinearLayout.LayoutParams.WRAP_CONTENT)
             }
 
+            val isRecent = index == data.size - 1
+
             // 수치 레이블 생성
             val valueLabel = TextView(context).apply {
                 text = value.toString()
                 textSize = 10f
-                setTextColor(ContextCompat.getColor(requireContext(), R.color.dark_lightbar))
+                setTextColor(ContextCompat.getColor(requireContext(),
+                    if (isRecent) R.color.dark_darkbar else R.color.dark_lightbar))
                 gravity = Gravity.CENTER
                 layoutParams = LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.WRAP_CONTENT,
@@ -178,38 +180,50 @@ class ChartFragment : Fragment() {
             val barView = View(context).apply {
                 val barHeight = (value.toFloat() / maxValue * maxBarHeight).toInt().coerceAtMost(maxBarHeight)
                 layoutParams = LinearLayout.LayoutParams(barWidth, barHeight)
-                val isRecent = index == data.size - 1
-                val barColor = if (isRecent) R.color.dark_darkbar else R.color.dark_lightbar
-                setBackgroundColor(ContextCompat.getColor(requireContext(), barColor))
+                setBackgroundColor(ContextCompat.getColor(requireContext(),
+                    if (isRecent) R.color.dark_darkbar else R.color.dark_lightbar))
             }
             barAndLabelLayout.addView(barView)
-
-            // 레이블 생성
-            val labelView = TextView(context).apply {
-                text = label
-                textSize = 10f
-                setTextColor(ContextCompat.getColor(requireContext(), R.color.dark_lightbar))
-                gravity = Gravity.CENTER
-                layoutParams = LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.WRAP_CONTENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT
-                )
-                maxLines = 1
-                if (index % 2 == 0 || index == data.size - 1) {
-                    visibility = View.VISIBLE
-                } else {
-                    visibility = View.INVISIBLE
-                    text = "" // 빈 텍스트로 설정하여 공간 차지하지 않도록 함
-                }
-            }
-            barAndLabelLayout.addView(labelView)
 
             barsLayout.addView(barAndLabelLayout)
         }
 
         chartLayout.addView(barsLayout)
 
-        // 차트를 컨테이너의 중앙에 배치
+        // 레이블을 위한 별도의 레이아웃
+        val labelsLayout = LinearLayout(context).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                topMargin = resources.getDimensionPixelSize(R.dimen.label_top_margin)
+            }
+        }
+
+        data.forEachIndexed { index, (label, _) ->
+            val isRecent = index == data.size - 1
+            val labelView = TextView(context).apply {
+                text = label
+                textSize = 12f
+                setTextColor(ContextCompat.getColor(requireContext(),
+                    if (isRecent) R.color.dark_darkbar else R.color.dark_lightbar))
+                gravity = Gravity.CENTER
+                layoutParams = LinearLayout.LayoutParams(barWidth + barSpacing, LinearLayout.LayoutParams.WRAP_CONTENT)
+                maxLines = 1
+                if (index % 2 == 0 || isRecent) {
+                    visibility = View.VISIBLE
+                } else {
+                    visibility = View.INVISIBLE
+                    text = ""
+                }
+            }
+            labelsLayout.addView(labelView)
+        }
+
+        chartLayout.addView(labelsLayout)
+
         val wrapperLayout = LinearLayout(context).apply {
             orientation = LinearLayout.HORIZONTAL
             layoutParams = LinearLayout.LayoutParams(
