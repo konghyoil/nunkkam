@@ -29,6 +29,8 @@ class ChartFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+
         firestore = FirebaseFirestore.getInstance()
         chartContainer = view.findViewById(R.id.chart_container)
 
@@ -133,7 +135,8 @@ class ChartFragment : Fragment() {
         val barSpacing = resources.getDimensionPixelSize(R.dimen.bar_spacing)
         val maxBarHeight = resources.getDimensionPixelSize(R.dimen.max_bar_height)
 
-        val totalChartWidth = (barWidth + barSpacing) * 7 - barSpacing + 60
+        // 전체 차트의 너비를 계산 (7개의 막대와 간격, 여백 추가)
+        val totalChartWidth = (barWidth + barSpacing) * 7 - barSpacing + 60 // 60dp 여백 추가
 
         val chartLayout = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
@@ -165,7 +168,7 @@ class ChartFragment : Fragment() {
             // 수치 레이블 생성
             val valueLabel = TextView(context).apply {
                 text = value.toString()
-                textSize = 10f
+                textSize = 12f  // 수정: 텍스트 크기를 10f에서 12f로 변경
                 setTextColor(ContextCompat.getColor(requireContext(),
                     if (isRecent) R.color.dark_darkbar else R.color.dark_lightbar))
                 gravity = Gravity.CENTER
@@ -199,6 +202,7 @@ class ChartFragment : Fragment() {
                 LinearLayout.LayoutParams.WRAP_CONTENT
             ).apply {
                 topMargin = resources.getDimensionPixelSize(R.dimen.label_top_margin)
+                bottomMargin = resources.getDimensionPixelSize(R.dimen.label_bottom_margin)
             }
         }
 
@@ -206,7 +210,7 @@ class ChartFragment : Fragment() {
             val isRecent = index == data.size - 1
             val labelView = TextView(context).apply {
                 text = label
-                textSize = 12f
+                textSize = 12f  // 수정: 텍스트 크기를 10f에서 12f로 변경
                 setTextColor(ContextCompat.getColor(requireContext(),
                     if (isRecent) R.color.dark_darkbar else R.color.dark_lightbar))
                 gravity = Gravity.CENTER

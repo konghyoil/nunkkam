@@ -1,30 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="#D9D9D9">
 
-    <TextView
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="평균 눈 깜빡임 수치 (분당 평균)"
-        android:textColor="#505050"
-        android:textSize="16sp"
-        android:padding="16dp"
-        android:gravity="center"/>
+        android:layout_height="36dp"
+        android:background="#505050"
+        app:contentInsetStart="16dp">
 
-    <LinearLayout
-        android:id="@+id/chart_container"
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="평균 눈 깜빡임 수치"
+                android:textColor="#FFFFFF"
+                android:textSize="15sp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="(분당 평균)"
+                android:textColor="#FFFFFF"
+                android:textSize="10sp"
+                android:layout_marginStart="5dp"
+                android:layout_marginTop="2dp"/>
+        </LinearLayout>
+
+    </androidx.appcompat.widget.Toolbar>
+
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:orientation="vertical"
-        android:gravity="center"/>
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp">
 
-    <!-- 추가적인 여백을 위한 View -->
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="12dp"/> <!-- 이 높이를 조절하여 원하는 만큼의 추가 여백을 만들 수 있습니다 -->
+        <LinearLayout
+            android:id="@+id/chart_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:gravity="center"/>
+
+    </FrameLayout>
 
 </LinearLayout>

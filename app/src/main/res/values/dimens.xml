@@ -12,4 +12,5 @@
 
     <!-- 새로 추가된 값 -->
     <dimen name="label_top_margin">8dp</dimen>
+    <dimen name="label_bottom_margin">4dp</dimen>
 </resources>
