@@ -54,36 +54,36 @@
         android:padding="13dp"
         android:background="#80000000">
 
-        <Button
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/pause_button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="일시정지"
             android:textColor="#FFFFFF"
-            android:background="@color/dark_grey"
+            android:background="#505050"
             android:layout_marginEnd="4dp"
             android:layout_marginStart="4dp"/>
 
-        <Button
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/restart_button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="계속"
             android:textColor="#FFFFFF"
-            android:background="#006400"
+            android:background="#505050"
             android:layout_marginEnd="4dp"
             android:layout_marginStart="4dp"/>
 
-        <Button
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/reset_button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="종료"
             android:textColor="#FFFFFF"
-            android:background="#006400"
+            android:background="#505050"
             android:layout_marginEnd="4dp"
             android:layout_marginStart="4dp"/>
     </LinearLayout>
