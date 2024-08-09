@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:padding="10dp"
         android:paddingStart="16dp"
-        android:text="측정 알람 주기 관리"
+        android:text="측정 알람 시간 설정"
         android:textSize="20sp"
         android:textStyle="bold"
         android:textColor="#FFFFFF"
@@ -94,79 +94,6 @@
                 android:text="0분" />
         </LinearLayout>
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="#888888"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="알람음"
-                android:textColor="#FFFFFF"
-                android:textSize="16sp"
-                android:letterSpacing="0.05" />
-
-            <View
-                android:layout_width="1dp"
-                android:layout_height="match_parent"
-                android:background="#888888"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp" />
-
-            <Switch
-                android:id="@+id/switchMeasurementSound"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:thumbTint="@color/dark_thumb"
-                android:trackTint="@color/dark_theme_font_track"/>
-        </LinearLayout>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="#888888"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="진동"
-                android:textColor="#FFFFFF"
-                android:textSize="16sp"
-                android:letterSpacing="0.05" />
-
-            <View
-                android:layout_width="1dp"
-                android:layout_height="match_parent"
-                android:background="#888888"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp" />
-
-            <Switch
-                android:id="@+id/switchMeasurementVibration"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:thumbTint="@color/dark_thumb"
-                android:trackTint="@color/dark_theme_font_track"/>
-        </LinearLayout>
     </LinearLayout>
 
     <LinearLayout
@@ -243,75 +170,6 @@
                 android:text="0시간 0분 마다" />
         </LinearLayout>
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="#888888"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="알람음"
-                android:textColor="#FFFFFF"
-                android:textSize="16sp"
-                android:letterSpacing="0.05" />
-
-            <View
-                android:layout_width="1dp"
-                android:layout_height="match_parent"
-                android:background="#888888"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp" />
-
-            <Switch
-                android:id="@+id/switchManageSound"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-        </LinearLayout>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="#888888"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="진동"
-                android:textColor="#FFFFFF"
-                android:textSize="16sp"
-                android:letterSpacing="0.05" />
-
-            <View
-                android:layout_width="1dp"
-                android:layout_height="match_parent"
-                android:background="#888888"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp" />
-
-            <Switch
-                android:id="@+id/switchManageVibration"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-        </LinearLayout>
     </LinearLayout>
 
     <LinearLayout
