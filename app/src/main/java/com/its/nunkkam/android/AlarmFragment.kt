@@ -14,10 +14,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.NumberPicker
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import com.its.nunkkam.android.databinding.FragmentAlarmBinding
-import android.widget.Toast
 import java.util.*
 
 class AlarmFragment : Fragment() {
@@ -59,11 +59,12 @@ class AlarmFragment : Fragment() {
     // 리스너 설정
     private fun setupListeners() {
         Log.d("AlarmFragment", "setupListeners called")
+
         // 측정 알람 버튼 클릭 리스너
         binding.btnMeasurementAlarm.setOnClickListener {
             binding.layoutMeasurementAlarm.visibility = View.VISIBLE
             binding.layoutManageAlarm.visibility = View.GONE
-            binding.alarmTabTitle.text = "측정 알람 주기 관리"
+            binding.alarmTabTitle.text = "측정 알람 시간 설정"
         }
 
         // 관리 알람 버튼 클릭 리스너
@@ -73,7 +74,10 @@ class AlarmFragment : Fragment() {
             binding.alarmTabTitle.text = "관리 알람 주기 관리"
         }
 
+        // 측정 알람 관련 리스너 설정
         setupMeasurementAlarmListeners()
+
+        // 관리 알람 관련 리스너 설정
         setupManageAlarmListeners()
     }
 
@@ -81,12 +85,10 @@ class AlarmFragment : Fragment() {
     private fun setupMeasurementAlarmListeners() {
         Log.d("AlarmFragment", "setupMeasurementAlarmListeners called")
 
-        // 알람 켜기/끄기 스위치 리스너
+        // 측정 알람 켜기/끄기 스위치 리스너
         binding.switchMeasurementAlarm.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
-                binding.btnMeasurementInterval.setOnClickListener {
-                    showTimePickerDialog()
-                }
+                // 알람 시간이 설정되어 있으면 알람을 설정
                 val currentText = binding.btnMeasurementInterval.text.toString()
                 val timeParts = currentText.split(":")
                 if (timeParts.size == 2) {
@@ -97,22 +99,15 @@ class AlarmFragment : Fragment() {
                 } else {
                     Toast.makeText(context, "알람 시간을 설정해주세요.", Toast.LENGTH_SHORT).show()
                 }
+
+                // 알람 시간 설정 버튼 리스너
+                binding.btnMeasurementInterval.setOnClickListener {
+                    showTimePickerDialog()
+                }
             } else {
                 binding.btnMeasurementInterval.setOnClickListener(null)
                 cancelAlarm(false)
             }
-        }
-
-        // 소리 스위치 리스너
-        binding.switchMeasurementSound.setOnCheckedChangeListener { _, isChecked ->
-            sharedPreferences.edit().putBoolean("measurementSoundEnabled", isChecked).apply()
-            Toast.makeText(context, "측정 알람 소리 ${if (isChecked) "켜짐" else "꺼짐"}", Toast.LENGTH_SHORT).show()
-        }
-
-        // 진동 스위치 리스너
-        binding.switchMeasurementVibration.setOnCheckedChangeListener { _, isChecked ->
-            sharedPreferences.edit().putBoolean("measurementVibrationEnabled", isChecked).apply()
-            Toast.makeText(context, "측정 알람 진동 ${if (isChecked) "켜짐" else "꺼짐"}", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -120,12 +115,10 @@ class AlarmFragment : Fragment() {
     private fun setupManageAlarmListeners() {
         Log.d("AlarmFragment", "setupManageAlarmListeners called")
 
-        // 알람 켜기/끄기 스위치 리스너
+        // 관리 알람 켜기/끄기 스위치 리스너
         binding.switchManageAlarm.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
-                binding.btnManageInterval.setOnClickListener {
-                    showIntervalPickerDialog()
-                }
+                // 알람 주기가 설정되어 있으면 반복 알람 설정
                 val intervalText = binding.btnManageInterval.text.toString()
                 val parts = intervalText.split("시간 ", "분")
                 if (parts.size == 2) {
@@ -136,22 +129,15 @@ class AlarmFragment : Fragment() {
                 } else {
                     Toast.makeText(context, "알람 주기를 설정해주세요.", Toast.LENGTH_SHORT).show()
                 }
+
+                // 알람 주기 설정 버튼 리스너
+                binding.btnManageInterval.setOnClickListener {
+                    showIntervalPickerDialog()
+                }
             } else {
                 binding.btnManageInterval.setOnClickListener(null)
                 cancelAlarm(true)
             }
-        }
-
-        // 소리 스위치 리스너
-        binding.switchManageSound.setOnCheckedChangeListener { _, isChecked ->
-            sharedPreferences.edit().putBoolean("manageSoundEnabled", isChecked).apply()
-            Toast.makeText(context, "관리 알람 소리 ${if (isChecked) "켜짐" else "꺼짐"}", Toast.LENGTH_SHORT).show()
-        }
-
-        // 진동 스위치 리스너
-        binding.switchManageVibration.setOnCheckedChangeListener { _, isChecked ->
-            sharedPreferences.edit().putBoolean("manageVibrationEnabled", isChecked).apply()
-            Toast.makeText(context, "관리 알람 진동 ${if (isChecked) "켜짐" else "꺼짐"}", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -262,6 +248,7 @@ class AlarmFragment : Fragment() {
         Log.d("AlarmFragment", "setupDailyAlarm: repeating alarm set")
     }
 
+    // 반복 알람 설정
     private fun setupRepeatingAlarm(hours: Int = 0, minutes: Int = 0) {
         Log.d("AlarmFragment", "setupRepeatingAlarm called with hours: $hours, minutes: $minutes")
 
@@ -314,32 +301,28 @@ class AlarmFragment : Fragment() {
 
     // 저장된 알람 설정 값 불러오기
     private fun loadAlarmValues() {
+        // 측정 알람 설정 값 로드
         val measurementHour = sharedPreferences.getInt("measurementAlarmHour", 0)
         val measurementMinute = sharedPreferences.getInt("measurementAlarmMinute", 0)
         val measurementEnabled = sharedPreferences.getBoolean("measurementAlarmEnabled", false)
-        val measurementSoundEnabled = sharedPreferences.getBoolean("measurementSoundEnabled", true)
-        val measurementVibrationEnabled = sharedPreferences.getBoolean("measurementVibrationEnabled", true)
 
         binding.btnMeasurementInterval.text = String.format("%02d:%02d", measurementHour, measurementMinute)
         binding.switchMeasurementAlarm.isChecked = measurementEnabled
-        binding.switchMeasurementSound.isChecked = measurementSoundEnabled
-        binding.switchMeasurementVibration.isChecked = measurementVibrationEnabled
+
+        // 관리 알람 설정 값 로드
+        val manageHours = sharedPreferences.getInt("manageAlarmHours", 0)
+        val manageMinutes = sharedPreferences.getInt("manageAlarmMinutes", 0)
+        val manageEnabled = sharedPreferences.getBoolean("manageAlarmEnabled", false)
+
+        binding.btnManageInterval.text = "${manageHours}시간 ${manageMinutes}분 마다"
+        binding.switchManageAlarm.isChecked = manageEnabled
+
+        // 알람이 활성화되어 있을 때 시간/주기 설정 버튼을 활성화
         if (measurementEnabled) {
             binding.btnMeasurementInterval.setOnClickListener {
                 showTimePickerDialog()
             }
         }
-
-        val manageHours = sharedPreferences.getInt("manageAlarmHours", 0)
-        val manageMinutes = sharedPreferences.getInt("manageAlarmMinutes", 0)
-        val manageEnabled = sharedPreferences.getBoolean("manageAlarmEnabled", false)
-        val manageSoundEnabled = sharedPreferences.getBoolean("manageSoundEnabled", true)
-        val manageVibrationEnabled = sharedPreferences.getBoolean("manageVibrationEnabled", true)
-
-        binding.btnManageInterval.text = "${manageHours}시간 ${manageMinutes}분 마다"
-        binding.switchManageAlarm.isChecked = manageEnabled
-        binding.switchManageSound.isChecked = manageSoundEnabled
-        binding.switchManageVibration.isChecked = manageVibrationEnabled
         if (manageEnabled) {
             binding.btnManageInterval.setOnClickListener {
                 showIntervalPickerDialog()
@@ -355,10 +338,10 @@ class AlarmFragment : Fragment() {
             context, if (isManageAlarm) 1002 else 1001, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
         alarmManager?.cancel(pendingIntent)
-        Toast.makeText(context, "알림off", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, "알람이 취소되었습니다.", Toast.LENGTH_SHORT).show()
         Log.d("AlarmFragment", "cancelAlarm: alarm cancelled")
 
-        // 알람 설정 값 저장
+        // 알람 설정 값 초기화
         saveAlarmValues(0, 0, isManageAlarm)
     }
 
