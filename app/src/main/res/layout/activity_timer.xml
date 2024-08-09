@@ -54,7 +54,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="30dp"
-        android:backgroundTint="#D9D9D9"
+        android:backgroundTint="@color/dark_button2"
         android:text="측정 시작"
         android:textColor="#000015"
         android:visibility="visible"

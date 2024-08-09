@@ -45,7 +45,7 @@ class CalendarAdapter(
                 calendar.get(Calendar.MONTH) == today.get(Calendar.MONTH) &&
                 calendar.get(Calendar.DAY_OF_MONTH) == today.get(Calendar.DAY_OF_MONTH)
             ) {
-                holder.dayTextView.setBackgroundColor(Color.MAGENTA)
+                holder.dayTextView.setBackgroundColor(Color.parseColor("#505050"))
             } else {
                 holder.dayTextView.setBackgroundColor(Color.TRANSPARENT)
             }
@@ -56,9 +56,9 @@ class CalendarAdapter(
                 val formattedInfo = df.format(infoFloat)
 
                 if (infoFloat >= 15) {
-                    holder.infoTextView.setTextColor(Color.GREEN)
+                    holder.infoTextView.setTextColor(Color.parseColor("#848484"))
                 } else if (infoFloat in 1f..14f) {
-                    holder.infoTextView.setTextColor(Color.RED)
+                    holder.infoTextView.setTextColor(Color.parseColor("#2E2E2E"))
                 } else {
                     holder.infoTextView.setTextColor(Color.BLACK)
                 }
