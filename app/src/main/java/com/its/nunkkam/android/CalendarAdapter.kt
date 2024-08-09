@@ -1,6 +1,7 @@
 package com.its.nunkkam.android
 
 import android.graphics.Color
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,8 +12,10 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class CalendarAdapter(
-    private val days: List<Date?>,
-    private val infoList: List<String?>,
+    private var days: List<Date?>,
+    private var infoList: List<String?>,
+    private val itemWidth: Int,
+    private val itemHeight: Int,
     private val onItemClick: (Date?, String?) -> Unit
 ) : RecyclerView.Adapter<CalendarAdapter.DayViewHolder>() {
 
@@ -26,6 +29,8 @@ class CalendarAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DayViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.calendar_day_item, parent, false)
+        view.layoutParams.width = itemWidth
+        view.layoutParams.height = itemHeight
         return DayViewHolder(view)
     }
 
@@ -40,6 +45,7 @@ class CalendarAdapter(
         if (date != null) {
             val calendar = Calendar.getInstance().apply { time = date }
             holder.dayTextView.text = calendar.get(Calendar.DAY_OF_MONTH).toString()
+            holder.dayTextView.visibility = View.VISIBLE
 
             if (calendar.get(Calendar.YEAR) == today.get(Calendar.YEAR) &&
                 calendar.get(Calendar.MONTH) == today.get(Calendar.MONTH) &&
@@ -51,30 +57,39 @@ class CalendarAdapter(
             }
 
             if (info != null) {
-                val infoFloat = info.toFloat()
+                val infoFloat = info.toFloatOrNull() ?: 0f
                 val df = DecimalFormat("0.##")
                 val formattedInfo = df.format(infoFloat)
 
-                if (infoFloat >= 15) {
-                    holder.infoTextView.setTextColor(Color.parseColor("#848484"))
-                } else if (infoFloat in 1f..14f) {
-                    holder.infoTextView.setTextColor(Color.parseColor("#2E2E2E"))
-                } else {
-                    holder.infoTextView.setTextColor(Color.BLACK)
-                }
                 holder.infoTextView.text = formattedInfo
+                holder.infoTextView.visibility = View.VISIBLE
 
+                when {
+                    infoFloat >= 15 -> holder.infoTextView.setTextColor(Color.parseColor("#848484"))
+                    infoFloat in 1f..14f -> holder.infoTextView.setTextColor(Color.parseColor("#2E2E2E"))
+                    else -> holder.infoTextView.setTextColor(Color.BLACK)
+                }
             } else {
                 holder.infoTextView.text = ""
+                holder.infoTextView.visibility = View.INVISIBLE
             }
         } else {
             holder.dayTextView.text = ""
+            holder.dayTextView.visibility = View.INVISIBLE
             holder.infoTextView.text = ""
-            holder.dayTextView.setBackgroundColor(Color.TRANSPARENT)
+            holder.infoTextView.visibility = View.INVISIBLE
         }
+
+        Log.d("CalendarAdapter", "Position: $position, Date: $date, Info: $info")
     }
 
     override fun getItemCount(): Int {
         return days.size
+    }
+
+    fun updateData(newDays: List<Date?>, newInfoList: List<String?>) {
+        days = newDays
+        infoList = newInfoList
+        notifyDataSetChanged()
     }
 }
