@@ -1,5 +1,5 @@
 <!-- res/drawable/rounded_top_background.xml -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <solid android:color="#d9d9d9"/> <!-- 배경 색상 설정 -->
+    <solid android:color="#505050"/> <!-- 배경 색상 설정 -->
     <corners android:topLeftRadius="10dp" android:topRightRadius="10dp"/> <!-- 위쪽 모서리 둥글기 설정 -->
 </shape>

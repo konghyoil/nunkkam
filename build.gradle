@@ -11,4 +11,8 @@ plugins {
     id 'org.jetbrains.kotlin.android' version '1.8.20' apply false
     // Firebase 플러그인 추가
     id 'com.google.gms.google-services' version '4.3.15' apply false
+
+    // Performance Monitoring SDK 라이브러리
+    id'com.google.firebase.firebase-perf' version "1.4.2" apply false
+    id'com.google.firebase.crashlytics' version "2.9.9" apply false
 }
