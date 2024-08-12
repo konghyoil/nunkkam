@@ -46,6 +46,7 @@ class CalendarFragment : Fragment() {
         val sharedPreferences = requireContext().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
         val userId = sharedPreferences.getString("user_id", null)
 
+
         if (userId != null) {
             fetchUserData(userId)
         } else {
@@ -212,11 +213,19 @@ class CalendarFragment : Fragment() {
         val infoList = mutableListOf<String?>()
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
+        // blinksData를 날짜별로 매핑합니다.
         val blinksMap = blinksData.groupBy {
             dateFormat.format((it["measurement_date"] as com.google.firebase.Timestamp).toDate())
         }.mapValues { entry ->
-            entry.value.map { it["average_frequency_per_minute"] as Double }.average()
+            entry.value.map {
+                when (val frequency = it["average_frequency_per_minute"]) {
+                    is Long -> frequency.toDouble()
+                    is Double -> frequency
+                    else -> 0.0 // 기본값 또는 오류 처리
+                }
+            }.average()
         }
+        Log.d("TAG", "blinksMap = $blinksMap")
 
         for (date in days) {
             if (date != null) {

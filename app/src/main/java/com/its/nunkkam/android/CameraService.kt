@@ -208,7 +208,7 @@ class CameraService : LifecycleService() {
 
     override fun onDestroy() {
         super.onDestroy()
-        cameraExecutor.shutdown()
+        cameraExecutor?.shutdown()
     }
 
     // 서비스가 백그라운드에서도 계속 실행되도록 설정
