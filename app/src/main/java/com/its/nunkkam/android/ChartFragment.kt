@@ -124,7 +124,7 @@ class ChartFragment : Fragment() {
         val month = calendar.get(Calendar.MONTH) + 1
         val weekOfMonth = calendar.get(Calendar.WEEK_OF_MONTH)
 
-        return "${month}월 ${weekOfMonth}주차"
+        return "${month}월 ${weekOfMonth}주"
     }
 
     private fun displayChart(data: List<Pair<String, Int>>) {
@@ -136,7 +136,7 @@ class ChartFragment : Fragment() {
         val maxBarHeight = resources.getDimensionPixelSize(R.dimen.max_bar_height)
 
         // 전체 차트의 너비를 계산 (7개의 막대와 간격, 여백 추가)
-        val totalChartWidth = (barWidth + barSpacing) * 7 - barSpacing + 60 // 60dp 여백 추가
+        val totalChartWidth = (barWidth + barSpacing) * data.size - barSpacing + 60 // 데이터 크기 기반 너비 설정
 
         val chartLayout = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
@@ -144,7 +144,7 @@ class ChartFragment : Fragment() {
                 totalChartWidth,
                 LinearLayout.LayoutParams.WRAP_CONTENT
             )
-            gravity = Gravity.CENTER
+            gravity = Gravity.CENTER_HORIZONTAL
         }
 
         val barsLayout = LinearLayout(context).apply {
@@ -168,7 +168,7 @@ class ChartFragment : Fragment() {
             // 수치 레이블 생성
             val valueLabel = TextView(context).apply {
                 text = value.toString()
-                textSize = 12f  // 수정: 텍스트 크기를 10f에서 12f로 변경
+                textSize = 12f
                 setTextColor(ContextCompat.getColor(requireContext(),
                     if (isRecent) R.color.dark_darkbar else R.color.dark_lightbar))
                 gravity = Gravity.CENTER
@@ -209,19 +209,14 @@ class ChartFragment : Fragment() {
         data.forEachIndexed { index, (label, _) ->
             val isRecent = index == data.size - 1
             val labelView = TextView(context).apply {
-                text = label
-                textSize = 12f  // 수정: 텍스트 크기를 10f에서 12f로 변경
+                // 홀수 번째와 마지막 레이블만 표시
+                text = if (index % 2 == 0 || isRecent) label else ""
+                textSize = 11f
                 setTextColor(ContextCompat.getColor(requireContext(),
                     if (isRecent) R.color.dark_darkbar else R.color.dark_lightbar))
                 gravity = Gravity.CENTER
                 layoutParams = LinearLayout.LayoutParams(barWidth + barSpacing, LinearLayout.LayoutParams.WRAP_CONTENT)
                 maxLines = 1
-                if (index % 2 == 0 || isRecent) {
-                    visibility = View.VISIBLE
-                } else {
-                    visibility = View.INVISIBLE
-                    text = ""
-                }
             }
             labelsLayout.addView(labelView)
         }
@@ -234,10 +229,11 @@ class ChartFragment : Fragment() {
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
             )
-            gravity = Gravity.CENTER
+            gravity = Gravity.CENTER_HORIZONTAL
         }
         wrapperLayout.addView(chartLayout)
 
         chartContainer.addView(wrapperLayout)
     }
+
 }
