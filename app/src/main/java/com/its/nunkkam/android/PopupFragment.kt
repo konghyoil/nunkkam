@@ -41,16 +41,14 @@ class PopupFragment : DialogFragment() {
     override fun onStart() {
         super.onStart()
 
-        // 팝업 창의 크기를 6번 페이지 기준으로 고정
-        val imageHeight = resources.getDimensionPixelSize(R.dimen.image_height_page_6)
-        val textHeight = resources.getDimensionPixelSize(R.dimen.text_height_page_6)
-        val totalHeight = imageHeight + textHeight + resources.getDimensionPixelSize(R.dimen.popup_additional_height)
-
+        // 팝업 창의 가로 길이를 줄이기
+        val width = (resources.displayMetrics.widthPixels * 0.85).toInt()  // 화면 너비의 85%로 설정
         dialog?.window?.setLayout(
-            WindowManager.LayoutParams.MATCH_PARENT,
-            totalHeight
+            width,
+            WindowManager.LayoutParams.WRAP_CONTENT
         )
     }
+
 
     private fun showPreviousPage() {
         if (currentPage > 1) {

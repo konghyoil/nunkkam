@@ -44,23 +44,23 @@
         <TextView
             android:id="@+id/text_description"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="90dp"
             android:minHeight="100dp"
-        android:text="1. 눈을 뜬 상태에서 안구를 위아래로 움직인다. 5회 이상 반복한다." />
+            android:text="1. 눈을 뜬 상태에서 안구를 위아래로 움직인다. 5회 이상 반복한다." />
     </LinearLayout>
 
     <!-- 버튼 영역 수정 -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="48dp"
+        android:layout_height="42dp"
         android:gravity="center"
         android:orientation="horizontal"
         android:padding="4dp">
 
         <ImageButton
             android:id="@+id/previous_button"
-            android:layout_width="58dp"
-            android:layout_height="50dp"
+            android:layout_width="50dp"
+            android:layout_height="42dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="이전 페이지"
             android:src="@drawable/ic_arrow_left" />
@@ -77,8 +77,8 @@
 
         <ImageButton
             android:id="@+id/next_button"
-            android:layout_width="58dp"
-            android:layout_height="50dp"
+            android:layout_width="50dp"
+            android:layout_height="42dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="다음 페이지"
             android:src="@drawable/ic_arrow_right" />
