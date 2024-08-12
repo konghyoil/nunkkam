@@ -45,6 +45,7 @@
         <!-- MainActivity 선언 -->
         <activity
             android:name=".MainActivity"
+            android:screenOrientation="portrait"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -52,14 +53,20 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".BlinkActivity" /> <!-- BlinkActivity 선언 -->
+        <activity android:name=".BlinkActivity"
+            android:screenOrientation="portrait"/><!-- BlinkActivity 선언 -->
 <!--        <activity android:name=".TimerFragment" /> &lt;!&ndash; TimerActivity 선언 &ndash;&gt;-->
-        <activity android:name=".TimerActivity" /> <!-- TimerActivity 선언 -->
+        <activity android:name=".TimerActivity"
+            android:screenOrientation="portrait"/> <!-- TimerActivity 선언 -->
 <!--        <activity android:name=".ChartFragment" /> &lt;!&ndash; ChartActivity 선언 &ndash;&gt;-->
 <!--        <activity android:name=".CalendarFragment" /> &lt;!&ndash; CalendarActivity 선언 &ndash;&gt;-->
 <!--        <activity android:name=".CardFragment" /> &lt;!&ndash; CardActivity 선언 &ndash;&gt;-->
-        <activity android:name=".ResultActivity" /> <!-- ResultActivity 선언 -->
-        <activity android:name=".UserManager" /> <!-- UserManager 선언 -->
+        <activity android:name=".ResultActivity"
+            android:screenOrientation="portrait"/><!-- ResultActivity 선언 -->
+
+
+
+
 
         <!-- 포그라운드 서비스 선언 -->
         <service
