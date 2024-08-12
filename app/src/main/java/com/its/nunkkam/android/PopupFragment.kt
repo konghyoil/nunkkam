@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.DialogFragment
+import android.view.WindowManager
 
 class PopupFragment : DialogFragment() {
 
@@ -34,9 +35,21 @@ class PopupFragment : DialogFragment() {
         view.findViewById<View>(R.id.previous_button).setOnClickListener { showPreviousPage() }
         view.findViewById<View>(R.id.next_button).setOnClickListener { showNextPage() }
 
-        // 수정: X 버튼 관련 코드 제거
-
         updatePage()
+    }
+
+    override fun onStart() {
+        super.onStart()
+
+        // 팝업 창의 크기를 6번 페이지 기준으로 고정
+        val imageHeight = resources.getDimensionPixelSize(R.dimen.image_height_page_6)
+        val textHeight = resources.getDimensionPixelSize(R.dimen.text_height_page_6)
+        val totalHeight = imageHeight + textHeight + resources.getDimensionPixelSize(R.dimen.popup_additional_height)
+
+        dialog?.window?.setLayout(
+            WindowManager.LayoutParams.MATCH_PARENT,
+            totalHeight
+        )
     }
 
     private fun showPreviousPage() {
