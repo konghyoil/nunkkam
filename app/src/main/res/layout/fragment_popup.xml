@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:background="#D9D9D9"> <!-- 수정: 배경색 변경 -->
+    android:background="#D9D9D9">
 
     <!-- 툴바 부분은 변경 없음 -->
     <androidx.appcompat.widget.Toolbar
@@ -24,7 +24,7 @@
 
     </androidx.appcompat.widget.Toolbar>
 
-    <!-- 수정: 상단 마진 추가 -->
+    <!-- 상단 마진 추가 -->
     <ImageView
         android:id="@+id/image"
         android:layout_width="match_parent"
@@ -34,14 +34,22 @@
         android:scaleType="fitCenter"
         android:src="@drawable/step1" />
 
-    <TextView
-        android:id="@+id/text_description"
+    <!-- 텍스트 설명을 감싸는 레이아웃 추가 -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp"
-        android:text="1. 눈을 뜬 상태에서 안구를 위아래로 움직인다. 5회 이상 반복한다." />
+        android:orientation="vertical"
+        android:padding="16dp">
 
-    <!-- 수정: 레이아웃 조정 -->
+        <TextView
+            android:id="@+id/text_description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="100dp"
+        android:text="1. 눈을 뜬 상태에서 안구를 위아래로 움직인다. 5회 이상 반복한다." />
+    </LinearLayout>
+
+    <!-- 버튼 영역 수정 -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="48dp"
@@ -49,7 +57,6 @@
         android:orientation="horizontal"
         android:padding="4dp">
 
-        <!-- 수정: 왼쪽 화살표 버튼 -->
         <ImageButton
             android:id="@+id/previous_button"
             android:layout_width="58dp"
@@ -58,7 +65,6 @@
             android:contentDescription="이전 페이지"
             android:src="@drawable/ic_arrow_left" />
 
-        <!-- 수정: 페이지 인디케이터 텍스트뷰 -->
         <TextView
             android:id="@+id/page_indicator"
             android:layout_width="wrap_content"
@@ -69,7 +75,6 @@
             android:text="1/6"
             android:textSize="18sp" />
 
-        <!-- 수정: 오른쪽 화살표 버튼 -->
         <ImageButton
             android:id="@+id/next_button"
             android:layout_width="58dp"
@@ -79,5 +84,4 @@
             android:src="@drawable/ic_arrow_right" />
     </LinearLayout>
 
-    <!-- X 버튼 삭제 관련 주석은 그대로 유지 -->
 </LinearLayout>
