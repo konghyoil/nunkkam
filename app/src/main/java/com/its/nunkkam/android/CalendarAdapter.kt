@@ -66,7 +66,7 @@ class CalendarAdapter(
 
                 when {
                     infoFloat >= 15 -> holder.infoTextView.setTextColor(Color.parseColor("#848484"))
-                    infoFloat in 1f..14f -> holder.infoTextView.setTextColor(Color.parseColor("#2E2E2E"))
+                    infoFloat in 1f..14f -> holder.infoTextView.setTextColor(Color.parseColor("#595959"))
                     else -> holder.infoTextView.setTextColor(Color.BLACK)
                 }
             } else {

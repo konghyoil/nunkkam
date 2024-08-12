@@ -25,6 +25,8 @@
     <color name="dark_label">#505050</color>
     <color name="dark_lightbar">#888888</color>
     <color name="dark_darkbar">#2E2E2E</color>
+    <color name="dark_lighttext">#848484</color>
+    <color name="dark_darktext">#404040</color>
 
 
 

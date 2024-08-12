@@ -17,6 +17,10 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import java.text.SimpleDateFormat
 import java.util.*
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.style.ForegroundColorSpan
+import androidx.core.content.ContextCompat
 
 class CalendarFragment : Fragment() {
 
@@ -69,8 +73,41 @@ class CalendarFragment : Fragment() {
             updateCalendar()
         }
 
+        // Setup the RecyclerView
         setupRecyclerView()
+
+        // Set the legend text with different colors
+        val legendTextView: TextView = view.findViewById(R.id.textView_legend)
+        val spannableString = SpannableString("1. 별로  2. 좋음  3. 에러")
+
+// "1. 별로" 부분에 색상 적용
+        val colorDarkBar = ContextCompat.getColor(requireContext(), R.color.dark_darktext)
+        spannableString.setSpan(
+            ForegroundColorSpan(colorDarkBar),
+            0, 5,  // 인덱스 범위 수정: 0에서 "별로 "까지 포함
+            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+
+// "2. 좋음" 부분에 색상 적용
+        val colorLightText = ContextCompat.getColor(requireContext(), R.color.dark_lighttext)
+        spannableString.setSpan(
+            ForegroundColorSpan(colorLightText),
+            7, 12,  // 인덱스 범위 수정: "2. "부터 "좋음 "까지 포함
+            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+
+// "3. 에러" 부분에 색상 적용
+        val colorDark = ContextCompat.getColor(requireContext(), R.color.dark_dark)
+        spannableString.setSpan(
+            ForegroundColorSpan(colorDark),
+            14, spannableString.length,  // 인덱스 범위 수정: "3. "부터 끝까지 포함
+            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+
+// 최종적으로 텍스트에 적용
+        legendTextView.text = spannableString
     }
+
 
     private fun setupRecyclerView() {
         val spanCount = 7
