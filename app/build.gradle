@@ -2,6 +2,9 @@ plugins {
     id 'com.android.application'
     id 'kotlin-android'
     id 'com.google.gms.google-services'  // Firebase 사용을 위한 플러그인
+    id("com.google.firebase.firebase-perf")
+    id("com.google.firebase.crashlytics")
+
 }
 
 android {
@@ -12,9 +15,9 @@ android {
     defaultConfig {
         applicationId "com.its.nunkkam.android"  // 앱의 고유 식별자
         minSdk 30  // 앱이 지원하는 최소 Android 버전
-        targetSdk 34  // 앱이 목표로 하는 Android 버전
-        versionCode 4  // 앱의 버전 코드 (정수)
-        versionName "4.0"  // 앱의 버전 이름 (문자열)
+        targetSdk 33  // 앱이 목표로 하는 Android 버전
+        versionCode 5  // 앱의 버전 코드 (정수)
+        versionName "4.1"  // 앱의 버전 이름 (문자열)
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"  // 안드로이드 테스트 러너
     }
@@ -81,6 +84,9 @@ dependencies {
     implementation 'com.google.firebase:firebase-analytics-ktx'  // Firebase 분석
     implementation 'com.google.firebase:firebase-firestore-ktx'  // Firestore 데이터베이스
     implementation 'com.google.firebase:firebase-auth:23.0.0' // Firebase 권한
+    // Performance Monitoring SDK 라이브러리
+    implementation 'com.google.firebase:firebase-perf-ktx:21.0.1'
+    implementation 'com.google.firebase:firebase-crashlytics-ktx:19.0.3'
 
     // Gson 라이브러리 (JSON 파싱)
     implementation 'com.google.code.gson:gson:2.8.9'

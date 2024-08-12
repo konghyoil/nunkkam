@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle                                             // Bundle 클래스 임포트
 import android.util.Log                                              // 로깅을 위한 Log 클래스 임포트
+import android.view.ViewGroup
 import android.widget.Button                                         // Button 위젯 임포트
 import android.widget.ImageButton
 import androidx.activity.result.contract.ActivityResultContracts     // 액티비티 결과 계약 임포트
@@ -44,7 +45,17 @@ class MainActivity : AppCompatActivity() {                           // MainActi
 
         checkAndRequestPermissions()                                 // 권한 확인 및 요청
 
-        checkUserStatus()                                            // 사용자 상태 확인 메서드 호출
+        checkUserStatus() // 사용자 상태 확인 메서드 호출
+
+        val crashButton = Button(this)
+        crashButton.text = "Test Crash"
+        crashButton.setOnClickListener {
+            throw RuntimeException("Test Crash") // Force a crash
+        }
+
+        addContentView(crashButton, ViewGroup.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT))
     }
 
     private fun checkAndRequestPermissions() {
