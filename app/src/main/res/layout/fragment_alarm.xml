@@ -90,7 +90,7 @@
                 android:id="@+id/btnMeasurementInterval"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:backgroundTint="#d9d9d9"
+                android:backgroundTint="#666666"
                 android:text="0분" />
         </LinearLayout>
 
@@ -166,7 +166,7 @@
                 android:id="@+id/btnManageInterval"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:backgroundTint="#d9d9d9"
+                android:backgroundTint="#666666"
                 android:text="0시간 0분 마다" />
         </LinearLayout>
 
