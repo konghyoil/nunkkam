@@ -29,6 +29,7 @@
         android:textSize="22sp"
         android:textStyle="bold"
         android:textColor="#FFFFFF"
+        android:fontFamily="@font/roboto_medium"
         android:padding="12dp"
         android:background="@android:color/transparent" />
 
@@ -42,6 +43,7 @@
         android:textSize="30sp"
         android:textStyle="bold"
         android:textColor="#FFFFFF"
+        android:fontFamily="@font/roboto_medium"
         android:padding="12dp"
         android:background="@android:color/transparent" />
 
@@ -61,6 +63,7 @@
             android:layout_weight="1"
             android:text="일시정지"
             android:textColor="#FFFFFF"
+            android:fontFamily="@font/roboto_medium"
             android:background="#505050"
             android:layout_marginEnd="4dp"
             android:layout_marginStart="4dp"/>
@@ -71,6 +74,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="계속"
+            android:fontFamily="@font/roboto_medium"
             android:textColor="#FFFFFF"
             android:background="#505050"
             android:layout_marginEnd="4dp"
@@ -83,6 +87,7 @@
             android:layout_weight="1"
             android:text="종료"
             android:textColor="#FFFFFF"
+            android:fontFamily="@font/roboto_medium"
             android:background="#505050"
             android:layout_marginEnd="4dp"
             android:layout_marginStart="4dp"/>
@@ -110,7 +115,8 @@
                 android:text="Total Blinks"
                 android:textColor="#FFFFFF"
                 android:textSize="14sp"
-                android:textStyle="bold"/>
+                android:textStyle="bold"
+                android:fontFamily="@font/roboto_medium"/>
 
             <TextView
                 android:id="@+id/blinkCountTextView"
@@ -136,7 +142,8 @@
                 android:text="Blink Rate"
                 android:textColor="#FFFFFF"
                 android:textSize="14sp"
-                android:textStyle="bold"/>
+                android:textStyle="bold"
+                android:fontFamily="@font/roboto_medium"/>
 
             <TextView
                 android:id="@+id/blinkRateTextView"
@@ -162,7 +169,8 @@
                 android:text="FPS"
                 android:textColor="#FFFFFF"
                 android:textSize="14sp"
-                android:textStyle="bold"/>
+                android:textStyle="bold"
+                android:fontFamily="@font/roboto_medium"/>
 
             <TextView
                 android:id="@+id/fpsTextView"

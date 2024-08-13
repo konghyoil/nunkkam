@@ -12,6 +12,7 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.NumberPicker
 import android.widget.PopupMenu
 import android.widget.TextView
 import android.widget.Toast
@@ -35,9 +36,8 @@ class TimerActivity : AppCompatActivity() {
 
     private lateinit var startButton: Button
     private lateinit var resultButton: Button
-//    private lateinit var logoutButton: Button
-//    private lateinit var deleteAccountButton: Button
-    private lateinit var timerTextView: TextView
+    private lateinit var minutePicker: NumberPicker
+    private lateinit var secondPicker: NumberPicker
     private lateinit var auth: FirebaseAuth
     private lateinit var googleSignInClient: GoogleSignInClient
     private val db = FirebaseFirestore.getInstance()
@@ -51,6 +51,16 @@ class TimerActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_timer)
 
+
+//        timerTextView = findViewById(R.id.timer_text)
+        startButton = findViewById(R.id.start_button)
+        resultButton = findViewById(R.id.result_button)
+        minutePicker = findViewById(R.id.minute_picker)
+        secondPicker = findViewById(R.id.second_picker)
+
+        setupTimePickers()
+
+        // 구글 프로필 보여주는 아이콘 표기
         val app = application as MyApplication
         auth = app.auth
         googleSignInClient = app.googleSignInClient
@@ -60,43 +70,62 @@ class TimerActivity : AppCompatActivity() {
         // 사용자 프로필 이미지 로드
         loadUserProfileImage()
 
-        startButton = findViewById(R.id.start_button)
-        resultButton = findViewById(R.id.result_button)
-//        logoutButton = findViewById(R.id.logout_button)
-//        deleteAccountButton = findViewById(R.id.delete_account_button)
-        timerTextView = findViewById(R.id.timer_text)
-
         // 프로필 이미지 클릭 리스너 설정
         profileImageView.setOnClickListener { view ->
             showPopupMenu(view)
         }
 
         startButton.setOnClickListener {
-            val intent = Intent(this, BlinkActivity::class.java)
-            startActivity(intent)
+            startBlinkActivity()
         }
 
         resultButton.setOnClickListener {
             goToResultScreen()
-            Log.d("TimerActivity", "userId: $userId")
         }
 
-//        logoutButton.setOnClickListener {
-//            logoutUser()
-//            Log.d("TimerActivity", "userId: $userId")
-//        }
-//
-//        deleteAccountButton.setOnClickListener {
-//            deleteUserAccount()
-//        }
-//        checkCurrentUser()
-
-        // AlarmFragment 추가
         addAlarmFragment()
-
         // 알림 권한 요청
         requestNotificationPermission()
     }
+
+
+    private fun setupTimePickers() {
+        minutePicker.minValue = 0
+        minutePicker.maxValue = 59
+
+        secondPicker.minValue = 0
+        secondPicker.maxValue = 59
+
+        // 초기 시간 설정 (예: 20분)
+        minutePicker.value = 20
+        secondPicker.value = 0
+
+        val timeChangeListener = NumberPicker.OnValueChangeListener { _, _, _ ->
+            updateTimeDisplay()
+        }
+        minutePicker.setOnValueChangedListener(timeChangeListener)
+        secondPicker.setOnValueChangedListener(timeChangeListener)
+
+        updateTimeDisplay()
+    }
+
+    private fun updateTimeDisplay() {
+        val minutes = minutePicker.value
+        val seconds = secondPicker.value
+        // 여기서 시간 표시를 업데이트합니다 (필요한 경우)
+        // 예: timerTextView.text = String.format("%02d:%02d", minutes, seconds)
+    }
+
+    private fun startBlinkActivity() {
+        val minutes = minutePicker.value
+        val seconds = secondPicker.value
+        val totalTimeInSeconds = minutes * 60 + seconds
+
+        val intent = Intent(this, BlinkActivity::class.java)
+        intent.putExtra("TIMER_DURATION", totalTimeInSeconds)
+        startActivity(intent)
+    }
+
     private fun loadUserProfileImage() {
         val account: GoogleSignInAccount? = GoogleSignIn.getLastSignedInAccount(this)
         account?.let {
@@ -137,6 +166,10 @@ class TimerActivity : AppCompatActivity() {
         builder.setMessage("회원 탈퇴를 하면 모든 회원 정보가 삭제됩니다.\n회원을 탈퇴하시겠습니까?")
             .setPositiveButton("예") { dialog, id ->
                 deleteUserAccount()
+                // MainActivity로 이동
+                val intent = Intent(this, MainActivity::class.java)
+                startActivity(intent)
+                finish()
             }
             .setNegativeButton("아니요") { dialog, id ->
                 dialog.dismiss()

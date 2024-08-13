@@ -227,12 +227,19 @@ class CalendarFragment : Fragment() {
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
         try {
+            // blinksData를 날짜별로 매핑합니다.
             val blinksMap = blinksData.groupBy {
-                dateFormat.format((it["measurement_date"] as? com.google.firebase.Timestamp)?.toDate() ?: Date())
+                dateFormat.format((it["measurement_date"] as com.google.firebase.Timestamp).toDate())
             }.mapValues { entry ->
-                entry.value.mapNotNull { it["average_frequency_per_minute"] as? Double }.average()
+                entry.value.map {
+                    when (val frequency = it["average_frequency_per_minute"]) {
+                        is Long -> frequency.toDouble()
+                        is Double -> frequency
+                        else -> 0.0 // 기본값 또는 오류 처리
+                    }
+                }.average()
             }
-
+            Log.d("TAG", "blinksMap = $blinksMap")
             for (date in days) {
                 if (date != null) {
                     val dateString = dateFormat.format(date)
