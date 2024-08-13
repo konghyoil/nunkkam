@@ -51,13 +51,18 @@ class ChartFragment : Fragment() {
             .get()
             .addOnSuccessListener { document ->
                 if (document != null && document.exists()) {
-                    val blinkData = document.get("blinks") as? List<Map<String, Any>>
-                    if (blinkData != null && blinkData.isNotEmpty()) {
-                        val data = generateWeeklyAverageData(blinkData)
-                        if (data.all { it.second == 0 }) {
-                            displayNoDataMessage()
+                    val blinkData = document.get("blinks")
+                    if (blinkData is List<*>) { // 타입이 List인지 먼저 확인
+                        val castedBlinkData = blinkData.filterIsInstance<Map<String, Any>>() // List<Map<String, Any>>로 변환
+                        if (castedBlinkData.isNotEmpty()) {
+                            val data = generateWeeklyAverageData(castedBlinkData)
+                            if (data.all { it.second == 0 }) {
+                                displayNoDataMessage()
+                            } else {
+                                displayChart(data)
+                            }
                         } else {
-                            displayChart(data)
+                            displayNoDataMessage()
                         }
                     } else {
                         displayNoDataMessage()
@@ -232,7 +237,7 @@ class ChartFragment : Fragment() {
                 )
             }
 
-            data.forEachIndexed { index, (label, value) ->
+            data.forEachIndexed { index, (_, value) ->
                 val barAndLabelLayout = LinearLayout(context).apply {
                     orientation = LinearLayout.VERTICAL
                     gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
