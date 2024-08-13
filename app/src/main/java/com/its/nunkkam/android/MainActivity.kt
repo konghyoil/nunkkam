@@ -46,16 +46,7 @@ class MainActivity : AppCompatActivity() {                           // MainActi
         checkAndRequestPermissions()                                 // 권한 확인 및 요청
 
         checkUserStatus() // 사용자 상태 확인 메서드 호출
-
-        val crashButton = Button(this)
-        crashButton.text = "Test Crash"
-        crashButton.setOnClickListener {
-            throw RuntimeException("Test Crash") // Force a crash
-        }
-
-        addContentView(crashButton, ViewGroup.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT))
+        
     }
 
     private fun checkAndRequestPermissions() {
