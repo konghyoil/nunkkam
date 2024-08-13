@@ -114,7 +114,7 @@ class ChartFragment : Fragment() {
                         is Double -> value
                         else -> 0.0
                     }
-                }.average().roundToInt()
+                }.average().takeIf { !it.isNaN() }?.roundToInt() ?: 0
             } ?: 0
             data.add(Pair(weekLabel, weeklyAverage))
         }
@@ -127,12 +127,67 @@ class ChartFragment : Fragment() {
         }
 
         val recentAverage = blinkData.lastOrNull()?.let {
-            (it["average_frequency_per_minute"] as? Number)?.toDouble()?.roundToInt() ?: 0
+            (it["average_frequency_per_minute"] as? Number)?.toDouble()?.takeIf { !it.isNaN() }?.roundToInt() ?: 0
         } ?: 0
         data.add(Pair("최근", recentAverage))
 
         return data
     }
+
+//    private fun generateWeeklyAverageData(blinkData: List<Map<String, Any>>): List<Pair<String, Int>> {
+//        val data = mutableListOf<Pair<String, Int>>()
+//        val calendar = Calendar.getInstance()
+//        calendar.firstDayOfWeek = Calendar.MONDAY
+//
+//        calendar.add(Calendar.WEEK_OF_YEAR, -5)
+//        val sixWeeksAgo = calendar.time
+//
+//        val weeklyData = blinkData
+//            .filter { blink ->
+//                val measurementDate = (blink["measurement_date"] as Timestamp).toDate()
+//                measurementDate.after(sixWeeksAgo) || measurementDate == sixWeeksAgo
+//            }
+//            .groupBy { blink ->
+//                val measurementDate = (blink["measurement_date"] as Timestamp).toDate()
+//                getWeekLabel(measurementDate)
+//            }
+//
+//        val weeks = mutableListOf<String>()
+//        repeat(6) {
+//            val weekLabel = getWeekLabel(calendar.time)
+//            if (!weeks.contains(weekLabel)) {
+//                weeks.add(weekLabel)
+//            }
+//            calendar.add(Calendar.WEEK_OF_YEAR, 1)
+//        }
+//
+//        weeks.forEach { weekLabel ->
+//            val weeklyAverage = weeklyData[weekLabel]?.let { blinks ->
+//                blinks.map {
+//                    when (val value = it["average_frequency_per_minute"]) {
+//                        is Long -> value.toDouble()
+//                        is Double -> value
+//                        else -> 0.0
+//                    }
+//                }.average().roundToInt()
+//            } ?: 0
+//            data.add(Pair(weekLabel, weeklyAverage))
+//        }
+//
+//        if (data.isEmpty()) {
+//            for (i in 5 downTo 0) {
+//                val weekLabel = getWeekLabel(Calendar.getInstance().apply { add(Calendar.WEEK_OF_YEAR, -i) }.time)
+//                data.add(Pair(weekLabel, 0))
+//            }
+//        }
+//
+//        val recentAverage = blinkData.lastOrNull()?.let {
+//            (it["average_frequency_per_minute"] as? Number)?.toDouble()?.roundToInt() ?: 0
+//        } ?: 0
+//        data.add(Pair("최근", recentAverage))
+//
+//        return data
+//    }
 
     private fun getWeekLabel(date: Date): String {
         val calendar = Calendar.getInstance()
