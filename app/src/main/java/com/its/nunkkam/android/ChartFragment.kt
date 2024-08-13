@@ -1,25 +1,28 @@
 package com.its.nunkkam.android
 
 import android.os.Bundle
-import android.text.TextUtils
 import android.util.Log
-import android.view.Gravity
 import android.view.LayoutInflater
+import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
 import java.util.*
 import kotlin.math.roundToInt
-import androidx.core.content.res.ResourcesCompat
 
 class ChartFragment : Fragment() {
     private lateinit var firestore: FirebaseFirestore
     private lateinit var chartContainer: LinearLayout
+    private lateinit var noDataContainer: LinearLayout
+    private lateinit var noDataMessageTextView: TextView
+    private lateinit var noDataImageView: ImageView
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -32,9 +35,11 @@ class ChartFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-
         firestore = FirebaseFirestore.getInstance()
         chartContainer = view.findViewById(R.id.chart_container)
+        noDataContainer = view.findViewById(R.id.no_data_container)
+        noDataMessageTextView = view.findViewById(R.id.noDataMessageTextView)
+        noDataImageView = view.findViewById(R.id.noDataImageView)
 
         val userId = UserManager.userId ?: "unknown_user"
         Log.d("ChartFragment", "User ID: $userId")
@@ -49,17 +54,29 @@ class ChartFragment : Fragment() {
                     val blinkData = document.get("blinks") as? List<Map<String, Any>>
                     if (blinkData != null && blinkData.isNotEmpty()) {
                         val data = generateWeeklyAverageData(blinkData)
-                        displayChart(data)
+                        if (data.all { it.second == 0 }) {
+                            displayNoDataMessage()
+                        } else {
+                            displayChart(data)
+                        }
                     } else {
-                        Log.e("ChartFragment", "Blink data is null or empty")
+                        displayNoDataMessage()
                     }
                 } else {
-                    Log.e("ChartFragment", "Document does not exist")
+                    displayNoDataMessage()
                 }
             }
             .addOnFailureListener { exception ->
                 Log.e("ChartFragment", "Error fetching document", exception)
+                displayNoDataMessage()
             }
+    }
+
+    private fun displayNoDataMessage() {
+        chartContainer.visibility = View.GONE
+        noDataContainer.visibility = View.VISIBLE
+        noDataMessageTextView.text = "측정값이 유효하지 않습니다."
+        noDataImageView.setImageResource(R.drawable.eye_closed)
     }
 
     private fun generateWeeklyAverageData(blinkData: List<Map<String, Any>>): List<Pair<String, Int>> {
@@ -130,117 +147,123 @@ class ChartFragment : Fragment() {
     }
 
     private fun displayChart(data: List<Pair<String, Int>>) {
-        chartContainer.removeAllViews()
+        try {
+            chartContainer.visibility = View.VISIBLE
+            noDataContainer.visibility = View.GONE
+            chartContainer.removeAllViews()
 
-        val maxValue = data.maxOfOrNull { it.second } ?: 60
-        val barWidth = resources.getDimensionPixelSize(R.dimen.bar_width)
-        val barSpacing = resources.getDimensionPixelSize(R.dimen.bar_spacing)
-        val maxBarHeight = resources.getDimensionPixelSize(R.dimen.max_bar_height)
+            val maxValue = data.maxOfOrNull { it.second } ?: 60
+            val barWidth = resources.getDimensionPixelSize(R.dimen.bar_width)
+            val barSpacing = resources.getDimensionPixelSize(R.dimen.bar_spacing)
+            val maxBarHeight = resources.getDimensionPixelSize(R.dimen.max_bar_height)
 
-        // 전체 차트의 너비를 계산 (7개의 막대와 간격, 여백 추가)
-        val totalChartWidth = (barWidth + barSpacing) * data.size - barSpacing + 60 // 데이터 크기 기반 너비 설정
+            // 전체 차트의 너비를 계산 (7개의 막대와 간격, 여백 추가)
+            val totalChartWidth = (barWidth + barSpacing) * data.size - barSpacing + 60 // 데이터 크기 기반 너비 설정
 
-        val chartLayout = LinearLayout(context).apply {
-            orientation = LinearLayout.VERTICAL
-            layoutParams = LinearLayout.LayoutParams(
-                totalChartWidth,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            )
-            gravity = Gravity.CENTER_HORIZONTAL
-        }
-
-        val barsLayout = LinearLayout(context).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.BOTTOM
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            )
-        }
-
-        data.forEachIndexed { index, (label, value) ->
-            val barAndLabelLayout = LinearLayout(context).apply {
+            val chartLayout = LinearLayout(context).apply {
                 orientation = LinearLayout.VERTICAL
-                gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
-                layoutParams = LinearLayout.LayoutParams(barWidth + barSpacing, LinearLayout.LayoutParams.WRAP_CONTENT)
-            }
-
-            val isRecent = index == data.size - 1
-
-            // 수치 레이블 생성
-            val valueLabel = TextView(context).apply {
-                text = value.toString()
-                textSize = 12f
-                setTextColor(ContextCompat.getColor(requireContext(),
-                    if (isRecent) R.color.dark_darkbar else R.color.dark_lightbar))
-                gravity = Gravity.CENTER
                 layoutParams = LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    totalChartWidth,
                     LinearLayout.LayoutParams.WRAP_CONTENT
                 )
-                typeface = ResourcesCompat.getFont(requireContext(), R.font.roboto_medium)
+                gravity = Gravity.CENTER_HORIZONTAL
             }
-            barAndLabelLayout.addView(valueLabel)
 
-            // 막대 생성
-            val barView = View(context).apply {
-                val barHeight = (value.toFloat() / maxValue * maxBarHeight).toInt().coerceAtMost(maxBarHeight)
-                layoutParams = LinearLayout.LayoutParams(barWidth, barHeight)
-                setBackgroundColor(ContextCompat.getColor(requireContext(),
-                    if (isRecent) R.color.dark_darkbar else R.color.dark_lightbar))
+            val barsLayout = LinearLayout(context).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = Gravity.BOTTOM
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                )
             }
-            barAndLabelLayout.addView(barView)
 
-            barsLayout.addView(barAndLabelLayout)
-        }
+            data.forEachIndexed { index, (label, value) ->
+                val barAndLabelLayout = LinearLayout(context).apply {
+                    orientation = LinearLayout.VERTICAL
+                    gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
+                    layoutParams = LinearLayout.LayoutParams(barWidth + barSpacing, LinearLayout.LayoutParams.WRAP_CONTENT)
+                }
 
-        chartLayout.addView(barsLayout)
+                val isRecent = index == data.size - 1
 
-        // 레이블을 위한 별도의 레이아웃
-        val labelsLayout = LinearLayout(context).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply {
-                topMargin = resources.getDimensionPixelSize(R.dimen.label_top_margin)
-                bottomMargin = resources.getDimensionPixelSize(R.dimen.label_bottom_margin)
-            }
-        }
-
-        data.forEachIndexed { index, (label, _) ->
-            val isRecent = index == data.size - 1
-            val labelView = TextView(context).apply {
-                // 홀수 번째와 마지막 레이블만 표시
-                text = if (index % 2 == 0 || isRecent) label else ""
-                textSize = 11f
-                setTextColor(ContextCompat.getColor(requireContext(),
-                    if (isRecent) R.color.dark_darkbar else R.color.dark_lightbar))
-                gravity = Gravity.CENTER
-                layoutParams = LinearLayout.LayoutParams(barWidth + barSpacing, LinearLayout.LayoutParams.WRAP_CONTENT)
-                maxLines = 1
-                // 홀수 번째와 최근 레이블에 대해 roboto_medium 폰트 설정
-                if (index % 2 == 0 || isRecent) {
+                // 수치 레이블 생성
+                val valueLabel = TextView(context).apply {
+                    text = value.toString()
+                    textSize = 12f
+                    setTextColor(ContextCompat.getColor(requireContext(),
+                        if (isRecent) R.color.dark_darkbar else R.color.dark_lightbar))
+                    gravity = Gravity.CENTER
+                    layoutParams = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.WRAP_CONTENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                    )
                     typeface = ResourcesCompat.getFont(requireContext(), R.font.roboto_medium)
                 }
+                barAndLabelLayout.addView(valueLabel)
+
+                // 막대 생성
+                val barView = View(context).apply {
+                    val barHeight = (value.toFloat() / maxValue * maxBarHeight).toInt().coerceAtMost(maxBarHeight)
+                    layoutParams = LinearLayout.LayoutParams(barWidth, barHeight)
+                    setBackgroundColor(ContextCompat.getColor(requireContext(),
+                        if (isRecent) R.color.dark_darkbar else R.color.dark_lightbar))
+                }
+                barAndLabelLayout.addView(barView)
+
+                barsLayout.addView(barAndLabelLayout)
             }
-            labelsLayout.addView(labelView)
+
+            chartLayout.addView(barsLayout)
+
+            // 레이블을 위한 별도의 레이아웃
+            val labelsLayout = LinearLayout(context).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = Gravity.CENTER
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                ).apply {
+                    topMargin = resources.getDimensionPixelSize(R.dimen.label_top_margin)
+                    bottomMargin = resources.getDimensionPixelSize(R.dimen.label_bottom_margin)
+                }
+            }
+
+            data.forEachIndexed { index, (label, _) ->
+                val isRecent = index == data.size - 1
+                val labelView = TextView(context).apply {
+                    // 홀수 번째와 마지막 레이블만 표시
+                    text = if (index % 2 == 0 || isRecent) label else ""
+                    textSize = 11f
+                    setTextColor(ContextCompat.getColor(requireContext(),
+                        if (isRecent) R.color.dark_darkbar else R.color.dark_lightbar))
+                    gravity = Gravity.CENTER
+                    layoutParams = LinearLayout.LayoutParams(barWidth + barSpacing, LinearLayout.LayoutParams.WRAP_CONTENT)
+                    maxLines = 1
+                    // 홀수 번째와 최근 레이블에 대해 roboto_medium 폰트 설정
+                    if (index % 2 == 0 || isRecent) {
+                        typeface = ResourcesCompat.getFont(requireContext(), R.font.roboto_medium)
+                    }
+                }
+                labelsLayout.addView(labelView)
+            }
+
+            chartLayout.addView(labelsLayout)
+
+            val wrapperLayout = LinearLayout(context).apply {
+                orientation = LinearLayout.HORIZONTAL
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                )
+                gravity = Gravity.CENTER_HORIZONTAL
+            }
+            wrapperLayout.addView(chartLayout)
+
+            chartContainer.addView(wrapperLayout)
+        } catch (e: Exception) {
+            Log.e("ChartFragment", "Error displaying chart", e)
+            displayNoDataMessage()
         }
-
-        chartLayout.addView(labelsLayout)
-
-        val wrapperLayout = LinearLayout(context).apply {
-            orientation = LinearLayout.HORIZONTAL
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            )
-            gravity = Gravity.CENTER_HORIZONTAL
-        }
-        wrapperLayout.addView(chartLayout)
-
-        chartContainer.addView(wrapperLayout)
     }
-
 }
