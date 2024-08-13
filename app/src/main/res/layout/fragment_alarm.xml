@@ -55,8 +55,7 @@
                 android:id="@+id/switchMeasurementAlarm"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:thumbTint="@color/dark_thumb"
-                android:trackTint="@color/dark_theme_font_track" />
+                android:rotation="180"/>
         </LinearLayout>
 
         <View
@@ -105,7 +104,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="16dp"
-        android:background="#263238"
+        android:background="#171D1B"
         android:visibility="gone">
 
         <LinearLayout
@@ -134,7 +133,8 @@
             <Switch
                 android:id="@+id/switchManageAlarm"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:rotation="180"/>
         </LinearLayout>
 
         <View
@@ -188,7 +188,7 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:background="@drawable/button_background"
+            android:background="@drawable/btn_measurment_alarm"
             android:gravity="center"
             android:text="측정 알람"
             android:textColor="#FFFFFF"
@@ -204,7 +204,7 @@
             android:textColor="#FFFFFF"
             android:textStyle="bold"
             android:gravity="center"
-            android:background="@drawable/button_background" />
+            android:background="@drawable/btn_manage_alarm" />
 
     </LinearLayout>
 

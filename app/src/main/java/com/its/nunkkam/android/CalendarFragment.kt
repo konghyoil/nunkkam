@@ -2,6 +2,7 @@ package com.its.nunkkam.android
 
 import android.app.AlertDialog
 import android.content.Context
+import android.graphics.Rect
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -42,7 +43,8 @@ class CalendarFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val sharedPreferences = requireContext().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
+        val sharedPreferences =
+            requireContext().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
         val userId = sharedPreferences.getString("user_id", null)
 
         if (userId != null) {
@@ -118,7 +120,7 @@ class CalendarFragment : Fragment() {
             val itemHeight = recyclerViewHeight / 6 // 6주로 가정
             val itemWidth = recyclerView.width / spanCount
 
-            adapter = CalendarAdapter(emptyList(), emptyList(), itemWidth, itemHeight) { date, _ ->
+            adapter = CalendarAdapter(emptyList(), emptyList(), itemWidth, itemHeight) { date, info ->
                 showDialog(date)
             }
             recyclerView.adapter = adapter
@@ -151,13 +153,15 @@ class CalendarFragment : Fragment() {
                 } else {
                     Log.d(TAG, "Cached get failed: ", task.exception)
                 }
+            } catch (e: ClassCastException) {
+                Log.e(TAG, "Error casting data: ", e)
+                blinksData = emptyList()
             } catch (e: Exception) {
                 Log.e(TAG, "Unexpected error: ", e)
                 blinksData = emptyList()
             }
         }
     }
-
 
     private fun updateCalendar() {
         val days = getDaysInMonthWithEmptySpaces()
@@ -166,7 +170,10 @@ class CalendarFragment : Fragment() {
         adapter.updateData(days, infoList)
         updateMonthYearText()
 
-        Log.d("CalendarFragment", "Calendar updated with ${days.size} days and ${infoList.size} info items")
+        Log.d(
+            "CalendarFragment",
+            "Calendar updated with ${days.size} days and ${infoList.size} info items"
+        )
     }
 
     private fun showDialog(date: Date?) {
