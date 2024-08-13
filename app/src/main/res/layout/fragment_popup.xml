@@ -20,6 +20,7 @@
             android:layout_gravity="center"
             android:text="국민건강보험공단이 알려주는 눈 운동"
             android:textColor="@android:color/white"
+            android:fontFamily="@font/roboto_slab_black"
             android:textSize="16sp" />
 
     </androidx.appcompat.widget.Toolbar>
@@ -46,6 +47,7 @@
             android:layout_width="match_parent"
             android:layout_height="90dp"
             android:minHeight="100dp"
+            android:fontFamily="@font/roboto_slab_black"
             android:text="1. 눈을 뜬 상태에서 안구를 위아래로 움직인다. 5회 이상 반복한다." />
     </LinearLayout>
 
@@ -73,6 +75,7 @@
             android:layout_marginRight="16dp"
             android:gravity="center"
             android:text="1/6"
+            android:fontFamily="@font/roboto_bold"
             android:textSize="18sp" />
 
         <ImageButton
