@@ -155,7 +155,7 @@ class CardFragment : Fragment() {                                    // Fragment
             ratePerMinute >= 9 -> "당신은 '올빼미'의 눈을 \n가졌습니다!" to R.drawable.owl
             ratePerMinute >= 6 -> "당신은 '고양이'의 눈을 \n가졌습니다!" to R.drawable.cat
             ratePerMinute >= 3 -> "당신은 '두더지'의 눈을 \n가졌습니다!" to R.drawable.mole
-            else -> "측정값이 유효하지 않습니다." to R.drawable.eye_closed
+            else -> "측정값이 유효하지 \n않습니다." to R.drawable.eye_closed
         }
     }
 

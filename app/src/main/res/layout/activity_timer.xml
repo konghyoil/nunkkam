@@ -86,6 +86,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="80dp"
         android:text="00:20:00"
+        android:fontFamily="@font/tenada"
         android:textColor="#FFFFFF"
         android:textStyle="bold"
         android:textSize="60sp"

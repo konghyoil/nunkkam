@@ -79,13 +79,13 @@ class CalendarFragment : Fragment() {
 
         // Set the legend text with different colors
         val legendTextView: TextView = view.findViewById(R.id.textView_legend)
-        val spannableString = SpannableString("1. 별로  2. 좋음  3. 에러")
+        val spannableString = SpannableString("    1. 별로  2. 좋음")
 
 // "1. 별로" 부분에 색상 적용
         val colorDarkBar = ContextCompat.getColor(requireContext(), R.color.dark_darktext)
         spannableString.setSpan(
             ForegroundColorSpan(colorDarkBar),
-            0, 5,  // 인덱스 범위 수정: 0에서 "별로 "까지 포함
+            4, 9,  // "    1. 별로"에서 "1. 별로"에 해당하는 인덱스 범위
             Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
         )
 
@@ -93,17 +93,17 @@ class CalendarFragment : Fragment() {
         val colorLightText = ContextCompat.getColor(requireContext(), R.color.dark_lighttext)
         spannableString.setSpan(
             ForegroundColorSpan(colorLightText),
-            7, 12,  // 인덱스 범위 수정: "2. "부터 "좋음 "까지 포함
+            11, 16,  // "    1. 별로  2. 좋음"에서 "2. 좋음"에 해당하는 인덱스 범위
             Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
         )
 
-// "3. 에러" 부분에 색상 적용
-        val colorDark = ContextCompat.getColor(requireContext(), R.color.dark_dark)
-        spannableString.setSpan(
-            ForegroundColorSpan(colorDark),
-            14, spannableString.length,  // 인덱스 범위 수정: "3. "부터 끝까지 포함
-            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-        )
+//// "3. 에러" 부분에 색상 적용
+//        val colorDark = ContextCompat.getColor(requireContext(), R.color.dark_dark)
+//        spannableString.setSpan(
+//            ForegroundColorSpan(colorDark),
+//            14, spannableString.length,  // 인덱스 범위 수정: "3. "부터 끝까지 포함
+//            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+//        )
 
 // 최종적으로 텍스트에 적용
         legendTextView.text = spannableString
