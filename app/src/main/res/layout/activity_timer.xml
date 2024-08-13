@@ -26,8 +26,8 @@
 
             <ImageView
                 android:id="@+id/profile_image_view"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
                 android:layout_marginEnd="16dp"
                 android:src="@drawable/ic_account"
                 android:contentDescription="@string/example_image_desc"
@@ -36,12 +36,60 @@
         </LinearLayout>
     </androidx.appcompat.widget.Toolbar>
 
+    <LinearLayout
+        android:id="@+id/time_picker_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="40dp">
+
+        <NumberPicker
+            android:id="@+id/minute_picker"
+            android:layout_width="wrap_content"
+            android:layout_height="220dp"
+            android:theme="@style/LargerNumberPickerStyle" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=":"
+            android:textSize="70sp"
+            android:textColor="#FFFFFF"
+            android:layout_marginHorizontal="20dp"
+            android:layout_gravity="center_vertical"/>
+
+        <NumberPicker
+            android:id="@+id/second_picker"
+            android:layout_width="wrap_content"
+            android:layout_height="220dp"
+            android:theme="@style/LargerNumberPickerStyle"/>
+    </LinearLayout>
+    <Button
+        android:id="@+id/start_button"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="60dp"
+        android:backgroundTint="@color/dark_button2"
+        android:text="측정 시작"
+        android:fontFamily="@font/roboto_medium"
+        android:textStyle="bold"
+        android:textColor="#000015"
+        android:visibility="visible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/time_picker_layout"
+        app:layout_constraintWidth_percent="0.6" />
+
     <Button
         android:id="@+id/result_button"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="15dp"
         android:backgroundTint="@color/dark_button2"
+        android:fontFamily="@font/roboto_medium"
         android:text="결과 확인"
         android:textStyle="bold"
         android:textColor="#000015"
@@ -49,67 +97,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/start_button"
-        app:layout_constraintWidth_percent="0.6" />
-
-    <!--    &lt;!&ndash; 로그아웃 버튼 추가 &ndash;&gt;-->
-<!--    <Button-->
-<!--        android:id="@+id/logout_button"-->
-<!--        android:layout_width="0dp"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:text="로그아웃"-->
-<!--        android:backgroundTint="@color/dark_button3"-->
-<!--        android:textColor="#000015"-->
-<!--        android:visibility="visible"-->
-<!--        app:layout_constraintTop_toBottomOf="@id/result_button"-->
-<!--        app:layout_constraintStart_toStartOf="parent"-->
-<!--        app:layout_constraintEnd_toEndOf="parent"-->
-<!--        android:layout_marginTop="25dp"-->
-<!--        app:layout_constraintWidth_percent="0.8" />-->
-
-<!--    <Button-->
-<!--        android:id="@+id/delete_account_button"-->
-<!--        android:layout_width="0dp"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:text="회원탈퇴"-->
-<!--        android:backgroundTint="@color/dark_button4"-->
-<!--        android:textColor="#000015"-->
-<!--        android:visibility="visible"-->
-<!--        app:layout_constraintTop_toBottomOf="@id/logout_button"-->
-<!--        app:layout_constraintStart_toStartOf="parent"-->
-<!--        app:layout_constraintEnd_toEndOf="parent"-->
-<!--        android:layout_marginTop="25dp"-->
-<!--        app:layout_constraintWidth_percent="0.8" />-->
-
-    <TextView
-        android:id="@+id/timer_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="80dp"
-        android:text="00:20:00"
-        android:fontFamily="@font/tenada"
-        android:textColor="#FFFFFF"
-        android:textStyle="bold"
-        android:textSize="60sp"
-        android:visibility="visible"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/toolbar" />
-
-    <Button
-        android:id="@+id/start_button"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="80dp"
-        android:backgroundTint="@color/dark_button2"
-        android:text="측정 시작"
-        android:textStyle="bold"
-        android:textColor="#000015"
-        android:visibility="visible"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.487"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/timer_text"
         app:layout_constraintWidth_percent="0.6" />
 
     <FrameLayout

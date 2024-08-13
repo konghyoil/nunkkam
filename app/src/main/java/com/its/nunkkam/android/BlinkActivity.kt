@@ -50,6 +50,8 @@ class BlinkActivity : AppCompatActivity() {
     private lateinit var blinkCountTextView: TextView // 눈 깜빡임 횟수를 표시할 TextView
     private lateinit var fpsTextView: TextView // FPS를 표시할 TextView
     private lateinit var blinkRateTextView: TextView // 분당 눈 깜빡임 횟수를 표시할 TextView
+    private var timeLeftInMillis: Long = 0
+
 
     // 타이머
     private lateinit var timerTextView: TextView // 타이머 텍스트 뷰
@@ -154,6 +156,10 @@ class BlinkActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState) // 부모 클래스의 onCreate 메서드 호출
         setContentView(R.layout.activity_blink) // 레이아웃 XML 파일을 가져와 화면에 설정
 
+
+        blinkDetectionUtil = BlinkDetectionUtil()
+        timerTextView = findViewById(R.id.timer_text)
+
         initViews() // 초기 UI 및 뷰 설정
         blinkDetectionUtil = BlinkDetectionUtil()
         blinkDetectionUtil.setStartTime(System.currentTimeMillis())
@@ -166,6 +172,10 @@ class BlinkActivity : AppCompatActivity() {
         landmarkDetectionManager.setResultListener { result ->
             handleFaceLandmarkerResult(result)
         }
+
+        val durationInSeconds = intent.getIntExtra("TIMER_DURATION", 1200) // 기본값 20분
+        timeLeftInMillis = durationInSeconds * 1000L
+        blinkDetectionUtil.setTimeLeftInMillis(timeLeftInMillis) // 이 줄을 추가합니다.
 
         updateBlinkUI() // UI 업데이트
 
@@ -208,8 +218,9 @@ class BlinkActivity : AppCompatActivity() {
         }
 
         countDownTimer?.cancel()
-        countDownTimer = object : CountDownTimer(blinkDetectionUtil.getTimeLeftInMillis(), 1000) {
+        countDownTimer = object : CountDownTimer(timeLeftInMillis, 1000) { // blinkDetectionUtil.getTimeLeftInMillis() 대신 timeLeftInMillis 사용
             override fun onTick(millisUntilFinished: Long) {
+                timeLeftInMillis = millisUntilFinished // 이 줄을 추가합니다.
                 blinkDetectionUtil.setTimeLeftInMillis(millisUntilFinished)
                 updateTimerText()
             }
@@ -272,7 +283,9 @@ class BlinkActivity : AppCompatActivity() {
 
     @SuppressLint("DefaultLocale")
     private fun updateTimerText() {
-        timerTextView.text = blinkDetectionUtil.getFormattedTime()
+        val minutes = (blinkDetectionUtil.getTimeLeftInMillis() / 1000) / 60
+        val seconds = (blinkDetectionUtil.getTimeLeftInMillis() / 1000) % 60
+        timerTextView.text = String.format("%02d:%02d", minutes, seconds)
     }
 
     private fun saveMeasurementData() {
