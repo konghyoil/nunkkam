@@ -2,7 +2,6 @@ package com.its.nunkkam.android
 
 import android.app.AlertDialog
 import android.content.Context
-import android.graphics.Rect
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -119,7 +118,7 @@ class CalendarFragment : Fragment() {
             val itemHeight = recyclerViewHeight / 6 // 6주로 가정
             val itemWidth = recyclerView.width / spanCount
 
-            adapter = CalendarAdapter(emptyList(), emptyList(), itemWidth, itemHeight) { date, info ->
+            adapter = CalendarAdapter(emptyList(), emptyList(), itemWidth, itemHeight) { date, _ ->
                 showDialog(date)
             }
             recyclerView.adapter = adapter
@@ -137,8 +136,14 @@ class CalendarFragment : Fragment() {
                 if (task.isSuccessful) {
                     val document = task.result
                     if (document != null && document.exists()) {
-                        blinksData = document.data?.get("blinks") as? List<Map<String, Any>> ?: emptyList()
-                        Log.d(TAG, "Cached document data: ${document.data}")
+                        val blinksAny = document.data?.get("blinks")
+                        if (blinksAny is List<*>) {
+                            blinksData = blinksAny.filterIsInstance<Map<String, Any>>()
+                            Log.d(TAG, "Cached document data: ${document.data}")
+                        } else {
+                            blinksData = emptyList()
+                            Log.d(TAG, "Blinks data is not of expected type")
+                        }
                         updateCalendar()
                     } else {
                         Log.d(TAG, "No such document")
@@ -146,15 +151,13 @@ class CalendarFragment : Fragment() {
                 } else {
                     Log.d(TAG, "Cached get failed: ", task.exception)
                 }
-            } catch (e: ClassCastException) {
-                Log.e(TAG, "Error casting data: ", e)
-                blinksData = emptyList()
             } catch (e: Exception) {
                 Log.e(TAG, "Unexpected error: ", e)
                 blinksData = emptyList()
             }
         }
     }
+
 
     private fun updateCalendar() {
         val days = getDaysInMonthWithEmptySpaces()
