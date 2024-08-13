@@ -43,7 +43,8 @@ class CalendarFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val sharedPreferences = requireContext().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
+        val sharedPreferences =
+            requireContext().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
         val userId = sharedPreferences.getString("user_id", null)
 
         if (userId != null) {
@@ -119,9 +120,10 @@ class CalendarFragment : Fragment() {
             val itemHeight = recyclerViewHeight / 6 // 6주로 가정
             val itemWidth = recyclerView.width / spanCount
 
-            adapter = CalendarAdapter(emptyList(), emptyList(), itemWidth, itemHeight) { date, info ->
-                showDialog(date)
-            }
+            adapter =
+                CalendarAdapter(emptyList(), emptyList(), itemWidth, itemHeight) { date, info ->
+                    showDialog(date)
+                }
             recyclerView.adapter = adapter
 
             updateCalendar()
@@ -137,7 +139,8 @@ class CalendarFragment : Fragment() {
                 if (task.isSuccessful) {
                     val document = task.result
                     if (document != null && document.exists()) {
-                        blinksData = document.data?.get("blinks") as? List<Map<String, Any>> ?: emptyList()
+                        blinksData =
+                            document.data?.get("blinks") as? List<Map<String, Any>> ?: emptyList()
                         Log.d(TAG, "Cached document data: ${document.data}")
                         updateCalendar()
                     } else {
@@ -163,7 +166,10 @@ class CalendarFragment : Fragment() {
         adapter.updateData(days, infoList)
         updateMonthYearText()
 
-        Log.d("CalendarFragment", "Calendar updated with ${days.size} days and ${infoList.size} info items")
+        Log.d(
+            "CalendarFragment",
+            "Calendar updated with ${days.size} days and ${infoList.size} info items"
+        )
     }
 
     private fun showDialog(date: Date?) {
@@ -179,7 +185,9 @@ class CalendarFragment : Fragment() {
             tvDialogDate.text = dateFormat.format(date)
 
             val blinksForDate = blinksData.filter {
-                dateFormat.format((it["measurement_date"] as? com.google.firebase.Timestamp)?.toDate() ?: Date()) == dateFormat.format(date)
+                dateFormat.format(
+                    (it["measurement_date"] as? com.google.firebase.Timestamp)?.toDate() ?: Date()
+                ) == dateFormat.format(date)
             }
 
             val infoText = blinksForDate.joinToString("\n") {
@@ -217,7 +225,10 @@ class CalendarFragment : Fragment() {
             days.add(tempCalendar.time)
         }
 
-        Log.d("CalendarFragment", "Generated days: ${days.size}, First day: ${days.firstOrNull()}, Last day: ${days.lastOrNull()}")
+        Log.d(
+            "CalendarFragment",
+            "Generated days: ${days.size}, First day: ${days.firstOrNull()}, Last day: ${days.lastOrNull()}"
+        )
 
         return days
     }

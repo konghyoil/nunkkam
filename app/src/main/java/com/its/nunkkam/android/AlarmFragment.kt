@@ -7,6 +7,7 @@ import android.app.TimePickerDialog
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.graphics.Color
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
@@ -16,6 +17,7 @@ import android.view.ViewGroup
 import android.widget.NumberPicker
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.its.nunkkam.android.databinding.FragmentAlarmBinding
 import java.util.*
@@ -65,6 +67,10 @@ class AlarmFragment : Fragment() {
             binding.layoutMeasurementAlarm.visibility = View.VISIBLE
             binding.layoutManageAlarm.visibility = View.GONE
             binding.alarmTabTitle.text = "측정 알람 시간 설정"
+
+            // 버튼 색상 변경
+            binding.btnMeasurementAlarm.setBackgroundColor(Color.parseColor("#2E2E2E"))
+            binding.btnManageAlarm.setBackgroundColor(Color.parseColor("#666666"))
         }
 
         // 관리 알람 버튼 클릭 리스너
@@ -72,6 +78,10 @@ class AlarmFragment : Fragment() {
             binding.layoutMeasurementAlarm.visibility = View.GONE
             binding.layoutManageAlarm.visibility = View.VISIBLE
             binding.alarmTabTitle.text = "관리 알람 주기 관리"
+
+            // 버튼 색상 변경
+            binding.btnManageAlarm.setBackgroundColor(Color.parseColor("#2E2E2E"))
+            binding.btnMeasurementAlarm.setBackgroundColor(Color.parseColor("#666666"))
         }
 
         // 측정 알람 관련 리스너 설정
@@ -81,13 +91,14 @@ class AlarmFragment : Fragment() {
         setupManageAlarmListeners()
     }
 
+
     // 측정 알람 리스너 설정
     private fun setupMeasurementAlarmListeners() {
         Log.d("AlarmFragment", "setupMeasurementAlarmListeners called")
 
         // 측정 알람 켜기/끄기 스위치 리스너
         binding.switchMeasurementAlarm.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) {
+            if (!isChecked) { // 스위치가 꺼져 있을 때 알람을 설정
                 // 알람 시간이 설정되어 있으면 알람을 설정
                 val currentText = binding.btnMeasurementInterval.text.toString()
                 val timeParts = currentText.split(":")
@@ -104,7 +115,7 @@ class AlarmFragment : Fragment() {
                 binding.btnMeasurementInterval.setOnClickListener {
                     showTimePickerDialog()
                 }
-            } else {
+            } else { // 스위치가 켜져 있을 때 알람을 해제
                 binding.btnMeasurementInterval.setOnClickListener(null)
                 cancelAlarm(false)
             }
@@ -117,7 +128,7 @@ class AlarmFragment : Fragment() {
 
         // 관리 알람 켜기/끄기 스위치 리스너
         binding.switchManageAlarm.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) {
+            if (!isChecked) { // 스위치가 꺼져 있을 때 알람을 설정
                 // 알람 주기가 설정되어 있으면 반복 알람 설정
                 val intervalText = binding.btnManageInterval.text.toString()
                 val parts = intervalText.split("시간 ", "분")
@@ -134,12 +145,13 @@ class AlarmFragment : Fragment() {
                 binding.btnManageInterval.setOnClickListener {
                     showIntervalPickerDialog()
                 }
-            } else {
+            } else { // 스위치가 켜져 있을 때 알람을 해제
                 binding.btnManageInterval.setOnClickListener(null)
                 cancelAlarm(true)
             }
         }
     }
+
 
     // 시간 선택 다이얼로그 표시
     private fun showTimePickerDialog() {
