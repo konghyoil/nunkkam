@@ -3,4 +3,13 @@
         <item name="android:windowIsFloating">true</item>
         <item name="android:windowBackground">@android:color/transparent</item>
     </style>
+
+    <style name="LargerNumberPickerStyle">
+        <item name="android:textSize">50sp</item>
+        <item name="android:textColorPrimary">#FFFFFF</item>
+        <item name="android:colorControlNormal">#666666</item>
+        <item name="android:textStyle">bold</item>
+<!--        <item name="android:textColor">#60FFFFFF</item>-->
+    </style>
+
 </resources>
