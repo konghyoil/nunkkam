@@ -15,6 +15,8 @@ import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
 import java.util.*
 import kotlin.math.roundToInt
+import androidx.core.content.res.ResourcesCompat
+
 class ChartFragment : Fragment() {
     private lateinit var firestore: FirebaseFirestore
     private lateinit var chartContainer: LinearLayout
@@ -176,6 +178,7 @@ class ChartFragment : Fragment() {
                     LinearLayout.LayoutParams.WRAP_CONTENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT
                 )
+                typeface = ResourcesCompat.getFont(requireContext(), R.font.roboto_medium)
             }
             barAndLabelLayout.addView(valueLabel)
 
@@ -217,6 +220,10 @@ class ChartFragment : Fragment() {
                 gravity = Gravity.CENTER
                 layoutParams = LinearLayout.LayoutParams(barWidth + barSpacing, LinearLayout.LayoutParams.WRAP_CONTENT)
                 maxLines = 1
+                // 홀수 번째와 최근 레이블에 대해 roboto_medium 폰트 설정
+                if (index % 2 == 0 || isRecent) {
+                    typeface = ResourcesCompat.getFont(requireContext(), R.font.roboto_medium)
+                }
             }
             labelsLayout.addView(labelView)
         }
