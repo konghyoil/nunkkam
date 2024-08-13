@@ -44,7 +44,7 @@
         app:layout_constraintTop_toBottomOf="@id/toolbar"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="40dp">
+        android:layout_marginTop="20dp">
 
         <NumberPicker
             android:id="@+id/minute_picker"
@@ -71,7 +71,7 @@
         android:id="@+id/start_button"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="60dp"
+        android:layout_marginTop="70dp"
         android:backgroundTint="@color/dark_button2"
         android:text="측정 시작"
         android:fontFamily="@font/roboto_medium"
