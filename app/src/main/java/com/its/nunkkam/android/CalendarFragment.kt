@@ -120,10 +120,9 @@ class CalendarFragment : Fragment() {
             val itemHeight = recyclerViewHeight / 6 // 6주로 가정
             val itemWidth = recyclerView.width / spanCount
 
-            adapter =
-                CalendarAdapter(emptyList(), emptyList(), itemWidth, itemHeight) { date, info ->
-                    showDialog(date)
-                }
+            adapter = CalendarAdapter(emptyList(), emptyList(), itemWidth, itemHeight) { date, info ->
+                showDialog(date)
+            }
             recyclerView.adapter = adapter
 
             updateCalendar()
@@ -139,9 +138,14 @@ class CalendarFragment : Fragment() {
                 if (task.isSuccessful) {
                     val document = task.result
                     if (document != null && document.exists()) {
-                        blinksData =
-                            document.data?.get("blinks") as? List<Map<String, Any>> ?: emptyList()
-                        Log.d(TAG, "Cached document data: ${document.data}")
+                        val blinksAny = document.data?.get("blinks")
+                        if (blinksAny is List<*>) {
+                            blinksData = blinksAny.filterIsInstance<Map<String, Any>>()
+                            Log.d(TAG, "Cached document data: ${document.data}")
+                        } else {
+                            blinksData = emptyList()
+                            Log.d(TAG, "Blinks data is not of expected type")
+                        }
                         updateCalendar()
                     } else {
                         Log.d(TAG, "No such document")
@@ -185,9 +189,7 @@ class CalendarFragment : Fragment() {
             tvDialogDate.text = dateFormat.format(date)
 
             val blinksForDate = blinksData.filter {
-                dateFormat.format(
-                    (it["measurement_date"] as? com.google.firebase.Timestamp)?.toDate() ?: Date()
-                ) == dateFormat.format(date)
+                dateFormat.format((it["measurement_date"] as? com.google.firebase.Timestamp)?.toDate() ?: Date()) == dateFormat.format(date)
             }
 
             val infoText = blinksForDate.joinToString("\n") {
@@ -225,10 +227,7 @@ class CalendarFragment : Fragment() {
             days.add(tempCalendar.time)
         }
 
-        Log.d(
-            "CalendarFragment",
-            "Generated days: ${days.size}, First day: ${days.firstOrNull()}, Last day: ${days.lastOrNull()}"
-        )
+        Log.d("CalendarFragment", "Generated days: ${days.size}, First day: ${days.firstOrNull()}, Last day: ${days.lastOrNull()}")
 
         return days
     }
