@@ -47,7 +47,7 @@
             android:layout_width="match_parent"
             android:layout_height="90dp"
             android:minHeight="100dp"
-            android:fontFamily="@font/roboto_slab_black"
+            android:fontFamily="@font/roboto_medium"
             android:text="1. 눈을 뜬 상태에서 안구를 위아래로 움직인다. 5회 이상 반복한다." />
     </LinearLayout>
 

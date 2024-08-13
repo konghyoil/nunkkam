@@ -37,6 +37,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="2024. 08"
+                android:fontFamily="@font/roboto_bold"
                 android:textColor="@android:color/white"
                 android:textSize="18sp"
                 android:layout_marginHorizontal="16dp"/>
@@ -57,6 +58,7 @@
         android:layout_height="wrap_content"
         android:text="1. 별로  2. 좋음  3. 에러"
         android:textColor="@color/dark_darktext"
+        android:fontFamily="@font/roboto_bold"
         android:textSize="12sp"
         android:layout_marginTop="8dp"
         app:layout_constraintTop_toBottomOf="@id/calendar_toolbar"
