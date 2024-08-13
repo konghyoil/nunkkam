@@ -3,6 +3,8 @@
     <style name="Base.Theme.Nunkkam" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="android:statusBarColor">@color/dark_label</item> <!-- 상태바 색상 변경 -->
+        <item name="android:windowLightStatusBar">true</item> <!-- 상태바 아이콘 색상 (어두운 배경에 흰색 아이콘 적용) -->
     </style>
 
     <style name="Theme.Nunkkam" parent="Base.Theme.Nunkkam" />
@@ -11,7 +13,7 @@
     <style name="ButtonStyle" parent="Widget.MaterialComponents.Button">
         <item name="android:textColor">@color/button_text</item>
         <item name="android:backgroundTint">@color/button_background</item>
-        <item name="cornerRadius">@dimen/button_radius</item>4
+        <item name="cornerRadius">@dimen/button_radius</item>
     </style>
 
 

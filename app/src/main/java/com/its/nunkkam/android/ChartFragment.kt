@@ -212,8 +212,7 @@ class ChartFragment : Fragment() {
             val barSpacing = resources.getDimensionPixelSize(R.dimen.bar_spacing)
             val maxBarHeight = resources.getDimensionPixelSize(R.dimen.max_bar_height)
 
-            // 전체 차트의 너비를 계산 (7개의 막대와 간격, 여백 추가)
-            val totalChartWidth = (barWidth + barSpacing) * data.size - barSpacing + 60 // 데이터 크기 기반 너비 설정
+            val totalChartWidth = (barWidth + barSpacing) * data.size - barSpacing + 60
 
             val chartLayout = LinearLayout(context).apply {
                 orientation = LinearLayout.VERTICAL
@@ -242,7 +241,6 @@ class ChartFragment : Fragment() {
 
                 val isRecent = index == data.size - 1
 
-                // 수치 레이블 생성
                 val valueLabel = TextView(context).apply {
                     text = value.toString()
                     textSize = 12f
@@ -257,7 +255,6 @@ class ChartFragment : Fragment() {
                 }
                 barAndLabelLayout.addView(valueLabel)
 
-                // 막대 생성
                 val barView = View(context).apply {
                     val barHeight = (value.toFloat() / maxValue * maxBarHeight).toInt().coerceAtMost(maxBarHeight)
                     layoutParams = LinearLayout.LayoutParams(barWidth, barHeight)
@@ -271,7 +268,6 @@ class ChartFragment : Fragment() {
 
             chartLayout.addView(barsLayout)
 
-            // 레이블을 위한 별도의 레이아웃
             val labelsLayout = LinearLayout(context).apply {
                 orientation = LinearLayout.HORIZONTAL
                 gravity = Gravity.CENTER
@@ -287,7 +283,6 @@ class ChartFragment : Fragment() {
             data.forEachIndexed { index, (label, _) ->
                 val isRecent = index == data.size - 1
                 val labelView = TextView(context).apply {
-                    // 홀수 번째와 마지막 레이블만 표시
                     text = if (index % 2 == 0 || isRecent) label else ""
                     textSize = 11f
                     setTextColor(ContextCompat.getColor(requireContext(),
@@ -295,7 +290,6 @@ class ChartFragment : Fragment() {
                     gravity = Gravity.CENTER
                     layoutParams = LinearLayout.LayoutParams(barWidth + barSpacing, LinearLayout.LayoutParams.WRAP_CONTENT)
                     maxLines = 1
-                    // 홀수 번째와 최근 레이블에 대해 roboto_medium 폰트 설정
                     if (index % 2 == 0 || isRecent) {
                         typeface = ResourcesCompat.getFont(requireContext(), R.font.roboto_medium)
                     }
@@ -316,8 +310,14 @@ class ChartFragment : Fragment() {
             wrapperLayout.addView(chartLayout)
 
             chartContainer.addView(wrapperLayout)
+        } catch (e: IllegalArgumentException) {
+            Log.e("ChartFragment", "IllegalArgumentException in displayChart", e)
+            displayNoDataMessage()
+        } catch (e: NullPointerException) {
+            Log.e("ChartFragment", "NullPointerException in displayChart", e)
+            displayNoDataMessage()
         } catch (e: Exception) {
-            Log.e("ChartFragment", "Error displaying chart", e)
+            Log.e("ChartFragment", "Unexpected error in displayChart", e)
             displayNoDataMessage()
         }
     }

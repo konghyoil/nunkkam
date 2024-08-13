@@ -46,7 +46,6 @@ class CalendarFragment : Fragment() {
         val sharedPreferences = requireContext().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
         val userId = sharedPreferences.getString("user_id", null)
 
-
         if (userId != null) {
             fetchUserData(userId)
         } else {
@@ -134,17 +133,25 @@ class CalendarFragment : Fragment() {
         val docRef = db.collection("USERS").document(userId)
 
         docRef.get().addOnCompleteListener { task ->
-            if (task.isSuccessful) {
-                val document = task.result
-                if (document != null && document.exists()) {
-                    blinksData = document.data?.get("blinks") as? List<Map<String, Any>> ?: emptyList()
-                    Log.d(TAG, "Cached document data: ${document.data}")
-                    updateCalendar()
+            try {
+                if (task.isSuccessful) {
+                    val document = task.result
+                    if (document != null && document.exists()) {
+                        blinksData = document.data?.get("blinks") as? List<Map<String, Any>> ?: emptyList()
+                        Log.d(TAG, "Cached document data: ${document.data}")
+                        updateCalendar()
+                    } else {
+                        Log.d(TAG, "No such document")
+                    }
                 } else {
-                    Log.d(TAG, "No such document")
+                    Log.d(TAG, "Cached get failed: ", task.exception)
                 }
-            } else {
-                Log.d(TAG, "Cached get failed: ", task.exception)
+            } catch (e: ClassCastException) {
+                Log.e(TAG, "Error casting data: ", e)
+                blinksData = emptyList()
+            } catch (e: Exception) {
+                Log.e(TAG, "Unexpected error: ", e)
+                blinksData = emptyList()
             }
         }
     }
@@ -162,28 +169,34 @@ class CalendarFragment : Fragment() {
     private fun showDialog(date: Date?) {
         if (date == null) return
 
-        val context = requireContext()
-        val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_day_info, null)
-        val tvDialogDate = dialogView.findViewById<TextView>(R.id.tv_dialog_date)
-        val tvDialogInfo = dialogView.findViewById<TextView>(R.id.tv_dialog_info)
+        try {
+            val context = requireContext()
+            val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_day_info, null)
+            val tvDialogDate = dialogView.findViewById<TextView>(R.id.tv_dialog_date)
+            val tvDialogInfo = dialogView.findViewById<TextView>(R.id.tv_dialog_info)
 
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-        tvDialogDate.text = dateFormat.format(date)
+            val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+            tvDialogDate.text = dateFormat.format(date)
 
-        val blinksForDate = blinksData.filter {
-            dateFormat.format((it["measurement_date"] as com.google.firebase.Timestamp).toDate()) == dateFormat.format(date)
+            val blinksForDate = blinksData.filter {
+                dateFormat.format((it["measurement_date"] as? com.google.firebase.Timestamp)?.toDate() ?: Date()) == dateFormat.format(date)
+            }
+
+            val infoText = blinksForDate.joinToString("\n") {
+                "Frequency: ${it["average_frequency_per_minute"]} per minute"
+            }
+
+            tvDialogInfo.text = if (infoText.isNotEmpty()) infoText else "No information available"
+
+            AlertDialog.Builder(context)
+                .setView(dialogView)
+                .setPositiveButton("OK", null)
+                .show()
+        } catch (e: IllegalArgumentException) {
+            Log.e("CalendarFragment", "Error creating dialog: ", e)
+        } catch (e: Exception) {
+            Log.e("CalendarFragment", "Unexpected error in showDialog: ", e)
         }
-
-        val infoText = blinksForDate.joinToString("\n") {
-            "Frequency: ${it["average_frequency_per_minute"]} per minute"
-        }
-
-        tvDialogInfo.text = if (infoText.isNotEmpty()) infoText else "No information available"
-
-        AlertDialog.Builder(context)
-            .setView(dialogView)
-            .setPositiveButton("OK", null)
-            .show()
     }
 
     private fun getDaysInMonthWithEmptySpaces(): List<Date?> {
@@ -213,28 +226,35 @@ class CalendarFragment : Fragment() {
         val infoList = mutableListOf<String?>()
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
-        // blinksData를 날짜별로 매핑합니다.
-        val blinksMap = blinksData.groupBy {
-            dateFormat.format((it["measurement_date"] as com.google.firebase.Timestamp).toDate())
-        }.mapValues { entry ->
-            entry.value.map {
-                when (val frequency = it["average_frequency_per_minute"]) {
-                    is Long -> frequency.toDouble()
-                    is Double -> frequency
-                    else -> 0.0 // 기본값 또는 오류 처리
-                }
-            }.average()
-        }
-        Log.d("TAG", "blinksMap = $blinksMap")
-
-        for (date in days) {
-            if (date != null) {
-                val dateString = dateFormat.format(date)
-                val averageFrequency = blinksMap[dateString]?.toString()
-                infoList.add(averageFrequency)
-            } else {
-                infoList.add(null)
+        try {
+            // blinksData를 날짜별로 매핑합니다.
+            val blinksMap = blinksData.groupBy {
+                dateFormat.format((it["measurement_date"] as com.google.firebase.Timestamp).toDate())
+            }.mapValues { entry ->
+                entry.value.map {
+                    when (val frequency = it["average_frequency_per_minute"]) {
+                        is Long -> frequency.toDouble()
+                        is Double -> frequency
+                        else -> 0.0 // 기본값 또는 오류 처리
+                    }
+                }.average()
             }
+            Log.d("TAG", "blinksMap = $blinksMap")
+            for (date in days) {
+                if (date != null) {
+                    val dateString = dateFormat.format(date)
+                    val averageFrequency = blinksMap[dateString]?.toString()
+                    infoList.add(averageFrequency)
+                } else {
+                    infoList.add(null)
+                }
+            }
+        } catch (e: ClassCastException) {
+            Log.e("CalendarFragment", "Error casting data in getInfoForDays: ", e)
+        } catch (e: NullPointerException) {
+            Log.e("CalendarFragment", "Null pointer in getInfoForDays: ", e)
+        } catch (e: Exception) {
+            Log.e("CalendarFragment", "Unexpected error in getInfoForDays: ", e)
         }
 
         return infoList
