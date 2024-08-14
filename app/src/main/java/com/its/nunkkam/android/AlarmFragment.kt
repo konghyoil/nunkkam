@@ -100,7 +100,7 @@ class AlarmFragment : Fragment() {
                     val minute = timeParts[1].toInt()
                     setupDailyAlarm(hour, minute)
                     saveAlarmValues(hour, minute, isManageAlarm = false)
-                } else {
+
                     Toast.makeText(context, "알람 시간을 설정해주세요.", Toast.LENGTH_SHORT).show()
                 }
 
