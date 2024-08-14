@@ -90,8 +90,7 @@ class AlarmFragment : Fragment() {
     private fun setupMeasurementAlarmListeners() {
         // 측정 알람 켜기/끄기 스위치 리스너
         binding.switchMeasurementAlarm.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) {
-                // 수정: 측정 알람이 켜졌을 때 로그 추가
+            if (!isChecked) {  // 반대로 작동하도록 수정
                 Log.d("AlarmFragment", "측정 알람이 켜졌습니다.")
                 // 알람 시간이 설정되어 있으면 알람을 설정
                 val currentText = binding.btnMeasurementInterval.text.toString()
@@ -101,7 +100,7 @@ class AlarmFragment : Fragment() {
                     val minute = timeParts[1].toInt()
                     setupDailyAlarm(hour, minute)
                     saveAlarmValues(hour, minute, isManageAlarm = false)
-                } else {
+
                     Toast.makeText(context, "알람 시간을 설정해주세요.", Toast.LENGTH_SHORT).show()
                 }
 
@@ -110,7 +109,6 @@ class AlarmFragment : Fragment() {
                     showTimePickerDialog()
                 }
             } else {
-                // 수정: 측정 알람이 꺼졌을 때 로그 추가
                 Log.d("AlarmFragment", "측정 알람이 꺼졌습니다.")
                 binding.btnMeasurementInterval.setOnClickListener(null)
                 cancelAlarm(false)
@@ -122,8 +120,7 @@ class AlarmFragment : Fragment() {
     private fun setupManageAlarmListeners() {
         // 관리 알람 켜기/끄기 스위치 리스너
         binding.switchManageAlarm.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) {
-                // 수정: 관리 알람이 켜졌을 때 로그 추가
+            if (!isChecked) {  // 반대로 작동하도록 수정
                 Log.d("AlarmFragment", "관리 알람이 켜졌습니다.")
                 // 알람 주기가 설정되어 있으면 반복 알람 설정
                 val intervalText = binding.btnManageInterval.text.toString()
@@ -142,7 +139,6 @@ class AlarmFragment : Fragment() {
                     showIntervalPickerDialog()
                 }
             } else {
-                // 수정: 관리 알람이 꺼졌을 때 로그 추가
                 Log.d("AlarmFragment", "관리 알람이 꺼졌습니다.")
                 binding.btnManageInterval.setOnClickListener(null)
                 cancelAlarm(true)
@@ -156,13 +152,21 @@ class AlarmFragment : Fragment() {
         val hour = calendar.get(Calendar.HOUR_OF_DAY)
         val minute = calendar.get(Calendar.MINUTE)
 
-        TimePickerDialog(requireContext(), { _, selectedHour, selectedMinute ->
-            binding.btnMeasurementInterval.text = String.format("%02d:%02d", selectedHour, selectedMinute)
-            if (binding.switchMeasurementAlarm.isChecked) {
-                setupDailyAlarm(selectedHour, selectedMinute)
-                saveAlarmValues(selectedHour, selectedMinute, isManageAlarm = false)
-            }
-        }, hour, minute, true).show()
+        val dialog = TimePickerDialog(
+            requireContext(),
+            R.style.CustomTimePickerDialog, // 커스텀 스타일 적용
+            { _, selectedHour, selectedMinute ->
+                binding.btnMeasurementInterval.text = String.format("%02d:%02d", selectedHour, selectedMinute)
+                if (binding.switchMeasurementAlarm.isChecked) {
+                    setupDailyAlarm(selectedHour, selectedMinute)
+                    saveAlarmValues(selectedHour, selectedMinute, isManageAlarm = false)
+                }
+            },
+            hour,
+            minute,
+            true
+        )
+        dialog.show()
     }
 
     // 주기 선택 다이얼로그 표시

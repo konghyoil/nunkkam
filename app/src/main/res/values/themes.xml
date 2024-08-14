@@ -16,9 +16,6 @@
         <item name="cornerRadius">@dimen/button_radius</item>
     </style>
 
-
-
-
     <!-- 캘린더 스타일 -->
     <style name="CalendarDataTextStyle" parent="android:TextAppearance.DeviceDefault.Large">
         <item name="android:textColor">@color/white</item>
@@ -28,6 +25,25 @@
     <style name="CalendarWeeksTextStyle" parent="android:TextAppearance.DeviceDefault.Large">
         <item name="android:textColor">@color/white</item>
 
+    </style>
+
+    <style name="CustomTimePickerDialog" parent="Theme.AppCompat.Light.Dialog">
+        <!-- 시간 텍스트 색상 -->
+        <item name="colorAccent">@color/dark_darkbar</item>
+        <!-- 기본 텍스트 색상 설정 (확인/취소 버튼에 적용됨) -->
+        <item name="android:textColorPrimary">@color/black</item> <!-- 이 부분을 수정 -->
+        <item name="android:textColorSecondary">@color/black</item> <!-- 이 부분을 추가 -->
+        <item name="android:buttonBarPositiveButtonStyle">@style/CustomButtonPositive</item>
+        <item name="android:buttonBarNegativeButtonStyle">@style/CustomButtonNegative</item>
+<!--        <item name="android:background">@color/white</item>-->
+    </style>
+
+    <style name="CustomButtonPositive" parent="Widget.AppCompat.Button.ButtonBar.AlertDialog">
+        <item name="android:textColor">@color/dark_darkbar</item> <!-- OK 버튼 색상 -->
+    </style>
+
+    <style name="CustomButtonNegative" parent="Widget.AppCompat.Button.ButtonBar.AlertDialog">
+        <item name="android:textColor">@color/dark_darkbar</item> <!-- Cancel 버튼 색상 -->
     </style>
 
 </resources>
