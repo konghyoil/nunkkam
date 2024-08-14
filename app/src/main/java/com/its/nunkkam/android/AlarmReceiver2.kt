@@ -1,5 +1,6 @@
 package com.its.nunkkam.android
 
+import android.annotation.SuppressLint
 import android.app.AlarmManager
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -14,6 +15,7 @@ import androidx.core.app.NotificationCompat
 import java.util.Date
 
 class AlarmReceiver2 : BroadcastReceiver() {
+    @SuppressLint("ScheduleExactAlarm")
     override fun onReceive(context: Context, intent: Intent) {
         // 알림 채널 생성
         createNotificationChannel(context)

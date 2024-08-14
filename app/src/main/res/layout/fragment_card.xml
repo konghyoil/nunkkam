@@ -33,6 +33,7 @@
                 android:contentDescription="Share Button"
                 android:fontFamily="sans-serif-black"
                 android:text="공유하기"
+                android:textColor="@color/white"
                 android:textColorLink="#D9D9D9"
                 android:textSize="18sp"
                 app:layout_constraintEnd_toEndOf="parent"
