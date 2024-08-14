@@ -1,6 +1,7 @@
 package com.its.nunkkam.android
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -47,8 +48,17 @@ class PopupFragment : DialogFragment() {
             width,
             WindowManager.LayoutParams.WRAP_CONTENT
         )
+
+        // 팝업 진입 시 로그 기록
+        Log.d("PopupFragment", "PopupFragment started - currentPage: $currentPage")
     }
 
+    override fun onStop() {
+        super.onStop()
+
+        // 팝업 종료 시 로그 기록
+        Log.d("PopupFragment", "PopupFragment stopped - lastPage: $currentPage")
+    }
 
     private fun showPreviousPage() {
         if (currentPage > 1) {

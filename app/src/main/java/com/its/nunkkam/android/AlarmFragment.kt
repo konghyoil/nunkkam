@@ -17,7 +17,6 @@ import android.view.ViewGroup
 import android.widget.NumberPicker
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.its.nunkkam.android.databinding.FragmentAlarmBinding
 import java.util.*
@@ -35,7 +34,6 @@ class AlarmFragment : Fragment() {
     private lateinit var sharedPreferences: SharedPreferences
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        Log.d("AlarmFragment", "onCreateView called")
         // View Binding 초기화
         _binding = FragmentAlarmBinding.inflate(inflater, container, false)
         return binding.root
@@ -43,7 +41,6 @@ class AlarmFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Log.d("AlarmFragment", "onViewCreated called")
 
         // AlarmManager 초기화
         alarmManager = requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
@@ -60,8 +57,6 @@ class AlarmFragment : Fragment() {
 
     // 리스너 설정
     private fun setupListeners() {
-        Log.d("AlarmFragment", "setupListeners called")
-
         // 측정 알람 버튼 클릭 리스너
         binding.btnMeasurementAlarm.setOnClickListener {
             binding.layoutMeasurementAlarm.visibility = View.VISIBLE
@@ -91,14 +86,13 @@ class AlarmFragment : Fragment() {
         setupManageAlarmListeners()
     }
 
-
     // 측정 알람 리스너 설정
     private fun setupMeasurementAlarmListeners() {
-        Log.d("AlarmFragment", "setupMeasurementAlarmListeners called")
-
         // 측정 알람 켜기/끄기 스위치 리스너
         binding.switchMeasurementAlarm.setOnCheckedChangeListener { _, isChecked ->
-            if (!isChecked) { // 스위치가 꺼져 있을 때 알람을 설정
+            if (isChecked) {
+                // 수정: 측정 알람이 켜졌을 때 로그 추가
+                Log.d("AlarmFragment", "측정 알람이 켜졌습니다.")
                 // 알람 시간이 설정되어 있으면 알람을 설정
                 val currentText = binding.btnMeasurementInterval.text.toString()
                 val timeParts = currentText.split(":")
@@ -115,7 +109,9 @@ class AlarmFragment : Fragment() {
                 binding.btnMeasurementInterval.setOnClickListener {
                     showTimePickerDialog()
                 }
-            } else { // 스위치가 켜져 있을 때 알람을 해제
+            } else {
+                // 수정: 측정 알람이 꺼졌을 때 로그 추가
+                Log.d("AlarmFragment", "측정 알람이 꺼졌습니다.")
                 binding.btnMeasurementInterval.setOnClickListener(null)
                 cancelAlarm(false)
             }
@@ -124,11 +120,11 @@ class AlarmFragment : Fragment() {
 
     // 관리 알람 리스너 설정
     private fun setupManageAlarmListeners() {
-        Log.d("AlarmFragment", "setupManageAlarmListeners called")
-
         // 관리 알람 켜기/끄기 스위치 리스너
         binding.switchManageAlarm.setOnCheckedChangeListener { _, isChecked ->
-            if (!isChecked) { // 스위치가 꺼져 있을 때 알람을 설정
+            if (isChecked) {
+                // 수정: 관리 알람이 켜졌을 때 로그 추가
+                Log.d("AlarmFragment", "관리 알람이 켜졌습니다.")
                 // 알람 주기가 설정되어 있으면 반복 알람 설정
                 val intervalText = binding.btnManageInterval.text.toString()
                 val parts = intervalText.split("시간 ", "분")
@@ -145,17 +141,17 @@ class AlarmFragment : Fragment() {
                 binding.btnManageInterval.setOnClickListener {
                     showIntervalPickerDialog()
                 }
-            } else { // 스위치가 켜져 있을 때 알람을 해제
+            } else {
+                // 수정: 관리 알람이 꺼졌을 때 로그 추가
+                Log.d("AlarmFragment", "관리 알람이 꺼졌습니다.")
                 binding.btnManageInterval.setOnClickListener(null)
                 cancelAlarm(true)
             }
         }
     }
 
-
     // 시간 선택 다이얼로그 표시
     private fun showTimePickerDialog() {
-        Log.d("AlarmFragment", "showTimePickerDialog called")
         val calendar = Calendar.getInstance()
         val hour = calendar.get(Calendar.HOUR_OF_DAY)
         val minute = calendar.get(Calendar.MINUTE)
@@ -171,7 +167,6 @@ class AlarmFragment : Fragment() {
 
     // 주기 선택 다이얼로그 표시
     private fun showIntervalPickerDialog() {
-        Log.d("AlarmFragment", "showIntervalPickerDialog called")
         val dialogView = layoutInflater.inflate(R.layout.dialog_interval_picker, null)
         val numberPickerHours = dialogView.findViewById<NumberPicker>(R.id.numberPickerHours)
         val numberPickerMinutes = dialogView.findViewById<NumberPicker>(R.id.numberPickerMinutes)
@@ -215,8 +210,6 @@ class AlarmFragment : Fragment() {
 
     // 일일 알람 설정
     private fun setupDailyAlarm(hour: Int = 0, minute: Int = 0) {
-        Log.d("AlarmFragment", "setupDailyAlarm called with hour: $hour, minute: $minute")
-
         // 정확한 알람 스케줄링 권한 확인 및 요청
         if (!canScheduleExactAlarms()) {
             requestExactAlarmPermission()
@@ -241,29 +234,16 @@ class AlarmFragment : Fragment() {
                 add(Calendar.DAY_OF_MONTH, 1)
             }
         }
-        Log.d("AlarmFragment","setupDailyAlarm: timezone = $timeZone")
-
-        val now = Calendar.getInstance(timeZone)
-        val diffInMillis = calendar.timeInMillis - now.timeInMillis
-        val diffInHours = diffInMillis / (1000 * 60 * 60)
-        val diffInMinutes = (diffInMillis / (1000 * 60)) % 60
-        val diffInSeconds = (diffInMillis / 1000) % 60
-        Log.d("AlarmFragment","setupDailyAlarm: now = $now, alarm set for ${calendar.time}")
-
-        Toast.makeText(context, "알람이 ${diffInHours}시간 ${diffInMinutes}분 ${diffInSeconds}초 후에 울립니다.", Toast.LENGTH_LONG).show()
 
         alarmManager?.setExactAndAllowWhileIdle(
             AlarmManager.RTC_WAKEUP,
             calendar.timeInMillis,
             pendingIntent
         )
-        Log.d("AlarmFragment", "setupDailyAlarm: repeating alarm set")
     }
 
     // 반복 알람 설정
     private fun setupRepeatingAlarm(hours: Int = 0, minutes: Int = 0) {
-        Log.d("AlarmFragment", "setupRepeatingAlarm called with hours: $hours, minutes: $minutes")
-
         // 정확한 알람 스케줄링 권한 확인 및 요청
         if (!canScheduleExactAlarms()) {
             requestExactAlarmPermission()
@@ -272,7 +252,6 @@ class AlarmFragment : Fragment() {
         }
 
         val intervalMillis = (hours * 60 * 60 * 1000 + minutes * 60 * 1000).toLong()
-        Log.d("AlarmFragment", "setupRepeatingAlarm: intervalMillis: ${intervalMillis / 60000}분")
 
         val intent = Intent(context, AlarmReceiver2::class.java).apply {
             putExtra("isManageAlarm", true)
@@ -284,7 +263,6 @@ class AlarmFragment : Fragment() {
 
         // 첫 번째 알람 시간 설정
         val triggerTime = System.currentTimeMillis() + intervalMillis
-        Log.d("AlarmFragment", "setupRepeatingAlarm: First alarm set for ${Date(triggerTime)}")
 
         // 첫 번째 알람 설정
         alarmManager?.setExactAndAllowWhileIdle(
@@ -292,7 +270,6 @@ class AlarmFragment : Fragment() {
             triggerTime,
             pendingIntent
         )
-        Log.d("AlarmFragment", "setupRepeatingAlarm: First exact alarm set")
     }
 
     // 알람 설정 값 저장
@@ -341,17 +318,14 @@ class AlarmFragment : Fragment() {
             }
         }
     }
-
     // 알람 취소
     private fun cancelAlarm(isManageAlarm: Boolean) {
-        Log.d("AlarmFragment", "cancelAlarm called for isManageAlarm: $isManageAlarm")
         val intent = Intent(context, AlarmReceiver2::class.java)
         val pendingIntent = PendingIntent.getBroadcast(
             context, if (isManageAlarm) 1002 else 1001, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
         alarmManager?.cancel(pendingIntent)
         Toast.makeText(context, "알람이 취소되었습니다.", Toast.LENGTH_SHORT).show()
-        Log.d("AlarmFragment", "cancelAlarm: alarm cancelled")
 
         // 알람 설정 값 초기화
         saveAlarmValues(0, 0, isManageAlarm)
@@ -360,7 +334,6 @@ class AlarmFragment : Fragment() {
     // View 해제
     override fun onDestroyView() {
         super.onDestroyView()
-        Log.d("AlarmFragment", "onDestroyView called")
         _binding = null
     }
 }

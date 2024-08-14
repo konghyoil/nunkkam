@@ -43,7 +43,6 @@ class TimerActivity : AppCompatActivity() {
     private val db = FirebaseFirestore.getInstance()
     private lateinit var profileImageView: ImageView
 
-
     // 알림 권한 요청을 위한 상수
     private val PERMISSION_REQUEST_CODE = 1001
 
@@ -51,8 +50,9 @@ class TimerActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_timer)
 
+        // 추가된 로그: TimerActivity 생성 시 로그 출력
+        Log.d("TimerActivity", "TimerActivity created")
 
-//        timerTextView = findViewById(R.id.timer_text)
         startButton = findViewById(R.id.start_button)
         resultButton = findViewById(R.id.result_button)
         minutePicker = findViewById(R.id.minute_picker)
@@ -87,7 +87,6 @@ class TimerActivity : AppCompatActivity() {
         // 알림 권한 요청
         requestNotificationPermission()
     }
-
 
     private fun setupTimePickers() {
         minutePicker.minValue = 0
@@ -177,12 +176,10 @@ class TimerActivity : AppCompatActivity() {
         builder.create().show()
     }
 
-
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_main, menu)
         return true
     }
-
 
     private fun requestNotificationPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -210,79 +207,68 @@ class TimerActivity : AppCompatActivity() {
         }
     }
 
-    private fun checkCurrentUser() {                                 // 현재 사용자 확인 메서드
-        val currentUser = auth.currentUser                           // 현재 로그인된 사용자 가져오기
-        Log.d("TimerActivity", "Current user in TimerActivity: $currentUser")  // 로그 출력
+    private fun checkCurrentUser() {
+        val currentUser = auth.currentUser
+        // 테스트 로그 제거됨
     }
 
-    private fun goToResultScreen() {                                 // 결과 화면으로 이동하는 메서드
-        val intent = Intent(this, ResultActivity::class.java)        // ResultActivity로 이동하는 인텐트 생성
-        startActivity(intent)                                        // ResultActivity 시작
-        checkCurrentUser()                                           // 현재 사용자 확인
+    private fun goToResultScreen() {
+        val intent = Intent(this, ResultActivity::class.java)
+        startActivity(intent)
+        checkCurrentUser()
     }
 
     private fun logoutUser() {
-        // Firebase에서 로그아웃
+        // 로그아웃 시 로그 기록
+        Log.i("TimerActivity", "User requested logout")
+
         auth.signOut()
-        Log.d("TimerActivity", "Firebase 로그아웃 성공")
 
-        // Google에서 로그아웃
         googleSignInClient.signOut().addOnCompleteListener(this) {
-            if (it.isSuccessful) {
-                Log.d("TimerActivity", "Google 로그아웃 성공")
-            } else {
-                Log.d("TimerActivity", "Google 로그아웃 실패: ${it.exception?.message}")
-            }
-
-            // 사용자 데이터 초기화 (삭제하지 않음)
             UserManager.clearUserData()
-            Log.d("TimerActivity", "UserManager 데이터 초기화 성공")
 
-            // MainActivity로 이동
+            // 로그아웃 성공 시 로그 기록
+            Log.i("TimerActivity", "User successfully logged out")
+
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
             finish()
-            Log.d("TimerActivity", "MainActivity로 이동")
         }
     }
 
     private fun deleteUserAccount() {
-        // FirebaseAuth 인스턴스를 통해 현재 사용자 정보를 가져옴
         val user = auth.currentUser
 
-        // 현재 사용자가 존재하는 경우 아래의 작업을 수행
         user?.let {
-            val userId = it.uid // 현재 사용자의 고유 ID를 가져옴
+            val userId = it.uid
 
-            // Firestore에서 사용자 데이터를 삭제
+            // 회원탈퇴 시 로그 기록
+            Log.i("TimerActivity", "User requested account deletion")
+
             db.collection("USERS").document(userId).delete().addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    Log.d("TimerActivity", "User data deleted from Firestore")
-
-                    // Firebase Authentication에서 사용자 계정을 삭제
                     user.delete().addOnCompleteListener { deleteTask ->
                         if (deleteTask.isSuccessful) {
-                            Log.d("TimerActivity", "User deleted from Firebase Auth")
-
-                            // SharedPreferences에서 사용자 데이터 삭제
                             UserManager.deleteUserData(this)
 
-                            // 메인 화면(MainActivity)으로 이동
+                            // 회원탈퇴 성공 시 로그 기록
+                            Log.i("TimerActivity", "User account successfully deleted")
+
                             val intent = Intent(this, MainActivity::class.java)
                             startActivity(intent)
                             finish()
                         } else {
-                            // Firebase Auth에서 사용자 삭제 중 오류 발생 시 로그 출력
+                            // 에러 로그 유지
                             Log.e("TimerActivity", "Error deleting user from Firebase Auth", deleteTask.exception)
                         }
                     }
                 } else {
-                    // Firestore에서 사용자 데이터 삭제 중 오류 발생 시 로그 출력
+                    // 에러 로그 유지
                     Log.e("TimerActivity", "Error deleting user data from Firestore", task.exception)
                 }
             }
         } ?: run {
-            // 현재 사용자가 null인 경우 로그 출력
+            // 에러 로그 유지
             Log.e("TimerActivity", "User is null")
         }
     }
@@ -292,5 +278,11 @@ class TimerActivity : AppCompatActivity() {
         supportFragmentManager.beginTransaction()
             .replace(R.id.alarm_fragment_container, fragment)
             .commit()
+    }
+
+    // 추가된 메서드: TimerActivity가 파괴될 때 로그 출력
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d("TimerActivity", "TimerActivity destroyed")
     }
 }

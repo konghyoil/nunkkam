@@ -1,7 +1,6 @@
 package com.its.nunkkam.android
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.Gravity
 import android.view.View
@@ -16,6 +15,7 @@ import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
 import java.util.*
 import kotlin.math.roundToInt
+import android.util.Log // 수정: Log import 추가
 
 class ChartFragment : Fragment() {
     private lateinit var firestore: FirebaseFirestore
@@ -28,7 +28,6 @@ class ChartFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        Log.d("Fragment", "ChartFragment onCreateView called")
         return inflater.inflate(R.layout.fragment_chart, container, false)
     }
 
@@ -42,24 +41,28 @@ class ChartFragment : Fragment() {
         noDataImageView = view.findViewById(R.id.noDataImageView)
 
         val userId = UserManager.userId ?: "unknown_user"
-        Log.d("ChartFragment", "User ID: $userId")
         setupAverageBlinkGraph(userId)
     }
 
+    // 수정: setupAverageBlinkGraph 함수에 예외 처리 추가
     private fun setupAverageBlinkGraph(userId: String) {
         firestore.collection("USERS").document(userId)
             .get()
             .addOnSuccessListener { document ->
-                if (document != null && document.exists()) {
-                    val blinkData = document.get("blinks")
-                    if (blinkData is List<*>) { // 타입이 List인지 먼저 확인
-                        val castedBlinkData = blinkData.filterIsInstance<Map<String, Any>>() // List<Map<String, Any>>로 변환
-                        if (castedBlinkData.isNotEmpty()) {
-                            val data = generateWeeklyAverageData(castedBlinkData)
-                            if (data.all { it.second == 0 }) {
-                                displayNoDataMessage()
+                try {
+                    if (document != null && document.exists()) {
+                        val blinkData = document.get("blinks")
+                        if (blinkData is List<*>) {
+                            val castedBlinkData = blinkData.filterIsInstance<Map<String, Any>>()
+                            if (castedBlinkData.isNotEmpty()) {
+                                val data = generateWeeklyAverageData(castedBlinkData)
+                                if (data.all { it.second == 0 }) {
+                                    displayNoDataMessage()
+                                } else {
+                                    displayChart(data)
+                                }
                             } else {
-                                displayChart(data)
+                                displayNoDataMessage()
                             }
                         } else {
                             displayNoDataMessage()
@@ -67,12 +70,15 @@ class ChartFragment : Fragment() {
                     } else {
                         displayNoDataMessage()
                     }
-                } else {
+                } catch (e: Exception) {
+                    // 수정: 예외 발생 시 로그 출력
+                    Log.e("ChartFragment", "Error processing blink data", e)
                     displayNoDataMessage()
                 }
             }
-            .addOnFailureListener { exception ->
-                Log.e("ChartFragment", "Error fetching document", exception)
+            .addOnFailureListener { e ->
+                // 수정: 실패 시 로그 출력
+                Log.e("ChartFragment", "Error fetching user data", e)
                 displayNoDataMessage()
             }
     }
@@ -84,115 +90,66 @@ class ChartFragment : Fragment() {
         noDataImageView.setImageResource(R.drawable.eye_closed)
     }
 
+    // 수정: generateWeeklyAverageData 함수에 예외 처리 추가
     private fun generateWeeklyAverageData(blinkData: List<Map<String, Any>>): List<Pair<String, Int>> {
-        val data = mutableListOf<Pair<String, Int>>()
-        val calendar = Calendar.getInstance()
-        calendar.firstDayOfWeek = Calendar.MONDAY
+        return try {
+            val data = mutableListOf<Pair<String, Int>>()
+            val calendar = Calendar.getInstance()
+            calendar.firstDayOfWeek = Calendar.MONDAY
 
-        calendar.add(Calendar.WEEK_OF_YEAR, -5)
-        val sixWeeksAgo = calendar.time
+            calendar.add(Calendar.WEEK_OF_YEAR, -5)
+            val sixWeeksAgo = calendar.time
 
-        val weeklyData = blinkData
-            .filter { blink ->
-                val measurementDate = (blink["measurement_date"] as Timestamp).toDate()
-                measurementDate.after(sixWeeksAgo) || measurementDate == sixWeeksAgo
+            val weeklyData = blinkData
+                .filter { blink ->
+                    val measurementDate = (blink["measurement_date"] as? Timestamp)?.toDate()
+                    measurementDate?.after(sixWeeksAgo) ?: false || measurementDate == sixWeeksAgo
+                }
+                .groupBy { blink ->
+                    val measurementDate = (blink["measurement_date"] as? Timestamp)?.toDate()
+                    getWeekLabel(measurementDate ?: Date())
+                }
+
+            val weeks = mutableListOf<String>()
+            repeat(6) {
+                val weekLabel = getWeekLabel(calendar.time)
+                if (!weeks.contains(weekLabel)) {
+                    weeks.add(weekLabel)
+                }
+                calendar.add(Calendar.WEEK_OF_YEAR, 1)
             }
-            .groupBy { blink ->
-                val measurementDate = (blink["measurement_date"] as Timestamp).toDate()
-                getWeekLabel(measurementDate)
+
+            weeks.forEach { weekLabel ->
+                val weeklyAverage = weeklyData[weekLabel]?.let { blinks ->
+                    blinks.map {
+                        when (val value = it["average_frequency_per_minute"]) {
+                            is Number -> value.toDouble()
+                            else -> 0.0
+                        }
+                    }.average().takeIf { !it.isNaN() }?.roundToInt() ?: 0
+                } ?: 0
+                data.add(Pair(weekLabel, weeklyAverage))
             }
 
-        val weeks = mutableListOf<String>()
-        repeat(6) {
-            val weekLabel = getWeekLabel(calendar.time)
-            if (!weeks.contains(weekLabel)) {
-                weeks.add(weekLabel)
+            if (data.isEmpty()) {
+                for (i in 5 downTo 0) {
+                    val weekLabel = getWeekLabel(Calendar.getInstance().apply { add(Calendar.WEEK_OF_YEAR, -i) }.time)
+                    data.add(Pair(weekLabel, 0))
+                }
             }
-            calendar.add(Calendar.WEEK_OF_YEAR, 1)
-        }
 
-        weeks.forEach { weekLabel ->
-            val weeklyAverage = weeklyData[weekLabel]?.let { blinks ->
-                blinks.map {
-                    when (val value = it["average_frequency_per_minute"]) {
-                        is Long -> value.toDouble()
-                        is Double -> value
-                        else -> 0.0
-                    }
-                }.average().takeIf { !it.isNaN() }?.roundToInt() ?: 0
+            val recentAverage = blinkData.lastOrNull()?.let {
+                (it["average_frequency_per_minute"] as? Number)?.toDouble()?.takeIf { !it.isNaN() }?.roundToInt() ?: 0
             } ?: 0
-            data.add(Pair(weekLabel, weeklyAverage))
+            data.add(Pair("최근", recentAverage))
+
+            data
+        } catch (e: Exception) {
+            // 수정: 예외 발생 시 로그 출력
+            Log.e("ChartFragment", "Error generating weekly average data", e)
+            emptyList()
         }
-
-        if (data.isEmpty()) {
-            for (i in 5 downTo 0) {
-                val weekLabel = getWeekLabel(Calendar.getInstance().apply { add(Calendar.WEEK_OF_YEAR, -i) }.time)
-                data.add(Pair(weekLabel, 0))
-            }
-        }
-
-        val recentAverage = blinkData.lastOrNull()?.let {
-            (it["average_frequency_per_minute"] as? Number)?.toDouble()?.takeIf { !it.isNaN() }?.roundToInt() ?: 0
-        } ?: 0
-        data.add(Pair("최근", recentAverage))
-
-        return data
     }
-
-//    private fun generateWeeklyAverageData(blinkData: List<Map<String, Any>>): List<Pair<String, Int>> {
-//        val data = mutableListOf<Pair<String, Int>>()
-//        val calendar = Calendar.getInstance()
-//        calendar.firstDayOfWeek = Calendar.MONDAY
-//
-//        calendar.add(Calendar.WEEK_OF_YEAR, -5)
-//        val sixWeeksAgo = calendar.time
-//
-//        val weeklyData = blinkData
-//            .filter { blink ->
-//                val measurementDate = (blink["measurement_date"] as Timestamp).toDate()
-//                measurementDate.after(sixWeeksAgo) || measurementDate == sixWeeksAgo
-//            }
-//            .groupBy { blink ->
-//                val measurementDate = (blink["measurement_date"] as Timestamp).toDate()
-//                getWeekLabel(measurementDate)
-//            }
-//
-//        val weeks = mutableListOf<String>()
-//        repeat(6) {
-//            val weekLabel = getWeekLabel(calendar.time)
-//            if (!weeks.contains(weekLabel)) {
-//                weeks.add(weekLabel)
-//            }
-//            calendar.add(Calendar.WEEK_OF_YEAR, 1)
-//        }
-//
-//        weeks.forEach { weekLabel ->
-//            val weeklyAverage = weeklyData[weekLabel]?.let { blinks ->
-//                blinks.map {
-//                    when (val value = it["average_frequency_per_minute"]) {
-//                        is Long -> value.toDouble()
-//                        is Double -> value
-//                        else -> 0.0
-//                    }
-//                }.average().roundToInt()
-//            } ?: 0
-//            data.add(Pair(weekLabel, weeklyAverage))
-//        }
-//
-//        if (data.isEmpty()) {
-//            for (i in 5 downTo 0) {
-//                val weekLabel = getWeekLabel(Calendar.getInstance().apply { add(Calendar.WEEK_OF_YEAR, -i) }.time)
-//                data.add(Pair(weekLabel, 0))
-//            }
-//        }
-//
-//        val recentAverage = blinkData.lastOrNull()?.let {
-//            (it["average_frequency_per_minute"] as? Number)?.toDouble()?.roundToInt() ?: 0
-//        } ?: 0
-//        data.add(Pair("최근", recentAverage))
-//
-//        return data
-//    }
 
     private fun getWeekLabel(date: Date): String {
         val calendar = Calendar.getInstance()
@@ -206,6 +163,7 @@ class ChartFragment : Fragment() {
         return "${month}월 ${weekOfMonth}주"
     }
 
+    // 수정: displayChart 함수에 예외 처리 추가
     private fun displayChart(data: List<Pair<String, Int>>) {
         try {
             chartContainer.visibility = View.VISIBLE
@@ -316,12 +274,15 @@ class ChartFragment : Fragment() {
 
             chartContainer.addView(wrapperLayout)
         } catch (e: IllegalArgumentException) {
+            // 수정: 특정 예외 처리 추가
             Log.e("ChartFragment", "IllegalArgumentException in displayChart", e)
             displayNoDataMessage()
         } catch (e: NullPointerException) {
+            // 수정: Null 포인터 예외 처리 추가
             Log.e("ChartFragment", "NullPointerException in displayChart", e)
             displayNoDataMessage()
         } catch (e: Exception) {
+            // 수정: 일반적인 예외 처리 추가
             Log.e("ChartFragment", "Unexpected error in displayChart", e)
             displayNoDataMessage()
         }
