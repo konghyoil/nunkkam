@@ -10,25 +10,20 @@ import android.content.Intent
 import android.media.AudioAttributes
 import android.media.RingtoneManager
 import android.os.Build
-import android.util.Log
 import androidx.core.app.NotificationCompat
 import java.util.Date
 
 class AlarmReceiver2 : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-        Log.d("AlarmReceiver2", "onReceive called")
-
         // 알림 채널 생성
         createNotificationChannel(context)
 
         // 알람이 관리 알람인지 측정 알람인지 여부 확인
         val isManageAlarm = intent.getBooleanExtra("isManageAlarm", false)
-        Log.d("AlarmReceiver2", "isManageAlarm: $isManageAlarm")
 
         // 알람 제목과 내용 설정
         val notificationTitle = if (isManageAlarm) "관리 알람" else "측정 알람"
         val notificationText = if (isManageAlarm) "눈 건강을 위해 관리를 진행해주세요." else "눈 건강을 위해 측정을 진행해주세요."
-        Log.d("AlarmReceiver2", "Notification Title: $notificationTitle, Text: $notificationText")
 
         // 알림 빌더 설정
         val notificationBuilder = NotificationCompat.Builder(context, "alarmChannel")
@@ -41,7 +36,6 @@ class AlarmReceiver2 : BroadcastReceiver() {
         // 알림 매니저를 통해 알림 전송
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.notify(if (isManageAlarm) 1002 else 1001, notificationBuilder.build())
-        Log.d("AlarmReceiver2", "Notification sent")
 
         // 다음 알람 설정 (반복 알람인 경우)
         if (isManageAlarm) {
@@ -61,7 +55,6 @@ class AlarmReceiver2 : BroadcastReceiver() {
                     nextAlarmTime,
                     nextPendingIntent
                 )
-                Log.d("AlarmReceiver2", "Next repeating alarm set for ${Date(nextAlarmTime)}")
             }
         }
     }
