@@ -160,13 +160,21 @@ class AlarmFragment : Fragment() {
         val hour = calendar.get(Calendar.HOUR_OF_DAY)
         val minute = calendar.get(Calendar.MINUTE)
 
-        TimePickerDialog(requireContext(), { _, selectedHour, selectedMinute ->
-            binding.btnMeasurementInterval.text = String.format("%02d:%02d", selectedHour, selectedMinute)
-            if (binding.switchMeasurementAlarm.isChecked) {
-                setupDailyAlarm(selectedHour, selectedMinute)
-                saveAlarmValues(selectedHour, selectedMinute, isManageAlarm = false)
-            }
-        }, hour, minute, true).show()
+        val dialog = TimePickerDialog(
+            requireContext(),
+            R.style.CustomTimePickerDialog, // 커스텀 스타일 적용
+            { _, selectedHour, selectedMinute ->
+                binding.btnMeasurementInterval.text = String.format("%02d:%02d", selectedHour, selectedMinute)
+                if (binding.switchMeasurementAlarm.isChecked) {
+                    setupDailyAlarm(selectedHour, selectedMinute)
+                    saveAlarmValues(selectedHour, selectedMinute, isManageAlarm = false)
+                }
+            },
+            hour,
+            minute,
+            true
+        )
+        dialog.show()
     }
 
     // 주기 선택 다이얼로그 표시

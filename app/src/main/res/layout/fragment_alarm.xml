@@ -93,6 +93,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:backgroundTint="#666666"
+                android:textColor="@color/white"
                 android:text="0분" />
         </LinearLayout>
 
@@ -172,6 +173,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:backgroundTint="#666666"
+                android:textColor="@color/white"
                 android:text="0시간 0분 마다" />
         </LinearLayout>
 
