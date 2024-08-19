@@ -45,4 +45,16 @@ object UserManager {                                                 // UserMana
         sharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)  // SharedPreferences 재초기화
         clearUserData()                                              // 사용자 데이터 초기화 함수 호출
     }
+
+    // 현재 사용자 정보를 반환하는 메서드 추가
+    fun getCurrentUser(): User? {
+        return if (userId != null && loginType != null) {
+            User(userId!!, loginType!!)
+        } else {
+            null
+        }
+    }
+
+    // User 데이터 클래스를 추가하여 사용자 정보를 캡슐화
+    data class User(val userId: String, val loginType: String)
 }

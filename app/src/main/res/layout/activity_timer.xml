@@ -67,16 +67,17 @@
             android:layout_height="220dp"
             android:theme="@style/LargerNumberPickerStyle"/>
     </LinearLayout>
+
     <Button
         android:id="@+id/start_button"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="48dp"
         android:backgroundTint="@color/dark_button2"
-        android:text="측정 시작"
         android:fontFamily="@font/roboto_medium"
-        android:textStyle="bold"
+        android:text="측정 시작"
         android:textColor="#000015"
+        android:textStyle="bold"
         android:visibility="visible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

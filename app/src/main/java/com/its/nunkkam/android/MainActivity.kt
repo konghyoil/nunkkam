@@ -21,6 +21,8 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.its.nunkkam.android.UserManager.getCurrentUser
+import com.its.nunkkam.android.UserManager.userId
 
 class MainActivity : AppCompatActivity() {
 
@@ -42,34 +44,34 @@ class MainActivity : AppCompatActivity() {
             signInGoogle()
         }
 
-        checkAndRequestPermissions()
+//        checkTutorialStatus()
 
         checkUserStatus() // 사용자 상태 확인 메서드 호출
     }
 
-    private fun checkAndRequestPermissions() {
-        val permissionsToRequest = mutableListOf<String>()
-
-        // 카메라 권한 확인
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            permissionsToRequest.add(Manifest.permission.CAMERA)
-        }
-
-        // 포그라운드 서비스 권한 확인
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.FOREGROUND_SERVICE) != PackageManager.PERMISSION_GRANTED) {
-            permissionsToRequest.add(Manifest.permission.FOREGROUND_SERVICE)
-        }
-
-        // 알림 권한 확인 (안드로이드 13 이상에서 필요)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-            permissionsToRequest.add(Manifest.permission.POST_NOTIFICATIONS)
-        }
-
-        // 필요한 권한 요청
-        if (permissionsToRequest.isNotEmpty()) {
-            ActivityCompat.requestPermissions(this, permissionsToRequest.toTypedArray(), REQUEST_CODE_PERMISSIONS)
-        }
-    }
+//    private fun checkAndRequestPermissions() {
+//        val permissionsToRequest = mutableListOf<String>()
+//
+//        // 카메라 권한 확인
+//        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+//            permissionsToRequest.add(Manifest.permission.CAMERA)
+//        }
+//
+//        // 포그라운드 서비스 권한 확인
+//        if (ContextCompat.checkSelfPermission(this, Manifest.permission.FOREGROUND_SERVICE) != PackageManager.PERMISSION_GRANTED) {
+//            permissionsToRequest.add(Manifest.permission.FOREGROUND_SERVICE)
+//        }
+//
+//        // 알림 권한 확인 (안드로이드 13 이상에서 필요)
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+//            permissionsToRequest.add(Manifest.permission.POST_NOTIFICATIONS)
+//        }
+//
+//        // 필요한 권한 요청
+//        if (permissionsToRequest.isNotEmpty()) {
+//            ActivityCompat.requestPermissions(this, permissionsToRequest.toTypedArray(), REQUEST_CODE_PERMISSIONS)
+//        }
+//    }
 
     public override fun onStart() {
         super.onStart()
@@ -80,7 +82,9 @@ class MainActivity : AppCompatActivity() {
     private fun updateUI(currentUser: FirebaseUser?) {
         if (currentUser != null) {
             UserManager.setUser(currentUser.uid, UserManager.LOGIN_TYPE_GOOGLE)
-            navigateToMainFunction()
+
+            // Firestore에서 튜토리얼 수행 여부 확인
+            checkTutorialStatus(currentUser)
         }
     }
 
@@ -96,7 +100,23 @@ class MainActivity : AppCompatActivity() {
             Log.e(TAG, "Google sign in failed", e)
         }
     }
+    private fun checkTutorialStatus(user: FirebaseUser) {
+        val userRef = Firebase.firestore.collection("USERS").document(user.uid)
 
+        userRef.get().addOnSuccessListener { document ->
+            val tutorialCompleted = document.getBoolean("tutorial") ?: false
+            if (tutorialCompleted) {
+                navigateToMainFunction()
+            } else {
+                // TutorialActivity로 이동
+                startActivity(Intent(this, TutorialActivity::class.java))
+                finish()
+            }
+        }.addOnFailureListener {
+            // Firestore에서 사용자 데이터 확인 실패
+            Log.e(TAG, "Failed to fetch tutorial status", it)
+        }
+    }
     private fun signInGoogle() {
         val signInIntent = (application as MyApplication).googleSignInClient.signInIntent
         googleSignInLauncher.launch(signInIntent)
@@ -115,7 +135,7 @@ class MainActivity : AppCompatActivity() {
                         // 로그인 성공 시 로그 기록 (사용자 아이디는 기록하지 않음)
                         Log.i(TAG, "User successfully signed in via Google")
 
-                        navigateToMainFunction()
+                        checkTutorialStatus(user)
                     }
                 } else {
                     // 로그인 실패 시 에러 로그 기록
