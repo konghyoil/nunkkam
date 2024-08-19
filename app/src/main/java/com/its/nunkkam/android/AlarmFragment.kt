@@ -15,8 +15,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.NumberPicker
+import android.widget.Switch
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.its.nunkkam.android.databinding.FragmentAlarmBinding
 import java.util.*
@@ -90,7 +92,7 @@ class AlarmFragment : Fragment() {
     private fun setupMeasurementAlarmListeners() {
         // 측정 알람 켜기/끄기 스위치 리스너
         binding.switchMeasurementAlarm.setOnCheckedChangeListener { _, isChecked ->
-            if (!isChecked) {  // 반대로 작동하도록 수정
+            if (isChecked) {
                 Log.d("AlarmFragment", "측정 알람이 켜졌습니다.")
                 // 알람 시간이 설정되어 있으면 알람을 설정
                 val currentText = binding.btnMeasurementInterval.text.toString()
@@ -100,18 +102,23 @@ class AlarmFragment : Fragment() {
                     val minute = timeParts[1].toInt()
                     setupDailyAlarm(hour, minute)
                     saveAlarmValues(hour, minute, isManageAlarm = false)
-
-                    Toast.makeText(context, "알람 시간을 설정해주세요.", Toast.LENGTH_SHORT).show()
                 }
 
                 // 알람 시간 설정 버튼 리스너
                 binding.btnMeasurementInterval.setOnClickListener {
                     showTimePickerDialog()
                 }
+
+                setSwitchColor(binding.switchMeasurementAlarm, R.color.white)
+                saveSwitchColor(isManageAlarm = false, R.color.white)
+
             } else {
                 Log.d("AlarmFragment", "측정 알람이 꺼졌습니다.")
                 binding.btnMeasurementInterval.setOnClickListener(null)
                 cancelAlarm(false)
+
+                setSwitchColor(binding.switchMeasurementAlarm, R.color.dark_label)
+                saveSwitchColor(isManageAlarm = false, R.color.dark_label)
             }
         }
     }
@@ -120,7 +127,7 @@ class AlarmFragment : Fragment() {
     private fun setupManageAlarmListeners() {
         // 관리 알람 켜기/끄기 스위치 리스너
         binding.switchManageAlarm.setOnCheckedChangeListener { _, isChecked ->
-            if (!isChecked) {  // 반대로 작동하도록 수정
+            if (isChecked) {
                 Log.d("AlarmFragment", "관리 알람이 켜졌습니다.")
                 // 알람 주기가 설정되어 있으면 반복 알람 설정
                 val intervalText = binding.btnManageInterval.text.toString()
@@ -138,12 +145,86 @@ class AlarmFragment : Fragment() {
                 binding.btnManageInterval.setOnClickListener {
                     showIntervalPickerDialog()
                 }
+
+                setSwitchColor(binding.switchManageAlarm, R.color.white)
+                saveSwitchColor(isManageAlarm = true, R.color.white)
+
             } else {
                 Log.d("AlarmFragment", "관리 알람이 꺼졌습니다.")
                 binding.btnManageInterval.setOnClickListener(null)
                 cancelAlarm(true)
+
+                setSwitchColor(binding.switchManageAlarm, R.color.dark_label)
+                saveSwitchColor(isManageAlarm = true, R.color.dark_label)
             }
         }
+    }
+
+    // 스위치 색상 변경 함수
+    private fun setSwitchColor(switch: Switch, colorResId: Int) {
+        context?.let {
+            switch.thumbTintList = ContextCompat.getColorStateList(it, colorResId)
+        }
+    }
+
+    // 스위치 색상 저장 함수
+    private fun saveSwitchColor(isManageAlarm: Boolean, colorResId: Int) {
+        with(sharedPreferences.edit()) {
+            if (isManageAlarm) {
+                putInt("manageAlarmSwitchColor", colorResId)
+            } else {
+                putInt("measurementAlarmSwitchColor", colorResId)
+            }
+            apply()
+        }
+    }
+
+    // 저장된 알람 설정 값 불러오기
+    private fun loadAlarmValues() {
+        // 측정 알람 설정 값 로드
+        val measurementHour = sharedPreferences.getInt("measurementAlarmHour", 0)
+        val measurementMinute = sharedPreferences.getInt("measurementAlarmMinute", 0)
+        val measurementEnabled = sharedPreferences.getBoolean("measurementAlarmEnabled", false)
+        val measurementSwitchColor = sharedPreferences.getInt("measurementAlarmSwitchColor", R.color.dark_label)
+
+        binding.btnMeasurementInterval.text = String.format("%02d:%02d", measurementHour, measurementMinute)
+        binding.switchMeasurementAlarm.isChecked = measurementEnabled
+        setSwitchColor(binding.switchMeasurementAlarm, measurementSwitchColor)
+
+        // 관리 알람 설정 값 로드
+        val manageHours = sharedPreferences.getInt("manageAlarmHours", 0)
+        val manageMinutes = sharedPreferences.getInt("manageAlarmMinutes", 0)
+        val manageEnabled = sharedPreferences.getBoolean("manageAlarmEnabled", false)
+        val manageSwitchColor = sharedPreferences.getInt("manageAlarmSwitchColor", R.color.dark_label)
+
+        binding.btnManageInterval.text = "${manageHours}시간 ${manageMinutes}분 마다"
+        binding.switchManageAlarm.isChecked = manageEnabled
+        setSwitchColor(binding.switchManageAlarm, manageSwitchColor)
+
+        // 알람이 활성화되어 있을 때 시간/주기 설정 버튼을 활성화
+        if (measurementEnabled) {
+            binding.btnMeasurementInterval.setOnClickListener {
+                showTimePickerDialog()
+            }
+        }
+        if (manageEnabled) {
+            binding.btnManageInterval.setOnClickListener {
+                showIntervalPickerDialog()
+            }
+        }
+    }
+
+    // 알람 취소
+    private fun cancelAlarm(isManageAlarm: Boolean) {
+        val intent = Intent(context, AlarmReceiver2::class.java)
+        val pendingIntent = PendingIntent.getBroadcast(
+            context, if (isManageAlarm) 1002 else 1001, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        alarmManager?.cancel(pendingIntent)
+        Toast.makeText(context, "알람이 취소되었습니다.", Toast.LENGTH_SHORT).show()
+
+        // 알람 설정 값 초기화
+        saveAlarmValues(0, 0, isManageAlarm)
     }
 
     // 시간 선택 다이얼로그 표시
@@ -290,49 +371,6 @@ class AlarmFragment : Fragment() {
             }
             apply()
         }
-    }
-
-    // 저장된 알람 설정 값 불러오기
-    private fun loadAlarmValues() {
-        // 측정 알람 설정 값 로드
-        val measurementHour = sharedPreferences.getInt("measurementAlarmHour", 0)
-        val measurementMinute = sharedPreferences.getInt("measurementAlarmMinute", 0)
-        val measurementEnabled = sharedPreferences.getBoolean("measurementAlarmEnabled", false)
-
-        binding.btnMeasurementInterval.text = String.format("%02d:%02d", measurementHour, measurementMinute)
-        binding.switchMeasurementAlarm.isChecked = measurementEnabled
-
-        // 관리 알람 설정 값 로드
-        val manageHours = sharedPreferences.getInt("manageAlarmHours", 0)
-        val manageMinutes = sharedPreferences.getInt("manageAlarmMinutes", 0)
-        val manageEnabled = sharedPreferences.getBoolean("manageAlarmEnabled", false)
-
-        binding.btnManageInterval.text = "${manageHours}시간 ${manageMinutes}분 마다"
-        binding.switchManageAlarm.isChecked = manageEnabled
-
-        // 알람이 활성화되어 있을 때 시간/주기 설정 버튼을 활성화
-        if (measurementEnabled) {
-            binding.btnMeasurementInterval.setOnClickListener {
-                showTimePickerDialog()
-            }
-        }
-        if (manageEnabled) {
-            binding.btnManageInterval.setOnClickListener {
-                showIntervalPickerDialog()
-            }
-        }
-    }
-    // 알람 취소
-    private fun cancelAlarm(isManageAlarm: Boolean) {
-        val intent = Intent(context, AlarmReceiver2::class.java)
-        val pendingIntent = PendingIntent.getBroadcast(
-            context, if (isManageAlarm) 1002 else 1001, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
-        alarmManager?.cancel(pendingIntent)
-        Toast.makeText(context, "알람이 취소되었습니다.", Toast.LENGTH_SHORT).show()
-
-        // 알람 설정 값 초기화
-        saveAlarmValues(0, 0, isManageAlarm)
     }
 
     // View 해제
