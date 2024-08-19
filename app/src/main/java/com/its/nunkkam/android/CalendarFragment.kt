@@ -103,11 +103,19 @@ class CalendarFragment : Fragment() {
         val layoutManager = GridLayoutManager(context, spanCount)
         recyclerView.layoutManager = layoutManager
 
+        // 어댑터를 미리 빈 데이터로 설정합니다.
+        adapter = CalendarAdapter(emptyList(), emptyList(), 0, 0) { date, info ->
+            showDialog(date)
+        }
+        recyclerView.adapter = adapter
+
         recyclerView.post {
             val recyclerViewHeight = recyclerView.height
             val itemHeight = recyclerViewHeight / 6 // 6주로 가정
             val itemWidth = recyclerView.width / spanCount
 
+            // 실제 크기와 데이터를 이용해 어댑터를 업데이트합니다.
+            adapter.updateData(emptyList(), emptyList())
             adapter = CalendarAdapter(emptyList(), emptyList(), itemWidth, itemHeight) { date, info ->
                 showDialog(date)
             }

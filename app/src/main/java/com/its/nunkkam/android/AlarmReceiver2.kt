@@ -29,7 +29,7 @@ class AlarmReceiver2 : BroadcastReceiver() {
 
         // 알림 빌더 설정
         val notificationBuilder = NotificationCompat.Builder(context, "alarmChannel")
-            .setSmallIcon(R.drawable.ic_notification) // 알림 아이콘 설정
+            .setSmallIcon(R.drawable.eye_closed) // 알림 아이콘 설정
             .setContentTitle(notificationTitle) // 알림 제목 설정
             .setContentText(notificationText) // 알림 내용 설정
             .setPriority(NotificationCompat.PRIORITY_HIGH) // 알림 우선순위 설정
