@@ -10,6 +10,7 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.webkit.WebView
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.NumberPicker
@@ -154,6 +155,10 @@ class TimerActivity : AppCompatActivity() {
                     showDeleteAccountWarning()
                     true
                 }
+                R.id.action_privacy_policy -> {
+                    showPrivacyPolicy()
+                    true
+                }
                 else -> false
             }
         }
@@ -271,6 +276,20 @@ class TimerActivity : AppCompatActivity() {
             // 에러 로그 유지
             Log.e("TimerActivity", "User is null")
         }
+    }
+
+    private fun showPrivacyPolicy(){
+        val webView = WebView(this)
+        webView.settings.javaScriptEnabled = true
+        webView.loadUrl("https://sites.google.com/view/nunkkam001?usp=sharing")
+
+        val dialog = AlertDialog.Builder(this)
+            .setTitle("개인정보 처리방침")
+            .setView(webView)
+            .setNegativeButton("닫기") { dialog, _ -> dialog.dismiss() }
+            .create()
+
+        dialog.show()
     }
 
     private fun addAlarmFragment() {

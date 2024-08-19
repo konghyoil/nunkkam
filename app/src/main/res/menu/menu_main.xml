@@ -6,4 +6,7 @@
     <item
         android:id="@+id/action_delete_account"
         android:title="회원탈퇴" />
+    <item
+        android:id="@+id/action_privacy_policy"
+        android:title="개인정보 처리방침" />
 </menu>
