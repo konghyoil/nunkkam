@@ -110,17 +110,6 @@ class CalendarFragment : Fragment() {
         recyclerView.adapter = adapter
 
         recyclerView.post {
-            val recyclerViewHeight = recyclerView.height
-            val itemHeight = recyclerViewHeight / 6 // 6주로 가정
-            val itemWidth = recyclerView.width / spanCount
-
-            // 실제 크기와 데이터를 이용해 어댑터를 업데이트합니다.
-            adapter.updateData(emptyList(), emptyList())
-            adapter = CalendarAdapter(emptyList(), emptyList(), itemWidth, itemHeight) { date, info ->
-                showDialog(date)
-            }
-            recyclerView.adapter = adapter
-
             updateCalendar()
         }
     }
@@ -156,7 +145,19 @@ class CalendarFragment : Fragment() {
         val days = getDaysInMonthWithEmptySpaces()
         val infoList = getInfoForDays(days)
 
-        adapter.updateData(days, infoList)
+        val numberOfWeeks = (days.size + 6) / 7 // 총 일수를 7로 나눠서 주 수 계산
+
+        recyclerView.post {
+            val recyclerViewHeight = recyclerView.height
+            val itemHeight = recyclerViewHeight / numberOfWeeks
+            val itemWidth = recyclerView.width / 7
+
+            adapter = CalendarAdapter(days, infoList, itemWidth, itemHeight) { date, info ->
+                showDialog(date)
+            }
+            recyclerView.adapter = adapter
+        }
+
         updateMonthYearText()
     }
 
@@ -177,7 +178,7 @@ class CalendarFragment : Fragment() {
             }
 
             val infoText = blinksForDate.joinToString("\n") {
-                "Frequency: ${it["average_frequency_per_minute"]} per minute"
+                "분당 눈 깜빡임 횟수: ${it["average_frequency_per_minute"]}"
             }
 
             tvDialogInfo.text = if (infoText.isNotEmpty()) infoText else "No information available"
