@@ -178,7 +178,7 @@ class CalendarFragment : Fragment() {
             }
 
             val infoText = blinksForDate.joinToString("\n") {
-                "Frequency: ${it["average_frequency_per_minute"]} per minute"
+                "분당 눈 깜빡임 횟수: ${it["average_frequency_per_minute"]}"
             }
 
             tvDialogInfo.text = if (infoText.isNotEmpty()) infoText else "No information available"
