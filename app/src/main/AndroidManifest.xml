@@ -7,24 +7,30 @@
     <!-- 카메라 사용 권한 -->
     <uses-permission android:name="android.permission.CAMERA" />
     <!-- 포그라운드 서비스 권한 -->
-<!--    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />-->
-    <!-- 포그라운드 서비스 카메라 권한 -->
-<!--    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CAMERA" />-->
-
-    <!-- 알람 관련 권한 -->
-<!--    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />-->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <!-- 포그라운드 서비스 카메라 권한 (Android 14 이상) -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CAMERA"/>
+    <!-- 알람 권한 -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- 기기 부팅 시 앱 자동 실행 권한 -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <!-- 절전 모드 방지 권한 -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
-<!--    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />-->
+    <!-- 정확한 알람 설정 권한 -->
+    <!--    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />-->
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
+    <!-- 진동 사용 권한 -->
     <uses-permission android:name="android.permission.VIBRATE"/>
-
+    <!-- 전체 화면 인텐트 사용 권한 -->
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
     <!-- 카메라 사용 선언 -->
     <uses-feature android:name="android.hardware.camera.front" android:required="true" />
     <uses-feature android:name="android.hardware.camera" android:required="false" />
-
     <!-- 시리얼 번호를 가져오기 위한 권한 -->
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+
+    <!-- 오버레이 사용 선언 -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
 
 <!--    구글 클라이언트 권한-->
 
@@ -52,18 +58,13 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".BlinkActivity"
-            android:screenOrientation="portrait"/><!-- BlinkActivity 선언 -->
+        <activity android:name=".BlinkActivity"/><!-- BlinkActivity 선언 -->
 <!--        <activity android:name=".TimerFragment" /> &lt;!&ndash; TimerActivity 선언 &ndash;&gt;-->
-        <activity android:name=".TimerActivity"
-            android:screenOrientation="portrait"/> <!-- TimerActivity 선언 -->
+        <activity android:name=".TimerActivity"/> <!-- TimerActivity 선언 -->
 <!--        <activity android:name=".ChartFragment" /> &lt;!&ndash; ChartActivity 선언 &ndash;&gt;-->
 <!--        <activity android:name=".CalendarFragment" /> &lt;!&ndash; CalendarActivity 선언 &ndash;&gt;-->
 <!--        <activity android:name=".CardFragment" /> &lt;!&ndash; CardActivity 선언 &ndash;&gt;-->
-        <activity android:name=".ResultActivity"
-            android:screenOrientation="portrait"/><!-- ResultActivity 선언 -->
-        <activity android:name=".TutorialActivity"
-            android:screenOrientation="portrait"/><!-- ResultActivity 선언 -->
+        <activity android:name=".ResultActivity"/><!-- ResultActivity 선언 -->
 
 
 
@@ -75,8 +76,14 @@
             android:foregroundServiceType="camera"
             android:enabled="true"
             android:exported="false" />
+        <service
+            android:name=".OverlayService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="camera" />
 
         <receiver android:name=".AlarmReceiver" />
+<!--        <receiver android:name=".MeasurementAlarmReceiver" />-->
         <receiver android:name=".AlarmReceiver2" />
 
         <provider

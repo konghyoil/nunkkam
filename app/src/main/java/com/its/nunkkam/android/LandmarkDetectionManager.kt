@@ -23,11 +23,18 @@ class LandmarkDetectionManager(private val context: Context) {
     private val backgroundExecutor: ExecutorService = Executors.newSingleThreadExecutor()
     private var isDetectionPaused: Boolean = false
 
-    fun initialize(onInitialized: () -> Unit) {
+    fun initialize(onInitialized: (Boolean) -> Unit) {
         backgroundExecutor.execute {
-            setupFaceLandmarker()
-            Handler(Looper.getMainLooper()).post {
-                onInitialized()
+            try {
+                setupFaceLandmarker()
+                Handler(Looper.getMainLooper()).post {
+                    onInitialized(true)
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "LandmarkDetectionManager: Initialization failed", e)
+                Handler(Looper.getMainLooper()).post {
+                    onInitialized(false)
+                }
             }
         }
     }

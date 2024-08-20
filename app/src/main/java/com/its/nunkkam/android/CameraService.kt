@@ -14,19 +14,20 @@ import androidx.camera.lifecycle.ProcessCameraProvider // 카메라 프로바이
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat // 컨텍스트 호환성 관련 클래스
 import androidx.lifecycle.LifecycleService
-import com.google.mediapipe.framework.image.BitmapImageBuilder // MediaPipe 이미지 빌더 클래스
 import com.google.mediapipe.framework.image.MPImage // MediaPipe 이미지 클래스
-import com.google.mediapipe.tasks.core.BaseOptions // MediaPipe 기본 옵션 클래스
-import com.google.mediapipe.tasks.vision.core.RunningMode // MediaPipe 실행 모드 클래스
 import com.google.mediapipe.tasks.vision.facelandmarker.FaceLandmarker // 얼굴 랜드마크 감지 클래스
 import com.google.mediapipe.tasks.vision.facelandmarker.FaceLandmarkerResult // 얼굴 랜드마크 결과 클래스
 import java.util.concurrent.Executors // 실행자 생성 유틸리티 클래스
 import android.content.Context // 애플리케이션 환경에 대한 정보를 제공하는 클래스
 import androidx.camera.view.PreviewView // 카메라 미리보기 뷰 클래스
-import com.google.mediapipe.tasks.components.containers.NormalizedLandmark
 import java.util.concurrent.ExecutorService // 실행자 서비스 인터페이스
 import java.util.concurrent.TimeUnit
-import kotlin.math.abs // 절대값을 계산하는 수학 함수
+import android.view.Gravity
+import android.view.LayoutInflater
+import android.view.WindowManager
+import android.graphics.PixelFormat
+import android.provider.Settings
+import android.view.View
 
 class CameraService : LifecycleService() {
     private lateinit var faceLandmarker: FaceLandmarker // 얼굴 랜드마크 감지기
@@ -35,6 +36,9 @@ class CameraService : LifecycleService() {
     private val binder = LocalBinder()
     private val blinkDetectionUtil = BlinkDetectionUtil()
     private lateinit var landmarkDetectionManager: LandmarkDetectionManager
+
+    private lateinit var windowManager: WindowManager
+    private lateinit var overlayView: View
 
     fun setLandmarkDetectionManager(manager: LandmarkDetectionManager) {
         landmarkDetectionManager = manager
@@ -134,8 +138,23 @@ class CameraService : LifecycleService() {
         callback?.onFaceLandmarkerResult(result, image)
     }
 
+    fun switchToViewFinder(viewFinder: PreviewView) {
+        stopCamera()
+        startCamera(viewFinder, null)
+    }
+
+    fun startBackgroundProcessing() {
+        stopCamera()
+        startCamera(null, null)
+    }
+
+    fun switchToOverlay(overlayPreviewView: PreviewView) {
+        stopCamera()
+        startCamera(null, overlayPreviewView)
+    }
+
     // 카메라 리소스 유지
-    fun startCamera(viewFinder: PreviewView) {
+    fun startCamera(viewFinder: PreviewView?, overlayPreviewView: PreviewView?) {
         Log.d(TAG, "CameraService: startCamera called")
 
         if (!this::cameraExecutor.isInitialized) {
@@ -150,18 +169,25 @@ class CameraService : LifecycleService() {
                 Log.d(TAG, "CameraService: CameraProvider obtained")
 
                 // Preview 객체 생성
-                val preview = Preview.Builder().build().also {
-                    it.setSurfaceProvider(viewFinder.surfaceProvider)
+                val preview = when {
+                    viewFinder != null -> Preview.Builder().build().also {
+                        it.setSurfaceProvider(viewFinder.surfaceProvider)
+                    }
+                    overlayPreviewView != null -> Preview.Builder().build().also {
+                        it.setSurfaceProvider(overlayPreviewView.surfaceProvider)
+                    }
+                    else -> null
                 }
-                Log.d(TAG, "CameraService: Preview built and surface provider set")
 
                 // ImageAnalysis 객체 생성 및 설정
                 imageAnalysis = ImageAnalysis.Builder().build().also {
                     it.setAnalyzer(cameraExecutor) { imageProxy ->
                         // viewFinder가 창에 부착되지 않은 경우 이미지를 처리하지 않음
-                        if (!viewFinder.isAttachedToWindow) {
-                            imageProxy.close()
-                            return@setAnalyzer
+                        if (viewFinder != null) {
+                            if (!viewFinder.isAttachedToWindow) {
+                                imageProxy.close()
+                                return@setAnalyzer
+                            }
                         }
 
                         // 프레임 분석 수행
@@ -170,22 +196,22 @@ class CameraService : LifecycleService() {
                         imageProxy.close()
                     }
                 }
-                Log.d(TAG, "CameraService: ImageAnalysis configured")
 
+                // ImageAnalysis 설정
                 setupImageAnalysis()
 
                 val cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA
-                Log.d(TAG, "CameraService: CameraSelector set to front camera")
 
                 // 모든 이전 바인딩 해제
                 cameraProvider.unbindAll()
-                Log.d(TAG, "CameraService: Unbound all use cases")
 
                 // 카메라와 Preview, ImageAnalysis 연결
-                cameraProvider.bindToLifecycle(
-                    this, cameraSelector, preview, imageAnalysis
-                )
-                Log.d(TAG, "CameraService: Camera bound to lifecycle with preview and image analysis")
+                if (preview != null) {
+                    cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageAnalysis)
+                } else {
+                    cameraProvider.bindToLifecycle(this, cameraSelector, imageAnalysis)
+                }
+
             } catch (exc: Exception) {
                 Log.e(TAG, "CameraService: Use case binding failed", exc)
             }
@@ -206,8 +232,37 @@ class CameraService : LifecycleService() {
         this.callback = callback
     }
 
+    private fun createOverlayView() {
+        if (Settings.canDrawOverlays(this)) {
+            windowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
+            overlayView = LayoutInflater.from(this).inflate(R.layout.overlay_layout, null)
+
+            val params = WindowManager.LayoutParams(
+                1, // 최소 너비
+                1, // 최소 높이
+                WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                        WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or
+                        WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
+                PixelFormat.TRANSLUCENT
+            )
+            params.gravity = Gravity.TOP or Gravity.START
+
+            windowManager.addView(overlayView, params)
+        } else {
+            Log.e(TAG, "Overlay permission is not granted.")
+        }
+    }
+
+    private fun removeOverlayView() {
+        if (::windowManager.isInitialized && ::overlayView.isInitialized) {
+            windowManager.removeView(overlayView)
+        }
+    }
+
     override fun onDestroy() {
         super.onDestroy()
+        removeOverlayView()
         cameraExecutor?.shutdown()
     }
 
@@ -216,23 +271,20 @@ class CameraService : LifecycleService() {
         super.onStartCommand(intent, flags, startId)
         Log.d(TAG, "CameraService: onStartCommand called")
 
-        // Foreground 서비스로 설정
+        // Foreground 서비스로 설정 | 알림 생성
+        val notification: Notification = createNotification()
+        startForeground(NOTIFICATION_ID, notification)
+//        blinkDetectionUtil.setForeground(true)
 
-        try {
-            // 알림 생성
-            val notification: Notification = createNotification()
-            startForeground(NOTIFICATION_ID, notification)
-            blinkDetectionUtil.setForeground(true)
-        } catch (e: Exception) {
-            Log.e(TAG, "CameraService: Error in onStartCommand", e)
-        }
+        // 오버레이 뷰 생성 시 context 전달
+//        createOverlayView(this)  // context를 전달
 
         return START_STICKY // 서비스가 중단되었을 때 다시 시작하도록 설정
     }
 
     override fun onTaskRemoved(rootIntent: Intent) {
         super.onTaskRemoved(rootIntent)
-        stopSelf()
+        stopSelf() // 서비스가 백그라운드에서 종료되면 스스로 중지
     }
 
     private fun createNotification(): Notification {

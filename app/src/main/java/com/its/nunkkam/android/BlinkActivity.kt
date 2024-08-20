@@ -10,17 +10,27 @@ import android.content.Context // 애플리케이션 환경에 대한 정보를 
 import android.content.Intent // 컴포넌트 간 통신을 위한 메시지 객체
 import android.content.ServiceConnection // 서비스 연결을 위한 인터페이스
 import android.content.pm.PackageManager // 패키지 관리자 클래스
+import android.graphics.PixelFormat
+import android.net.Uri
 import android.os.Build // 빌드 버전 정보를 제공하는 클래스
 import android.os.Bundle // 키-값 쌍의 데이터를 저장하는 클래스
 import android.os.CountDownTimer // 카운트다운 타이머 클래스
 import android.os.Handler // 메시지와 Runnable 객체를 처리하는 클래스
 import android.os.IBinder // 서비스와 통신하기 위한 인터페이스
 import android.os.Looper // 메시지 루프를 관리하는 클래스
+import android.provider.Settings
 import android.util.Log // 로그 출력을 위한 클래스
+import android.view.Gravity
+import android.view.LayoutInflater
+import android.view.View
+import android.view.WindowManager
 import android.widget.Button // 버튼 위젯
 import android.widget.ImageView // 이미지 뷰 위젯
 import android.widget.TextView // 텍스트 뷰 위젯
 import android.widget.Toast // 짧은 메시지를 화면에 표시하는 클래스
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity // 앱 호환성을 위한 기본 액티비티 클래스
 import androidx.camera.view.PreviewView // 카메라 미리보기 뷰 클래스
 import androidx.core.app.ActivityCompat // 액티비티 호환성 관련 클래스
@@ -74,6 +84,12 @@ class BlinkActivity : AppCompatActivity() {
     private lateinit var alarmManager: AlarmManager // 알람 관리자
     private lateinit var alarmIntent: PendingIntent // 알람 인텐트
 
+    private lateinit var overlayPermissionLauncher: ActivityResultLauncher<Intent>
+    private lateinit var overlayView: View
+
+    private var isViewFinderVisible = true // viewFinder 표시 상태 추적 플래그
+    private var overlayViewAttached = false // 오버레이 뷰 추적 플래그
+
     // ServiceConnection 객체: 서비스와의 연결을 관리
     private val connection = object : ServiceConnection {
         // 서비스 연결 시 호출되는 메서드
@@ -86,7 +102,12 @@ class BlinkActivity : AppCompatActivity() {
             serviceBound = true // 서비스 바인딩 상태 설정
 
             Log.d(TAG, "Starting camera from onServiceConnected") // 카메라 시작 로그
-            cameraService.startCamera(viewFinder) // 카메라 시작 | viewFinder 전달
+//            cameraService.startCamera(viewFinder) // 카메라 시작 | viewFinder 전달
+            // 모든 권한이 부여된 경우에만 카메라를 시작
+            if (allPermissionsGranted()) {
+                val overlayPreviewView = overlayView.findViewById<PreviewView>(R.id.previewView)
+                cameraService.startCamera(viewFinder, null)
+            }
         }
 
         // 서비스 연결 해제 시 호출되는 메서드
@@ -125,6 +146,11 @@ class BlinkActivity : AppCompatActivity() {
         blinkCountTextView = findViewById(R.id.blinkCountTextView) // 깜빡임 횟수 텍스트 뷰
         blinkRateTextView = findViewById(R.id.blinkRateTextView) // 깜빡임 빈도 텍스트 뷰
 
+        // 오버레이 뷰 초기화
+        val windowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        val overlayRoot = LayoutInflater.from(this).inflate(R.layout.overlay_layout, null)
+        overlayView = overlayRoot.findViewById(R.id.previewView) // 오버레이 프리뷰 뷰 초기화
+
         // 타이머 뷰
         timerTextView = findViewById(R.id.timer_text) // 타이머 텍스트 뷰
         pauseButton = findViewById(R.id.pause_button) // 일시정지 버튼
@@ -156,17 +182,24 @@ class BlinkActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState) // 부모 클래스의 onCreate 메서드 호출
         setContentView(R.layout.activity_blink) // 레이아웃 XML 파일을 가져와 화면에 설정
 
-
         blinkDetectionUtil = BlinkDetectionUtil()
         timerTextView = findViewById(R.id.timer_text)
 
         initViews() // 초기 UI 및 뷰 설정
-        blinkDetectionUtil = BlinkDetectionUtil()
         blinkDetectionUtil.setStartTime(System.currentTimeMillis())
         landmarkDetectionManager = LandmarkDetectionManager(this)
 
+        // 오버레이 권한 요청 처리 초기화
+        overlayPermissionLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (Settings.canDrawOverlays(this)) {
+                Log.d(TAG, "Overlay permission granted.")
+            } else {
+                Toast.makeText(this, "Overlay permission is required for this feature.", Toast.LENGTH_LONG).show()
+            }
+        }
+
         landmarkDetectionManager.initialize {
-            startCameraService() // 카메라 서비스 시작
+            requestPermissions() // 권한 요청
         }
 
         landmarkDetectionManager.setResultListener { result ->
@@ -175,7 +208,7 @@ class BlinkActivity : AppCompatActivity() {
 
         val durationInSeconds = intent.getIntExtra("TIMER_DURATION", 1200) // 기본값 20분
         timeLeftInMillis = durationInSeconds * 1000L
-        blinkDetectionUtil.setTimeLeftInMillis(timeLeftInMillis) // 이 줄을 추가합니다.
+        blinkDetectionUtil.setTimeLeftInMillis(timeLeftInMillis)
 
         updateBlinkUI() // UI 업데이트
 
@@ -189,13 +222,10 @@ class BlinkActivity : AppCompatActivity() {
         } // 리셋 버튼 클릭 리스너
 
         setupAlarm() // 알람 설정
-    }
 
-    // 서비스 시작 및 바인딩
-    private fun startCameraService() {
-        val intent = Intent(this, CameraService::class.java) // 서비스 인텐트 생성
-        startService(intent) // 서비스 시작
-        bindService(intent, connection, Context.BIND_AUTO_CREATE)
+        // 초기 상태: 앱이 처음 시작될 때는 오버레이 뷰를 표시하지 않음
+        isViewFinderVisible = true
+        overlayViewAttached = false
     }
 
     private fun resetBlinkCount() {
@@ -220,7 +250,7 @@ class BlinkActivity : AppCompatActivity() {
         countDownTimer?.cancel()
         countDownTimer = object : CountDownTimer(timeLeftInMillis, 1000) { // blinkDetectionUtil.getTimeLeftInMillis() 대신 timeLeftInMillis 사용
             override fun onTick(millisUntilFinished: Long) {
-                timeLeftInMillis = millisUntilFinished // 이 줄을 추가합니다.
+                timeLeftInMillis = millisUntilFinished
                 blinkDetectionUtil.setTimeLeftInMillis(millisUntilFinished)
                 updateTimerText()
             }
@@ -355,40 +385,6 @@ class BlinkActivity : AppCompatActivity() {
         updateFpsUI() // FPS UI 업데이트
 
         Log.d(TAG, "Current state - Blink count: ${blinkDetectionUtil.getBlinkCount()}, Blink rate: ${blinkDetectionUtil.getBlinkRate()}")
-
-//        val landmarks = result.faceLandmarks()[0] // 첫 번째 감지된 얼굴의 랜드마크
-//
-//        // BlinkDetectionUtil을 사용하여 눈 깜빡임 감지
-//        val blinked = BlinkDetectionUtil.detectBlink(landmarks)
-//
-//        // 눈 깜빡임 감지 및 UI 업데이트 로직
-//        if (blinked) {
-//            Log.d(TAG, "Blink detected")
-//            blinkDetectionUtil.incrementBlinkCount() // 눈 깜빡임 횟수 증가
-//            blinkDetectionUtil.updateBlinkRate() // Blink Rate 업데이트
-//            blinkDetectionUtil.setLastBlinkTime(blinkDetectionUtil.getCurrentTime()) // 마지막 깜빡임 시간 업데이트
-//            updateBlinkUI() // UI 업데이트 함수 호출
-//        }
-//
-//        // 눈 상태 확인 (열림/닫힘)
-//        val leftEyeOpenness = BlinkDetectionUtil.calculateEyeOpenness(landmarks, true)
-//        val rightEyeOpenness = BlinkDetectionUtil.calculateEyeOpenness(landmarks, false)
-//        val averageEyeOpenness = (leftEyeOpenness + rightEyeOpenness) / 2
-//
-//        val eyeState = when {
-//            averageEyeOpenness < BlinkDetectionUtil.BLINK_THRESHOLD_CLOSE -> "Eye is closed"
-//            averageEyeOpenness > BlinkDetectionUtil.BLINK_THRESHOLD_OPEN -> "Eye is open"
-//            else -> "Eye is partially open"
-//        }
-//
-//        when (eyeState) {
-//            "Eye is closed" -> updateUI(eyeState, R.drawable.eye_closed)
-//            "Eye is open" -> updateUI(eyeState, R.drawable.eye_open)
-////            else -> updateUI(eyeState, R.drawable.eye_partially_open) // 부분적으로 열린 눈 이미지가 있다면 사용
-//        }
-//
-//        Log.d(TAG, "Eye state: $eyeState, Average openness: $averageEyeOpenness")
-//        Log.d("EyeOpenness", "FPS: ${blinkDetectionUtil.getFps()}, Left Eye: $leftEyeOpenness, Right Eye: $rightEyeOpenness")
     }
 
     // 눈 깜빡임 카운트 증가 및 저장 함수 -> TimerFragment로 보내기 위함
@@ -477,6 +473,52 @@ class BlinkActivity : AppCompatActivity() {
         }
     }
 
+
+
+    // 오버레이 권한 요청 함수
+    private fun requestOverlayPermission() {
+        if (!Settings.canDrawOverlays(this)) {
+            val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName"))
+            overlayPermissionLauncher.launch(intent)
+        } else {
+            // 이미 권한이 있거나, API 23 이하에서는 권한이 필요하지 않음
+            Log.d(TAG, "Overlay permission is already granted or not required.")
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQUEST_CODE_OVERLAY_PERMISSION) {
+            if (Settings.canDrawOverlays(this)) {
+                // 오버레이 권한이 허용되었을 때
+                Log.d(TAG, "Overlay permission granted.")
+            } else {
+                // 오버레이 권한이 거부되었을 때
+                Toast.makeText(this, "Overlay permission is required for this feature.", Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+
+    private fun requestPermissions() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.CAMERA),
+                CAMERA_PERMISSION_REQUEST_CODE
+            )
+        } else {
+            startCameraService()
+        }
+
+        if (!allPermissionsGranted()) {
+            ActivityCompat.requestPermissions(this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS)
+        } else {
+            startCameraService()
+            // 오버레이 권한 요청
+            requestOverlayPermission()
+        }
+    }
+
     private fun setupAlarm() {
         alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val intent = Intent(this, AlarmReceiver::class.java)
@@ -515,42 +557,74 @@ class BlinkActivity : AppCompatActivity() {
         }
     }
 
+    override fun onPause() {
+        super.onPause()
+
+        if (!isFinishing) {
+            hideViewFinder() // viewFinder 숨기기
+//            createOverlayView() // 오버레이 카메라 시작
+            if (::cameraService.isInitialized) {
+                cameraService.startBackgroundProcessing()
+            }
+        }
+    }
+
     // 액티비티가 종료될 때 호출되는 함수
     override fun onDestroy() {
         super.onDestroy()
 
-        landmarkDetectionManager.onDestroy()
+//        landmarkDetectionManager.onDestroy()
+        alarmManager.cancel(alarmIntent) // 앱이 종료될 때 알람 취소
 
-        // 앱이 종료될 때 알람 취소
-        alarmManager.cancel(alarmIntent)
         if (serviceBound) {
+            cameraService.stopCamera()  // 기존 카메라 세션 종료
             unbindService(connection)
             serviceBound = false
         }
     }
 
-    override fun onPause() {
-        super.onPause()
-        if (serviceBound) {
-            // 서비스를 언바인딩 하지 않음
-            cameraService.stopCamera()  // 필요시 카메라 세션 종료
-        }
-    }
-
+    // onResume에서 카메라 서비스가 바인딩되지 않았으면 바인딩을 시작하고, 바인딩 후 카메라 시작
     override fun onResume() {
         super.onResume()
         Log.d(TAG, "onResume called")
-        if (!serviceBound) {
-            Log.d(TAG, "Service not bound in onResume, starting CameraService")
-            startCameraService()
-        } else if (::cameraService.isInitialized) {
-            Log.d(TAG, "Starting camera from onResume")
-            Handler(Looper.getMainLooper()).post {
-                cameraService.startCamera(viewFinder)
-            }
+
+        // viewFinder 표시
+        showViewFinder()
+
+//        if (serviceBound) {
+        // 카메라 서비스가 초기화되었는지 확인
+        if (::cameraService.isInitialized) {
+            cameraService.switchToViewFinder(viewFinder)
         } else {
-            Log.e(TAG, "CameraService not initialized in onResume")
+            startCameraService()
         }
+    }
+
+    // viewFinder 숨기기 및 활성화 상태 관리
+    fun hideViewFinder() {
+        runOnUiThread {
+            viewFinder.visibility = View.GONE
+        }
+    }
+
+    fun showViewFinder() {
+        runOnUiThread {
+            viewFinder.visibility = View.VISIBLE
+        }
+    }
+
+    private fun startBackgroundCamera() {
+        if (::cameraService.isInitialized) {
+            cameraService.startBackgroundProcessing()
+        }
+    }
+
+    // 서비스 시작 및 바인딩
+    private fun startCameraService() {
+        // 서비스 인텐트 생성
+        val intent = Intent(this, CameraService::class.java)
+        startForegroundService(intent)
+        bindService(intent, connection, Context.BIND_AUTO_CREATE)
     }
 
     // 클래스 내부에서 사용할 상수들을 정의
@@ -572,5 +646,6 @@ class BlinkActivity : AppCompatActivity() {
                 Manifest.permission.FOREGROUND_SERVICE
             )
         }
+        private const val REQUEST_CODE_OVERLAY_PERMISSION = 11 // 오버레이 권한 요청 코드 추가p
     }
 }
