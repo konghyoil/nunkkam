@@ -4,11 +4,12 @@ import android.Manifest
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
 import android.view.Menu
-import android.view.MenuItem
 import android.view.View
 import android.webkit.WebView
 import android.widget.Button
@@ -28,10 +29,8 @@ import com.bumptech.glide.request.RequestOptions
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.its.nunkkam.android.UserManager.userId
 
 class TimerActivity : AppCompatActivity() {
 
@@ -44,14 +43,12 @@ class TimerActivity : AppCompatActivity() {
     private val db = FirebaseFirestore.getInstance()
     private lateinit var profileImageView: ImageView
 
-    // 알림 권한 요청을 위한 상수
     private val PERMISSION_REQUEST_CODE = 1001
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_timer)
 
-        // 추가된 로그: TimerActivity 생성 시 로그 출력
         Log.d("TimerActivity", "TimerActivity created")
 
         startButton = findViewById(R.id.start_button)
@@ -61,17 +58,14 @@ class TimerActivity : AppCompatActivity() {
 
         setupTimePickers()
 
-        // 구글 프로필 보여주는 아이콘 표기
         val app = application as MyApplication
         auth = app.auth
         googleSignInClient = app.googleSignInClient
 
         profileImageView = findViewById(R.id.profile_image_view)
 
-        // 사용자 프로필 이미지 로드
         loadUserProfileImage()
 
-        // 프로필 이미지 클릭 리스너 설정
         profileImageView.setOnClickListener { view ->
             showPopupMenu(view)
         }
@@ -85,8 +79,7 @@ class TimerActivity : AppCompatActivity() {
         }
 
         addAlarmFragment()
-        // 알림 권한 요청
-        requestNotificationPermission()
+        checkNotificationPermission()
     }
 
     private fun setupTimePickers() {
@@ -186,17 +179,28 @@ class TimerActivity : AppCompatActivity() {
         return true
     }
 
-    private fun requestNotificationPermission() {
+    private fun checkNotificationPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-                Log.d("PermissionDebug", "Requesting notification permission")
-                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.POST_NOTIFICATIONS), PERMISSION_REQUEST_CODE)
-            } else {
-                Log.d("PermissionDebug", "Notification permission already granted")
+                showNotificationPermissionDialog()
             }
-        } else {
-            Log.d("PermissionDebug", "Android version < 13, no need to request permission")
         }
+    }
+
+    private fun showNotificationPermissionDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("알림 권한 필요")
+            .setMessage("이 앱의 모든 기능을 사용하기 위해서는 알림 권한이 필요합니다. 설정에서 권한을 허용해주세요.")
+            .setPositiveButton("설정으로 이동") { _, _ ->
+                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                val uri = Uri.fromParts("package", packageName, null)
+                intent.data = uri
+                startActivity(intent)
+            }
+            .setNegativeButton("취소") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .show()
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {

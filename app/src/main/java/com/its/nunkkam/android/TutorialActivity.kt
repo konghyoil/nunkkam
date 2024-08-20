@@ -43,11 +43,7 @@ class TutorialActivity : AppCompatActivity() {
         requestPermissionsButton = findViewById(R.id.btn_request_permissions)
 
         requestPermissionsButton.setOnClickListener {
-            if (allPermissionsGranted()) {
-                completeTutorial()
-            } else {
-                requestNecessaryPermissions()
-            }
+            requestNecessaryPermissions()
         }
 
         checkTutorialStatus()
