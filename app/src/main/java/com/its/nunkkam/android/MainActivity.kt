@@ -1,18 +1,11 @@
 package com.its.nunkkam.android
 
-import android.Manifest
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.view.ViewGroup
-import android.widget.Button
 import android.widget.ImageButton
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.common.api.ApiException
@@ -21,73 +14,52 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import com.its.nunkkam.android.UserManager.getCurrentUser
-import com.its.nunkkam.android.UserManager.userId
 
 class MainActivity : AppCompatActivity() {
 
+    // Firebase Authentication 객체
     private lateinit var auth: FirebaseAuth
+    // Google 로그인 버튼
     private lateinit var googleLoginButton: ImageButton
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        // MyApplication에서 Firebase Authentication 객체 가져오기
         val app = application as MyApplication
         auth = app.auth
 
+        // UserManager 초기화
         UserManager.initialize(this)
 
+        // Google 로그인 버튼 설정
         googleLoginButton = findViewById(R.id.google_login_button)
-
         googleLoginButton.setOnClickListener {
             signInGoogle()
         }
 
-//        checkTutorialStatus()
-
-        checkUserStatus() // 사용자 상태 확인 메서드 호출
+        // 사용자 상태 확인
+        checkUserStatus()
     }
 
-//    private fun checkAndRequestPermissions() {
-//        val permissionsToRequest = mutableListOf<String>()
-//
-//        // 카메라 권한 확인
-//        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-//            permissionsToRequest.add(Manifest.permission.CAMERA)
-//        }
-//
-//        // 포그라운드 서비스 권한 확인
-//        if (ContextCompat.checkSelfPermission(this, Manifest.permission.FOREGROUND_SERVICE) != PackageManager.PERMISSION_GRANTED) {
-//            permissionsToRequest.add(Manifest.permission.FOREGROUND_SERVICE)
-//        }
-//
-//        // 알림 권한 확인 (안드로이드 13 이상에서 필요)
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-//            permissionsToRequest.add(Manifest.permission.POST_NOTIFICATIONS)
-//        }
-//
-//        // 필요한 권한 요청
-//        if (permissionsToRequest.isNotEmpty()) {
-//            ActivityCompat.requestPermissions(this, permissionsToRequest.toTypedArray(), REQUEST_CODE_PERMISSIONS)
-//        }
-//    }
-
+    // 액티비티가 시작될 때 호출되는 메서드
     public override fun onStart() {
         super.onStart()
         val currentUser = auth.currentUser
         updateUI(currentUser)
     }
 
+    // UI 업데이트 메서드
     private fun updateUI(currentUser: FirebaseUser?) {
         if (currentUser != null) {
             UserManager.setUser(currentUser.uid, UserManager.LOGIN_TYPE_GOOGLE)
-
             // Firestore에서 튜토리얼 수행 여부 확인
             checkTutorialStatus(currentUser)
         }
     }
 
+    // Google 로그인 결과를 처리하는 ActivityResultLauncher
     private val googleSignInLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -100,6 +72,8 @@ class MainActivity : AppCompatActivity() {
             Log.e(TAG, "Google sign in failed", e)
         }
     }
+
+    // Firestore에서 튜토리얼 상태 확인
     private fun checkTutorialStatus(user: FirebaseUser) {
         val userRef = Firebase.firestore.collection("USERS").document(user.uid)
 
@@ -117,11 +91,14 @@ class MainActivity : AppCompatActivity() {
             Log.e(TAG, "Failed to fetch tutorial status", it)
         }
     }
+
+    // Google 로그인 시작
     private fun signInGoogle() {
         val signInIntent = (application as MyApplication).googleSignInClient.signInIntent
         googleSignInLauncher.launch(signInIntent)
     }
 
+    // Google 계정으로 Firebase 인증
     private fun firebaseAuthWithGoogle(acct: GoogleSignInAccount) {
         val credential = GoogleAuthProvider.getCredential(acct.idToken, null)
         auth.signInWithCredential(credential)
@@ -144,6 +121,7 @@ class MainActivity : AppCompatActivity() {
             }
     }
 
+    // Firestore에 사용자 정보 저장
     private fun saveUserToFirestore(user: FirebaseUser?) {
         val userId = user?.uid ?: return
         val userRef = Firebase.firestore.collection("USERS").document(userId)
@@ -157,27 +135,34 @@ class MainActivity : AppCompatActivity() {
                 )
                 userRef.set(userData).addOnSuccessListener {
                     // 사용자 데이터 Firestore에 성공적으로 저장
+                    Log.d(TAG, "User data saved to Firestore")
                 }.addOnFailureListener {
                     // 사용자 데이터 Firestore에 저장 실패
+                    Log.e(TAG, "Error saving user data to Firestore", it)
                 }
             } else {
                 userRef.update("login_type", UserManager.LOGIN_TYPE_GOOGLE).addOnSuccessListener {
                     // 로그인 타입 업데이트 성공
+                    Log.d(TAG, "User login type updated in Firestore")
                 }.addOnFailureListener {
                     // 로그인 타입 업데이트 실패
+                    Log.e(TAG, "Error updating user login type in Firestore", it)
                 }
             }
         }.addOnFailureListener {
             // Firestore에서 사용자 데이터 확인 실패
+            Log.e(TAG, "Error checking user data in Firestore", it)
         }
     }
 
+    // 메인 기능 화면(TimerActivity)으로 이동
     private fun navigateToMainFunction() {
         val intent = Intent(this, TimerActivity::class.java)
         startActivity(intent)
         finish()
     }
 
+    // 사용자 로그인 상태 확인
     private fun checkUserStatus() {
         val currentUser = auth.currentUser
         if (currentUser != null) {
@@ -187,6 +172,5 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         private const val TAG = "MainActivity"
-        private const val REQUEST_CODE_PERMISSIONS = 10
     }
 }
