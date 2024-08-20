@@ -11,7 +11,7 @@
     <!-- 포그라운드 서비스 카메라 권한 (Android 14 이상) -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CAMERA"/>
     <!-- 알람 권한 -->
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+<!--    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" /> 앱 시작 시 알람 권한 표시 주석-->
     <!-- 기기 부팅 시 앱 자동 실행 권한 -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <!-- 절전 모드 방지 권한 -->
@@ -65,6 +65,8 @@
 <!--        <activity android:name=".CalendarFragment" /> &lt;!&ndash; CalendarActivity 선언 &ndash;&gt;-->
 <!--        <activity android:name=".CardFragment" /> &lt;!&ndash; CardActivity 선언 &ndash;&gt;-->
         <activity android:name=".ResultActivity"/><!-- ResultActivity 선언 -->
+        <activity android:name=".TutorialActivity"/><!-- TutorialActivity 선언 -->
+
 
 
 
