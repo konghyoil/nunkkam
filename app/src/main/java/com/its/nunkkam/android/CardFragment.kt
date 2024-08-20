@@ -124,11 +124,11 @@ class CardFragment : Fragment() {
     // 눈 타입 메시지와 이미지 리소스를 반환하는 메서드
     private fun getEyeTypeMessageAndImage(ratePerMinute: Int): Pair<String, Int> {
         return when {
-            ratePerMinute >= 15 -> "당신은 '독수리'의 눈을 \n가졌습니다!" to R.drawable.eagle
-            ratePerMinute >= 12 -> "당신은 '매'의 눈을 \n가졌습니다!" to R.drawable.falcon
-            ratePerMinute >= 9 -> "당신은 '올빼미'의 눈을 \n가졌습니다!" to R.drawable.owl
-            ratePerMinute >= 6 -> "당신은 '고양이'의 눈을 \n가졌습니다!" to R.drawable.cat
-            ratePerMinute >= 3 -> "당신은 '두더지'의 눈을 \n가졌습니다!" to R.drawable.mole
+            ratePerMinute >= 25 -> "당신은 '독수리'의 눈을 \n가졌습니다!" to R.drawable.eagle
+            ratePerMinute >= 20 -> "당신은 '매'의 눈을 \n가졌습니다!" to R.drawable.falcon
+            ratePerMinute >= 15 -> "당신은 '올빼미'의 눈을 \n가졌습니다!" to R.drawable.owl
+            ratePerMinute >= 10 -> "당신은 '고양이'의 눈을 \n가졌습니다!" to R.drawable.cat
+            ratePerMinute >= 5 -> "당신은 '두더지'의 눈을 \n가졌습니다!" to R.drawable.mole
             else -> "측정값이 유효하지 \n않습니다." to R.drawable.eye_closed
         }
     }
