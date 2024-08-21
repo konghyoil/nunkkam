@@ -24,6 +24,25 @@ private var blinkCount = 0 // 눈 깜빡임 총 횟수를 저장하는 변수
 
     private var isForeground = false // 포그라운드 여부를 나타내는 변수
 
+    private var isBlinkDetectionPaused: Boolean = false
+    private var isFpsCalculationPaused: Boolean = false
+
+    fun pauseBlinkDetection() {
+        isBlinkDetectionPaused = true
+    }
+
+    fun resumeBlinkDetection() {
+        isBlinkDetectionPaused = false
+    }
+
+    fun pauseFpsCalculation() {
+        isFpsCalculationPaused = true
+    }
+
+    fun resumeFpsCalculation() {
+        isFpsCalculationPaused = false
+    }
+
     fun getLastBlinkTime(): Long = lastBlinkTime
     fun setLastBlinkTime(time: Long) { lastBlinkTime = time }
 
@@ -97,6 +116,8 @@ private var blinkCount = 0 // 눈 깜빡임 총 횟수를 저장하는 변수
      * @param isEyeClosed 현재 눈이 감겨있는지 여부.
      */
     fun updateBlinkCount(isEyeClosed: Boolean) {
+        if (isBlinkDetectionPaused) return  // 눈 깜빡임 감지가 일시정지된 경우 함수 종료
+
         currentEyeState = if (isEyeClosed) EyeState.CLOSED else EyeState.OPEN
 
         if (previousEyeState == EyeState.OPEN && currentEyeState == EyeState.CLOSED) {
@@ -154,21 +175,25 @@ private var blinkCount = 0 // 눈 깜빡임 총 횟수를 저장하는 변수
 
     /** Blink Rate 업데이트 함수 */
     fun updateBlinkRate() {
+        if (isBlinkDetectionPaused) return  // 눈 깜빡임 감지가 일시정지된 경우 함수 종료
+
         val timeDiff = (System.currentTimeMillis() - lastBlinkTime) / 1000.0 // 마지막 깜빡임과의 시간 차이를 초 단위로 계산
         blinkRate = if (timeDiff > 0) 60.0 / timeDiff else 0.0 // 분당 깜빡임 횟수 계산 (60초 / 깜빡임 간격)
     }
 
-
     /** FPS 업데이트 함수 */
     fun updateFps() {
+        if (isFpsCalculationPaused) return  // FPS 계산이 일시정지된 경우 함수 종료
+
         frameCounter++
         val currentTime = System.currentTimeMillis()
         val elapsedMillis = currentTime - lastFpsUpdateTime
         if (elapsedMillis >= 1000) { // 1초마다 FPS 계산
             fps = frameCounter / (elapsedMillis / 1000f)
-//            fps = (frameCounter * 1000f) / elapsedMillis
+            //            fps = (frameCounter * 1000f) / elapsedMillis
             lastFpsUpdateTime = currentTime
             frameCounter = 0
         }
     }
+
 }
