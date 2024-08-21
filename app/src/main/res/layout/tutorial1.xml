@@ -47,7 +47,14 @@
             android:layout_margin="4dp"/>
 
         <View
-            android:id="@+id/indicator4"
+        android:id="@+id/indicator4"
+        android:layout_width="8dp"
+        android:layout_height="8dp"
+        android:background="@color/dark_lightbar"
+        android:layout_margin="4dp"/>
+
+        <View
+            android:id="@+id/indicator5"
             android:layout_width="8dp"
             android:layout_height="8dp"
             android:background="@color/dark_lightbar"

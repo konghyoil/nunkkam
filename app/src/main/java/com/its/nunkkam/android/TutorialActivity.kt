@@ -47,7 +47,7 @@ class TutorialActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.tutorial1) // 첫 레이아웃 파일 설정
+        setContentView(R.layout.tutorial1)
 
         // Firebase 인스턴스 초기화
         auth = FirebaseAuth.getInstance()
@@ -69,12 +69,11 @@ class TutorialActivity : AppCompatActivity() {
         // 페이지 변경 리스너 설정
         viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
-                updateIndicator(position) // 인디케이터 업데이트
-
-                // 추가된 부분: 마지막 페이지에서 스와이프하면 activity_tutorial.xml로 전환
-                if (position == adapter.itemCount - 1) {
-                    // activity_tutorial.xml로 전환
-                    showPermissionRequestScreen() // 권한 요청 화면으로 이동
+                if (position < indicatorViews.size) {
+                    updateIndicator(position) // 인디케이터 업데이트
+                } else {
+                    // 추가된 페이지에 도달하면 activity_tutorial.xml로 전환
+                    showPermissionRequestScreen()
                 }
             }
         })

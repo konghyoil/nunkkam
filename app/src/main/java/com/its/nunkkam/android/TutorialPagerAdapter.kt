@@ -8,11 +8,12 @@ import androidx.recyclerview.widget.RecyclerView
 
 class TutorialPagerAdapter(private val context: Context) : RecyclerView.Adapter<TutorialPagerAdapter.PagerViewHolder>() {
 
-    private val layouts = listOf(
+    private val layouts: List<Int> = listOf(
         R.layout.tutorial1_1,
         R.layout.tutorial1_2,
         R.layout.tutorial1_3,
-        R.layout.tutorial1_4
+        R.layout.tutorial1_4,
+        R.layout.activity_tutorial
     )
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PagerViewHolder {
