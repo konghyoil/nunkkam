@@ -214,8 +214,16 @@ class BlinkActivity : AppCompatActivity() {
 
         startTimer() // 타이머 시작
 
-        pauseButton.setOnClickListener { pauseTimer() } // 일시정지 버튼 클릭 리스너
-        restartButton.setOnClickListener { restartTimer() } // 재시작 버튼 클릭 리스너
+        pauseButton.setOnClickListener {
+            pauseTimer()
+            blinkDetectionUtil.pauseBlinkDetection()  // 눈 깜빡임 감지 일시정지
+            blinkDetectionUtil.pauseFpsCalculation()  // FPS 계산 일시정지
+        } // 일시정지 버튼 클릭 리스너
+        restartButton.setOnClickListener {
+            restartTimer()
+            blinkDetectionUtil.resumeBlinkDetection()  // 눈 깜빡임 감지 재개
+            blinkDetectionUtil.resumeFpsCalculation()  // FPS 계산 재개
+        } // 재시작 버튼 클릭 리스너
         resetButton.setOnClickListener {
             resetTimer() // 기존 타이머 초기화 함수 호출
             resetBlinkCount() // 눈 깜빡임 카운트 초기화 함수 호출
@@ -259,6 +267,14 @@ class BlinkActivity : AppCompatActivity() {
                 blinkDetectionUtil.setTimerRunning(false)
                 blinkDetectionUtil.setEndTime(System.currentTimeMillis())
                 saveMeasurementData()
+
+                // 타이머가 끝나면 ResultActivity로 이동
+                val resultIntent = Intent(this@BlinkActivity, ResultActivity::class.java)
+                resultIntent.putExtra("blinkCount", blinkDetectionUtil.getBlinkCount())
+                resultIntent.putExtra("blinkRate", blinkDetectionUtil.getBlinkRate())
+                resultIntent.putExtra("measurementTime", blinkDetectionUtil.getEndTime() - blinkDetectionUtil.getStartTime())
+                startActivity(resultIntent)
+                finish() // BlinkActivity 종료
             }
         }.start()
 
@@ -266,32 +282,36 @@ class BlinkActivity : AppCompatActivity() {
     }
 
     private fun pauseTimer() {
-        countDownTimer?.cancel()
-        blinkDetectionUtil.setTimerRunning(false)
-        blinkDetectionUtil.setPausedStartTime(System.currentTimeMillis())
+        countDownTimer?.cancel() // 타이머를 취소
+        blinkDetectionUtil.setTimerRunning(false) // 타이머 상태를 false로 설정
+        blinkDetectionUtil.setPausedStartTime(System.currentTimeMillis()) // 일시정지 시간 설정
         landmarkDetectionManager.pauseDetection() // 얼굴 인식 일시정지
+        blinkDetectionUtil.pauseBlinkDetection() // 깜빡임 감지 일시정지
+        blinkDetectionUtil.pauseFpsCalculation() // FPS 계산 일시정지
     }
 
     private fun restartTimer() {
-        blinkDetectionUtil.setTimerRunning(true)
+        blinkDetectionUtil.setTimerRunning(true) // 타이머 상태를 true로 설정
         if (blinkDetectionUtil.getPausedStartTime() != 0L) {
             blinkDetectionUtil.addPausedAccumulatedTime(System.currentTimeMillis() - blinkDetectionUtil.getPausedStartTime())
-            blinkDetectionUtil.setPausedStartTime(0L)
+            blinkDetectionUtil.setPausedStartTime(0L) // 일시정지 시간 초기화
         }
-        countDownTimer?.cancel()
+        countDownTimer?.cancel() // 이전 타이머 취소
         countDownTimer = object : CountDownTimer(blinkDetectionUtil.getTimeLeftInMillis(), 1000) {
             override fun onTick(millisUntilFinished: Long) {
-                blinkDetectionUtil.setTimeLeftInMillis(millisUntilFinished)
-                updateTimerText()
+                blinkDetectionUtil.setTimeLeftInMillis(millisUntilFinished) // 남은 시간 설정
+                updateTimerText() // 타이머 텍스트 업데이트
             }
 
             override fun onFinish() {
                 blinkDetectionUtil.setTimerRunning(false)
-                blinkDetectionUtil.setStartTime(System.currentTimeMillis())
-                saveMeasurementData()
+                blinkDetectionUtil.setStartTime(System.currentTimeMillis()) // 종료 시간 설정
+                saveMeasurementData() // 측정 데이터 저장
             }
         }.start()
         landmarkDetectionManager.resumeDetection() // 얼굴 인식 재개
+        blinkDetectionUtil.resumeBlinkDetection() // 깜빡임 감지 재개
+        blinkDetectionUtil.resumeFpsCalculation() // FPS 계산 재개
     }
 
     private fun resetTimer() {
