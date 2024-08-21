@@ -6,7 +6,7 @@
     android:orientation="vertical"
     android:background="@color/dark_darkbar"> <!-- 배경색 설정 -->
 
-    <!-- 수정된 메뉴바: 앱 타이틀 제거 -->
+    <!-- 메뉴바: 앱 타이틀 제거 -->
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
@@ -14,13 +14,21 @@
         android:background="#505050"
         android:elevation="4dp">
 
+        <!-- 홈으로 이동 버튼 추가 -->
+        <ImageView
+            android:id="@+id/homeButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:src="@drawable/ic_home" />
+
         <TextView
             android:id="@+id/tipsButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="start"
-            android:layout_marginStart="16dp"
-            android:text="tips"
+            android:layout_gravity="end"
+            android:layout_marginEnd="16dp"
+            android:text="눈 운동 팁"
             android:textColor="#FFFFFF"
             android:textSize="18sp"
             android:textStyle="bold" />
@@ -83,7 +91,6 @@
                     android:contentDescription="@string/calendar_container_description" />
 
             </androidx.cardview.widget.CardView>
-
         </LinearLayout>
     </ScrollView>
 </LinearLayout>
