@@ -26,8 +26,6 @@
     <!-- 카메라 사용 선언 -->
     <uses-feature android:name="android.hardware.camera.front" android:required="true" />
     <uses-feature android:name="android.hardware.camera" android:required="false" />
-    <!-- 시리얼 번호를 가져오기 위한 권한 -->
-    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
     <!-- 오버레이 사용 선언 -->
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
