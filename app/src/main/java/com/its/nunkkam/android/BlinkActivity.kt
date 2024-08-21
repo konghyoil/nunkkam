@@ -80,10 +80,6 @@ class BlinkActivity : AppCompatActivity() {
     private lateinit var cameraService: CameraService // 카메라 서비스
     private var serviceBound = false // 서비스 바인딩 여부
 
-    // 알람
-    private lateinit var alarmManager: AlarmManager // 알람 관리자
-    private lateinit var alarmIntent: PendingIntent // 알람 인텐트
-
     private lateinit var overlayPermissionLauncher: ActivityResultLauncher<Intent>
     private lateinit var overlayView: View
 
@@ -172,9 +168,6 @@ class BlinkActivity : AppCompatActivity() {
                 Log.e("BlinkActivity", "birthDate: $birthDate") // 생년월일 로그
             }
         }
-
-        // 알람
-        alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager // 알람 매니저 초기화
     }
 
     // 액티비티가 생성될 때 호출되는 함수
@@ -554,7 +547,6 @@ class BlinkActivity : AppCompatActivity() {
         super.onDestroy()
 
 //        landmarkDetectionManager.onDestroy()
-        alarmManager.cancel(alarmIntent) // 앱이 종료될 때 알람 취소
 
         if (serviceBound) {
             cameraService.stopCamera()  // 기존 카메라 세션 종료

@@ -28,10 +28,11 @@ import android.view.WindowManager
 import android.graphics.PixelFormat
 import android.provider.Settings
 import android.view.View
+import java.util.concurrent.ScheduledExecutorService
 
 class CameraService : LifecycleService() {
     private lateinit var faceLandmarker: FaceLandmarker // 얼굴 랜드마크 감지기
-    private lateinit var cameraExecutor: ExecutorService // 카메라 작업 실행을 위한 실행자
+    private lateinit var cameraExecutor: ScheduledExecutorService // 카메라 작업 실행을 위한 실행자
     private var imageAnalysis: ImageAnalysis? = null
     private val binder = LocalBinder()
     private val blinkDetectionUtil = BlinkDetectionUtil()
@@ -69,18 +70,16 @@ class CameraService : LifecycleService() {
         return binder
     }
 
-    private fun updateNotification(blinkCount: Int, timeLeft: Long) {
-        var timeFormatted = blinkDetectionUtil.getFormattedTime()
-        Log.d(TAG, "CameraService: Updating notification: Blinks = $blinkCount, Time Left = $timeFormatted") // 로그 추가
+    private fun updateNotification() {
+        val intent = Intent(this, BlinkActivity::class.java)
+        val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
 
         val notification = NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("Camera Service")
-            .setContentText("Blinks: $blinkCount, Time Left: $timeFormatted")
-            .setSmallIcon(R.drawable.eye_open) // 적절한 아이콘으로 변경 필요
-            .setSound(null) // 알림을 무음으로 설정
-            .setOngoing(true) // 알림을 지속적으로 표시
-            .setPriority(NotificationCompat.PRIORITY_HIGH) // 알림 우선순위 설정
-            .setCategory(NotificationCompat.CATEGORY_SERVICE) // 알림 카테고리 설정
+            .setContentTitle("눈 깜빡임 감지 중")
+            .setContentText("눈 깜빡임 결과는 앱에서 확인!!") // 고정된 텍스트만 표시
+            .setSmallIcon(R.drawable.app_icon)
+            .setOngoing(true)
+            .setContentIntent(pendingIntent)
             .build()
 
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -95,6 +94,7 @@ class CameraService : LifecycleService() {
             createNotificationChannel()
             val notificationIntent = Intent(this, BlinkActivity::class.java)
             val pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE)
+            blinkDetectionUtil.setStartTime(System.currentTimeMillis())
 
             val notification: Notification = NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle("Camera Service")
@@ -105,20 +105,18 @@ class CameraService : LifecycleService() {
 
             startForeground(1, notification)
 
-            // 카메라 작업을 위한 단일 스레드 스케줄링 실행자 생성
-            val localExecutor = Executors.newSingleThreadScheduledExecutor()
-            cameraExecutor = localExecutor
+            // cameraExecutor 초기화
+            cameraExecutor = Executors.newSingleThreadScheduledExecutor()
 
-            // 주기적으로 알림을 업데이트하는 스케줄러 추가
-            localExecutor.scheduleWithFixedDelay({
-                Log.d(TAG, "CameraService: Scheduled task running")
-                updateNotification(blinkDetectionUtil.getBlinkCount(), blinkDetectionUtil.getTimeLeftInMillis())
-            }, 0, 1, TimeUnit.MINUTES)
+            // 주기적으로 알림을 업데이트하는 스케줄러 추가 (1초마다)
+            cameraExecutor.scheduleWithFixedDelay({
+                Log.d(TAG, "Updating notification in background")
+                updateNotification()
+            }, 0, 1, TimeUnit.SECONDS)
 
             Log.d(TAG, "CameraService: onCreate completed successfully")
         } catch (e: Exception) {
             Log.e(TAG, "CameraService: Error in onCreate", e)
-            // 여기서 서비스를 중지하거나 다른 오류 처리 로직을 추가할 수 있습니다.
             stopSelf()
         }
     }
@@ -127,7 +125,7 @@ class CameraService : LifecycleService() {
         val serviceChannel = NotificationChannel(
             CHANNEL_ID,
             "Camera Service Channel",
-            NotificationManager.IMPORTANCE_DEFAULT
+            NotificationManager.IMPORTANCE_LOW // 백그라운드 알림은 중요도가 낮아야 합니다.
         )
         val manager = getSystemService(NotificationManager::class.java)
         manager.createNotificationChannel(serviceChannel)
@@ -136,6 +134,9 @@ class CameraService : LifecycleService() {
     private fun onFaceLandmarkerResult(result: FaceLandmarkerResult, image: MPImage) {
         Log.d(TAG, "CameraService: Face landmark result received")
         callback?.onFaceLandmarkerResult(result, image)
+
+        // 얼굴 랜드마크 결과를 처리한 후 즉시 알림 업데이트
+        updateNotification()
     }
 
     fun switchToViewFinder(viewFinder: PreviewView) {
@@ -159,7 +160,7 @@ class CameraService : LifecycleService() {
 
         if (!this::cameraExecutor.isInitialized) {
             Log.d(TAG, "CameraService: Initializing cameraExecutor")
-            cameraExecutor = Executors.newSingleThreadExecutor()
+            cameraExecutor = Executors.newSingleThreadScheduledExecutor()
         }
 
         val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
@@ -230,6 +231,8 @@ class CameraService : LifecycleService() {
 
     fun setCallback(callback: CameraCallback) {
         this.callback = callback
+        // 콜백 설정 시 즉시 알림 업데이트
+        updateNotification()
     }
 
     private fun createOverlayView() {
@@ -263,7 +266,15 @@ class CameraService : LifecycleService() {
     override fun onDestroy() {
         super.onDestroy()
         removeOverlayView()
-        cameraExecutor?.shutdown()
+        cameraExecutor.shutdown()
+
+        try {
+            if (!cameraExecutor.awaitTermination(800, TimeUnit.MILLISECONDS)) {
+                Log.e(TAG, "CameraService: Executor did not terminate in the specified time.")
+            }
+        } catch (e: InterruptedException) {
+            Log.e(TAG, "CameraService: Executor termination interrupted", e)
+        }
     }
 
     // 서비스가 백그라운드에서도 계속 실행되도록 설정
@@ -271,9 +282,9 @@ class CameraService : LifecycleService() {
         super.onStartCommand(intent, flags, startId)
         Log.d(TAG, "CameraService: onStartCommand called")
 
-        // Foreground 서비스로 설정 | 알림 생성
-        val notification: Notification = createNotification()
-        startForeground(NOTIFICATION_ID, notification)
+        // 초기 알림 생성
+        updateNotification()
+
 //        blinkDetectionUtil.setForeground(true)
 
         // 오버레이 뷰 생성 시 context 전달
@@ -284,6 +295,7 @@ class CameraService : LifecycleService() {
 
     override fun onTaskRemoved(rootIntent: Intent) {
         super.onTaskRemoved(rootIntent)
+        Log.d(TAG, "Task removed, stopping service")
         stopSelf() // 서비스가 백그라운드에서 종료되면 스스로 중지
     }
 
@@ -300,7 +312,7 @@ class CameraService : LifecycleService() {
         // Notification 객체 생성 및 반환
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("Camera Service")
-            .setContentText("카메라 서비스가 실행 중입니다.")
+            .setContentText("눈깜빡임 백그라운드 상태로 감지 중...")
             .setSmallIcon(R.drawable.eye_open) // 적절한 아이콘으로 변경 필요
             .setOngoing(true) // 사용자가 직접 알림을 제거할 수 없도록 설정
             .build()

@@ -76,6 +76,10 @@ private var blinkCount = 0 // 눈 깜빡임 총 횟수를 저장하는 변수
     fun getPausedAccumulatedTime(): Long = pausedAccumulatedTime
     fun setPausedAccumulatedTime(time: Long) { pausedAccumulatedTime = time }
     fun addPausedAccumulatedTime(time: Long) { pausedAccumulatedTime += time }
+    fun getElapsedTimeInMinutes(): Float {
+        val elapsedTimeMillis = System.currentTimeMillis() - startTime
+        return elapsedTimeMillis / 60000f // 분 단위로 변환
+    }
 
     enum class EyeState {
         OPEN, CLOSED
