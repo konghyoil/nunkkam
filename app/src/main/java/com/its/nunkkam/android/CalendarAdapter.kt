@@ -60,7 +60,7 @@ class CalendarAdapter(
 
                 if (info != null) {
                     val infoFloat = info.toFloatOrNull() ?: 0f
-                    val df = DecimalFormat("0.##")
+                    val df = DecimalFormat("0.#")
                     val formattedInfo = df.format(infoFloat)
 
                     holder.infoTextView.text = formattedInfo

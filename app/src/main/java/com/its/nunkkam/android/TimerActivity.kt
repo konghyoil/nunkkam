@@ -30,6 +30,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.FirebaseFirestore
 
 class TimerActivity : AppCompatActivity() {
@@ -163,10 +164,6 @@ class TimerActivity : AppCompatActivity() {
         builder.setMessage("회원 탈퇴를 하면 모든 회원 정보가 삭제됩니다.\n회원을 탈퇴하시겠습니까?")
             .setPositiveButton("예") { dialog, id ->
                 deleteUserAccount()
-                // MainActivity로 이동
-                val intent = Intent(this, MainActivity::class.java)
-                startActivity(intent)
-                finish()
             }
             .setNegativeButton("아니요") { dialog, id ->
                 dialog.dismiss()
@@ -240,6 +237,7 @@ class TimerActivity : AppCompatActivity() {
             Log.i("TimerActivity", "User successfully logged out")
 
             val intent = Intent(this, MainActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
             startActivity(intent)
             finish()
         }
@@ -254,33 +252,46 @@ class TimerActivity : AppCompatActivity() {
             // 회원탈퇴 시 로그 기록
             Log.i("TimerActivity", "User requested account deletion")
 
+            // Firestore에서 사용자 데이터 삭제
             db.collection("USERS").document(userId).delete().addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    user.delete().addOnCompleteListener { deleteTask ->
+                    // Firebase Auth에서 사용자 삭제
+                    it.delete().addOnCompleteListener { deleteTask ->
                         if (deleteTask.isSuccessful) {
                             UserManager.deleteUserData(this)
 
                             // 회원탈퇴 성공 시 로그 기록
                             Log.i("TimerActivity", "User account successfully deleted")
 
-                            val intent = Intent(this, MainActivity::class.java)
-                            startActivity(intent)
-                            finish()
+                            // 메인 액티비티로 전환
+                            navigateToMainActivity()
                         } else {
                             // 에러 로그 유지
                             Log.e("TimerActivity", "Error deleting user from Firebase Auth", deleteTask.exception)
+                            Toast.makeText(this, "계정 삭제에 실패했습니다.", Toast.LENGTH_SHORT).show()
                         }
                     }
                 } else {
                     // 에러 로그 유지
                     Log.e("TimerActivity", "Error deleting user data from Firestore", task.exception)
+                    Toast.makeText(this, "계정 삭제에 실패했습니다.", Toast.LENGTH_SHORT).show()
                 }
             }
         } ?: run {
             // 에러 로그 유지
             Log.e("TimerActivity", "User is null")
+            Toast.makeText(this, "사용자 정보가 없습니다.", Toast.LENGTH_SHORT).show()
         }
     }
+
+    // 메인 액티비티로 이동하는 함수
+    private fun navigateToMainActivity() {
+        val intent = Intent(this, MainActivity::class.java)
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+        startActivity(intent)
+        finish() // 현재 Activity 종료
+    }
+
 
     private fun showPrivacyPolicy(){
         val webView = WebView(this)
