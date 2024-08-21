@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center_horizontal"
+    android:background="#2E2E2E">
+
+    <ImageView
+        android:layout_width="150dp"
+        android:layout_height="157dp"
+        android:layout_marginTop="32dp"
+        android:src="@drawable/eye_closed2" />
+
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:layout_marginTop="25dp"
+        android:fontFamily="@font/roboto_slab_black"
+        android:text="눈 깜빡임 측정"
+        android:textColor="#D9D9D9"
+        android:textSize="25sp" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="327dp"
+        android:layout_height="250dp"
+        android:layout_marginTop="30dp"
+        android:fontFamily="@font/roboto_medium"
+        android:gravity="center"
+        android:text="정지 버튼: 측정 중지\n계속 버튼: 측정 재개\n종료 버튼: 측정 종료\n\nTotal Blinks: 총 깜빡임 횟수\nBlink Rate: 현재 분당 눈 깜빡임 횟수\nFPS: 측정 정확도를 나타내는 지표"
+        android:textColor="#D9D9D9"
+        android:textSize="20sp" />
+
+</LinearLayout>

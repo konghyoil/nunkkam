@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center_horizontal"
+    android:background="#2E2E2E">
+
+    <ImageView
+        android:layout_width="150dp"
+        android:layout_height="157dp"
+        android:layout_marginTop="32dp"
+        android:src="@drawable/camera" />
+
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:layout_marginTop="25dp"
+        android:fontFamily="@font/roboto_slab_black"
+        android:text="백그라운드 동영상 촬영"
+        android:textColor="#D9D9D9"
+        android:textSize="25sp" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="320dp"
+        android:layout_height="333dp"
+        android:layout_marginTop="30dp"
+        android:fontFamily="@font/roboto_medium"
+        android:text=" 시간을 설정하고 측정 시작 버튼을 누르면 전면카메라를 통해 측정이 이루어지며, 다른 앱을 사용하면서도 눈 깜빡임 횟수를 측정할 수 있습니다.\n 앱 화면에서 벗어나도 측정은 계속됩니다.\n\n\n ※눈 깜빡임 측정은 실시간 영상처리이기 때문에 측정 영상은 저장되지 않습니다."
+        android:textColor="#D9D9D9"
+        android:textSize="20sp" />
+
+</LinearLayout>
