@@ -229,8 +229,6 @@ class BlinkActivity : AppCompatActivity() {
             resetBlinkCount() // 눈 깜빡임 카운트 초기화 함수 호출
         } // 리셋 버튼 클릭 리스너
 
-        setupAlarm() // 알람 설정
-
         // 초기 상태: 앱이 처음 시작될 때는 오버레이 뷰를 표시하지 않음
         isViewFinderVisible = true
         overlayViewAttached = false
@@ -539,44 +537,6 @@ class BlinkActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupAlarm() {
-        alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        val intent = Intent(this, AlarmReceiver::class.java)
-        alarmIntent = PendingIntent.getBroadcast(
-            this,
-            0,
-            intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
-
-        // 분마다 알람 설정
-        val intervalMillis = 1 * 60 * 1000L // 1분
-        val triggerTime = System.currentTimeMillis() + intervalMillis
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) { // API 레벨 31 이상인지 확인
-            if (alarmManager.canScheduleExactAlarms()) {
-                alarmManager.setExactAndAllowWhileIdle(
-                    AlarmManager.RTC_WAKEUP,
-                    triggerTime,
-                    alarmIntent
-                )
-            } else {
-                alarmManager.setAndAllowWhileIdle(
-                    AlarmManager.RTC_WAKEUP,
-                    triggerTime,
-                    alarmIntent
-                )
-            }
-        } else {
-            // API 레벨 31 이하에서는 canScheduleExactAlarms 메서드를 사용할 수 없으므로 그냥 setAndAllowWhileIdle를 호출합니다.
-            alarmManager.setAndAllowWhileIdle(
-                AlarmManager.RTC_WAKEUP,
-                triggerTime,
-                alarmIntent
-            )
-        }
-    }
-
     override fun onPause() {
         super.onPause()
 
@@ -666,6 +626,6 @@ class BlinkActivity : AppCompatActivity() {
                 Manifest.permission.FOREGROUND_SERVICE
             )
         }
-        private const val REQUEST_CODE_OVERLAY_PERMISSION = 11 // 오버레이 권한 요청 코드 추가p
+        private const val REQUEST_CODE_OVERLAY_PERMISSION = 11 // 오버레이 권한 요청 코드 추가
     }
 }

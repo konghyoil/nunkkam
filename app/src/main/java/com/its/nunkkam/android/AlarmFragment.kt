@@ -216,7 +216,7 @@ class AlarmFragment : Fragment() {
 
     // 알람 취소
     private fun cancelAlarm(isManageAlarm: Boolean) {
-        val intent = Intent(context, AlarmReceiver2::class.java)
+        val intent = Intent(context, AlarmReceiver::class.java)
         val pendingIntent = PendingIntent.getBroadcast(
             context, if (isManageAlarm) 1002 else 1001, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
@@ -302,7 +302,7 @@ class AlarmFragment : Fragment() {
             return
         }
 
-        val intent = Intent(context, AlarmReceiver2::class.java).apply {
+        val intent = Intent(context, AlarmReceiver::class.java).apply {
             putExtra("isManageAlarm", false)
         }
         val pendingIntent = PendingIntent.getBroadcast(
@@ -338,7 +338,7 @@ class AlarmFragment : Fragment() {
 
         val intervalMillis = (hours * 60 * 60 * 1000 + minutes * 60 * 1000).toLong()
 
-        val intent = Intent(context, AlarmReceiver2::class.java).apply {
+        val intent = Intent(context, AlarmReceiver::class.java).apply {
             putExtra("isManageAlarm", true)
             putExtra("intervalMillis", intervalMillis)
         }
