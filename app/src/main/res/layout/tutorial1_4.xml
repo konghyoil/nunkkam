@@ -25,11 +25,12 @@
 
     <TextView
         android:id="@+id/textView2"
-        android:layout_width="330dp"
+        android:layout_width="321dp"
         android:layout_height="250dp"
         android:layout_marginTop="30dp"
         android:fontFamily="@font/roboto_medium"
-        android:text=" 측정 결과를 카드, 그래프, 캘린더로 만나보세요.\n 눈 깜빡임 빈도수에 따라 달라지는 귀여운 캐릭터가 담긴 카드, 최근 6주간의 평균 측정값을 담은 그래프, 한달 동안의 하루 평균 측정값을 나타내는 캘린더가 있습니다."
+        android:gravity="center"
+        android:text=" 측정 결과를\n 카드, 그래프, 캘린더로 만나보세요.\n 눈 깜빡임 빈도수에 따라 달라지는 귀여운 캐릭터가 담긴 카드, 최근 6주간의 평균 측정값을 담은 그래프, 한달 동안의 하루 평균 측정값을 나타내는 캘린더가 있습니다."
         android:textColor="#D9D9D9"
         android:textSize="20sp" />
 

@@ -25,11 +25,12 @@
 
     <TextView
         android:id="@+id/textView2"
-        android:layout_width="320dp"
+        android:layout_width="311dp"
         android:layout_height="250dp"
         android:layout_marginTop="30dp"
         android:fontFamily="@font/roboto_medium"
-        android:text=" 주기적인 측정을 위한 측정 알림, 지속적인 눈 관리를 위한 관리 알림 기능을 제공합니다.\n 측정 알림의 시각과 관리 알림의 주기를 설정할 수 있습니다."
+        android:gravity="center"
+        android:text=" 주기적인 측정을 위한 측정 알림, \n지속적인 눈 관리를 위한 관리 알림 \n기능을 제공합니다.\n 측정 알림의 시각과 관리 알림의 주기를 설정할 수 있습니다."
         android:textColor="#D9D9D9"
         android:textSize="20sp" />
 
