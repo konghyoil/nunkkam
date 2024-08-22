@@ -247,7 +247,8 @@ class TimerActivity : AppCompatActivity() {
         val user = auth.currentUser
         if (user == null) {
             Log.e("TimerActivity", "User is null")
-            Toast.makeText(this, "사용자 정보가 없습니다.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "사용자 정보가 없습니다. 로그인 화면으로 이동합니다.", Toast.LENGTH_SHORT).show()
+            navigateToLoginScreen()
             return
         }
 
@@ -267,9 +268,9 @@ class TimerActivity : AppCompatActivity() {
                         Log.i("TimerActivity", "User account successfully deleted from Firebase Auth")
                         UserManager.deleteUserData(this)
 
-                        // 회원탈퇴 완료 후 MainActivity로 이동
+                        // 회원탈퇴 완료 후 로그인 화면으로 이동
                         Toast.makeText(this, "회원탈퇴가 완료되었습니다.", Toast.LENGTH_SHORT).show()
-                        navigateToMainActivity()
+                        navigateToLoginScreen()
                     }
                     .addOnFailureListener { e ->
                         Log.e("TimerActivity", "Error deleting user from Firebase Auth", e)
@@ -282,9 +283,7 @@ class TimerActivity : AppCompatActivity() {
             }
     }
 
-
-    // 메인 액티비티로 이동하는 함수
-    private fun navigateToMainActivity() {
+    private fun navigateToLoginScreen() {
         val intent = Intent(this, MainActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
         startActivity(intent)
