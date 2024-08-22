@@ -1,4 +1,4 @@
-package com.its.nunkkam.android
+package com.its.nunkkam.android.adapters
 
 import android.graphics.Color
 import android.view.LayoutInflater
@@ -10,6 +10,7 @@ import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.*
 import android.util.Log // 수정: Log import 추가
+import com.its.nunkkam.android.R
 
 class CalendarAdapter(
     private var days: List<Date?>,

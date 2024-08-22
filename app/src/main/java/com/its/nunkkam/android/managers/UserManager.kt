@@ -1,4 +1,4 @@
-package com.its.nunkkam.android                                      // 패키지 선언
+package com.its.nunkkam.android.managers                                      // 패키지 선언
 
 import android.content.Context                                       // Android Context 클래스 임포트
 import android.content.SharedPreferences                             // SharedPreferences 클래스 임포트
@@ -22,8 +22,8 @@ object UserManager {                                                 // UserMana
     }
 
     fun setUser(userId: String, loginType: String) {                 // 사용자 정보 설정 함수
-        this.userId = userId                                         // 사용자 ID 설정
-        this.loginType = loginType                                   // 로그인 타입 설정
+        UserManager.userId = userId                                         // 사용자 ID 설정
+        UserManager.loginType = loginType                                   // 로그인 타입 설정
 
         with(sharedPreferences.edit()) {                             // SharedPreferences에 정보 저장
             putString(USER_ID_KEY, userId)                           // 사용자 ID 저장

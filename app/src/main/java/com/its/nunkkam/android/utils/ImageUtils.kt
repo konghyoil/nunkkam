@@ -1,4 +1,4 @@
-package com.its.nunkkam.android
+package com.its.nunkkam.android.utils
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory

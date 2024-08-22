@@ -1,4 +1,4 @@
-package com.its.nunkkam.android // 패키지 선언: 이 코드가 속한 패키지를 지정
+package com.its.nunkkam.android.services // 패키지 선언: 이 코드가 속한 패키지를 지정
 
 // 필요한 라이브러리들을 가져오기
 import android.app.Notification
@@ -20,7 +20,6 @@ import com.google.mediapipe.tasks.vision.facelandmarker.FaceLandmarkerResult // 
 import java.util.concurrent.Executors // 실행자 생성 유틸리티 클래스
 import android.content.Context // 애플리케이션 환경에 대한 정보를 제공하는 클래스
 import androidx.camera.view.PreviewView // 카메라 미리보기 뷰 클래스
-import java.util.concurrent.ExecutorService // 실행자 서비스 인터페이스
 import java.util.concurrent.TimeUnit
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -28,6 +27,11 @@ import android.view.WindowManager
 import android.graphics.PixelFormat
 import android.provider.Settings
 import android.view.View
+import com.its.nunkkam.android.activities.BlinkActivity
+import com.its.nunkkam.android.utils.BlinkDetectionUtil
+import com.its.nunkkam.android.managers.LandmarkDetectionManager
+import com.its.nunkkam.android.R
+import com.its.nunkkam.android.utils.toMPImage
 import java.util.concurrent.ScheduledExecutorService
 
 class CameraService : LifecycleService() {

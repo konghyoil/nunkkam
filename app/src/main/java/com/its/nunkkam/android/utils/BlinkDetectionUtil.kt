@@ -1,4 +1,4 @@
-package com.its.nunkkam.android
+package com.its.nunkkam.android.utils
 
 class BlinkDetectionUtil {// blinkDetectionUtil
 private var blinkCount = 0 // 눈 깜빡임 총 횟수를 저장하는 변수

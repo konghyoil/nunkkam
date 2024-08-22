@@ -1,4 +1,4 @@
-package com.its.nunkkam.android
+package com.its.nunkkam.android.utils
 
 object AppConstants {
     const val EYE_CLOSED_THRESHOLD = 0.5f

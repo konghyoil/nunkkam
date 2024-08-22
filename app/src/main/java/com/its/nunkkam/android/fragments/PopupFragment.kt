@@ -1,4 +1,4 @@
-package com.its.nunkkam.android
+package com.its.nunkkam.android.fragments
 
 import android.os.Bundle
 import android.util.Log
@@ -9,6 +9,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.DialogFragment
 import android.view.WindowManager
+import com.its.nunkkam.android.R
 
 class PopupFragment : DialogFragment() {
 

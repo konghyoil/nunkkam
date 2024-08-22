@@ -1,8 +1,7 @@
-package com.its.nunkkam.android
+package com.its.nunkkam.android.fragments
 
 import android.app.AlertDialog
 import android.content.Context
-import android.graphics.Rect
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -21,6 +20,8 @@ import android.text.Spanned
 import android.text.style.ForegroundColorSpan
 import androidx.core.content.ContextCompat
 import android.util.Log // 수정: Log import 추가
+import com.its.nunkkam.android.adapters.CalendarAdapter
+import com.its.nunkkam.android.R
 
 class CalendarFragment : Fragment() {
 

@@ -1,13 +1,16 @@
-package com.its.nunkkam.android
+package com.its.nunkkam.android.activities
 
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
+import com.its.nunkkam.android.R
+import com.its.nunkkam.android.fragments.CalendarFragment
+import com.its.nunkkam.android.fragments.CardFragment
+import com.its.nunkkam.android.fragments.ChartFragment
+import com.its.nunkkam.android.fragments.PopupFragment
 
 class ResultActivity : AppCompatActivity() {
 

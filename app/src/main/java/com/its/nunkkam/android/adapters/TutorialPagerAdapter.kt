@@ -1,10 +1,11 @@
-package com.its.nunkkam.android
+package com.its.nunkkam.android.adapters
 
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.its.nunkkam.android.R
 
 class TutorialPagerAdapter(private val context: Context) : RecyclerView.Adapter<TutorialPagerAdapter.PagerViewHolder>() {
 

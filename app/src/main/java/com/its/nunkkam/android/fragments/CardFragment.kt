@@ -1,4 +1,4 @@
-package com.its.nunkkam.android
+package com.its.nunkkam.android.fragments
 
 import android.content.Context
 import android.content.Intent
@@ -18,6 +18,7 @@ import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.its.nunkkam.android.R
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException

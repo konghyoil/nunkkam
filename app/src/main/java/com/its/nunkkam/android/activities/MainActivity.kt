@@ -1,4 +1,4 @@
-package com.its.nunkkam.android
+package com.its.nunkkam.android.activities
 
 import android.content.Intent
 import android.os.Bundle
@@ -14,6 +14,9 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.its.nunkkam.android.MyApplication
+import com.its.nunkkam.android.R
+import com.its.nunkkam.android.managers.UserManager
 
 class MainActivity : AppCompatActivity() {
 

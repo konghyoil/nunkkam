@@ -1,26 +1,20 @@
-package com.its.nunkkam.android // 패키지 선언: 이 코드가 속한 패키지를 지정
+package com.its.nunkkam.android.activities // 패키지 선언: 이 코드가 속한 패키지를 지정
 
 // 필요한 라이브러리들을 가져오기
 import android.Manifest // 안드로이드 권한 관련 클래스
 import android.annotation.SuppressLint // 특정 lint 경고를 억제하기 위한 어노테이션
-import android.app.AlarmManager // 알람 관리자 클래스
-import android.app.PendingIntent // 지연된 인텐트를 위한 클래스
 import android.content.ComponentName // 컴포넌트 이름을 나타내는 클래스
 import android.content.Context // 애플리케이션 환경에 대한 정보를 제공하는 클래스
 import android.content.Intent // 컴포넌트 간 통신을 위한 메시지 객체
 import android.content.ServiceConnection // 서비스 연결을 위한 인터페이스
 import android.content.pm.PackageManager // 패키지 관리자 클래스
-import android.graphics.PixelFormat
 import android.net.Uri
 import android.os.Build // 빌드 버전 정보를 제공하는 클래스
 import android.os.Bundle // 키-값 쌍의 데이터를 저장하는 클래스
 import android.os.CountDownTimer // 카운트다운 타이머 클래스
-import android.os.Handler // 메시지와 Runnable 객체를 처리하는 클래스
 import android.os.IBinder // 서비스와 통신하기 위한 인터페이스
-import android.os.Looper // 메시지 루프를 관리하는 클래스
 import android.provider.Settings
 import android.util.Log // 로그 출력을 위한 클래스
-import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
@@ -30,7 +24,6 @@ import android.widget.TextView // 텍스트 뷰 위젯
 import android.widget.Toast // 짧은 메시지를 화면에 표시하는 클래스
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity // 앱 호환성을 위한 기본 액티비티 클래스
 import androidx.camera.view.PreviewView // 카메라 미리보기 뷰 클래스
 import androidx.core.app.ActivityCompat // 액티비티 호환성 관련 클래스
@@ -41,10 +34,12 @@ import com.google.firebase.auth.FirebaseUser // Firebase 사용자 클래스
 import com.google.firebase.firestore.FieldValue // Firestore 필드 값 조작 클래스
 import com.google.firebase.firestore.FirebaseFirestore // Firestore 데이터베이스 클래스
 import com.google.mediapipe.framework.image.MPImage // MediaPipe 이미지 클래스
-import com.google.mediapipe.tasks.components.containers.NormalizedLandmark // 정규화된 랜드마크 클래스
 import com.google.mediapipe.tasks.vision.facelandmarker.FaceLandmarkerResult // 얼굴 랜드마크 결과 클래스
+import com.its.nunkkam.android.R
+import com.its.nunkkam.android.managers.LandmarkDetectionManager
+import com.its.nunkkam.android.services.CameraService
+import com.its.nunkkam.android.utils.BlinkDetectionUtil
 import java.util.Date // 날짜 클래스
-import kotlin.math.abs // 절대값을 계산하는 수학 함수
 
 // 주석 규칙 | [외부]: 외부 데이터에서 가저오는 부분을 구분하기 위한 주석
 
@@ -61,7 +56,6 @@ class BlinkActivity : AppCompatActivity() {
     private lateinit var fpsTextView: TextView // FPS를 표시할 TextView
     private lateinit var blinkRateTextView: TextView // 분당 눈 깜빡임 횟수를 표시할 TextView
     private var timeLeftInMillis: Long = 0
-
 
     // 타이머
     private lateinit var timerTextView: TextView // 타이머 텍스트 뷰

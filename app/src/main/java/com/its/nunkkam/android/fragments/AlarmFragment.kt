@@ -1,4 +1,4 @@
-package com.its.nunkkam.android
+package com.its.nunkkam.android.fragments
 
 import android.annotation.SuppressLint
 import android.app.AlarmManager
@@ -20,6 +20,8 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import com.its.nunkkam.android.receivers.AlarmReceiver
+import com.its.nunkkam.android.R
 import com.its.nunkkam.android.databinding.FragmentAlarmBinding
 import java.util.*
 
@@ -185,7 +187,9 @@ class AlarmFragment : Fragment() {
         val measurementHour = sharedPreferences.getInt("measurementAlarmHour", 0)
         val measurementMinute = sharedPreferences.getInt("measurementAlarmMinute", 0)
         val measurementEnabled = sharedPreferences.getBoolean("measurementAlarmEnabled", false)
-        val measurementSwitchColor = sharedPreferences.getInt("measurementAlarmSwitchColor", R.color.dark_label)
+        val measurementSwitchColor = sharedPreferences.getInt("measurementAlarmSwitchColor",
+            R.color.dark_label
+        )
 
         binding.btnMeasurementInterval.text = String.format("%02d:%02d", measurementHour, measurementMinute)
         binding.switchMeasurementAlarm.isChecked = measurementEnabled
@@ -195,7 +199,9 @@ class AlarmFragment : Fragment() {
         val manageHours = sharedPreferences.getInt("manageAlarmHours", 0)
         val manageMinutes = sharedPreferences.getInt("manageAlarmMinutes", 0)
         val manageEnabled = sharedPreferences.getBoolean("manageAlarmEnabled", false)
-        val manageSwitchColor = sharedPreferences.getInt("manageAlarmSwitchColor", R.color.dark_label)
+        val manageSwitchColor = sharedPreferences.getInt("manageAlarmSwitchColor",
+            R.color.dark_label
+        )
 
         binding.btnManageInterval.text = "${manageHours}시간 ${manageMinutes}분 마다"
         binding.switchManageAlarm.isChecked = manageEnabled

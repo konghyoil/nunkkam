@@ -1,4 +1,4 @@
-package com.its.nunkkam.android
+package com.its.nunkkam.android.services
 
 import android.app.Notification
 import android.app.NotificationChannel
@@ -17,6 +17,7 @@ import android.view.View
 import android.view.WindowManager
 import androidx.camera.view.PreviewView
 import androidx.core.app.NotificationCompat
+import com.its.nunkkam.android.R
 
 class OverlayService : Service() {
     private lateinit var windowManager: WindowManager

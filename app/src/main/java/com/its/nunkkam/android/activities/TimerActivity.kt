@@ -1,7 +1,6 @@
-package com.its.nunkkam.android
+package com.its.nunkkam.android.activities
 
 import android.Manifest
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -16,11 +15,9 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.NumberPicker
 import android.widget.PopupMenu
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
@@ -30,8 +27,11 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.FirebaseFirestore
+import com.its.nunkkam.android.MyApplication
+import com.its.nunkkam.android.R
+import com.its.nunkkam.android.fragments.AlarmFragment
+import com.its.nunkkam.android.managers.UserManager
 
 class TimerActivity : AppCompatActivity() {
 

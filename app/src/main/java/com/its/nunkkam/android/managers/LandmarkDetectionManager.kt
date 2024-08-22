@@ -1,18 +1,16 @@
-package com.its.nunkkam.android
+package com.its.nunkkam.android.managers
 
 import android.content.Context
-import android.graphics.Bitmap
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import androidx.test.internal.runner.junit4.statement.UiThreadStatement.runOnUiThread
-import com.google.mediapipe.framework.image.BitmapImageBuilder
 import com.google.mediapipe.framework.image.MPImage
 import com.google.mediapipe.tasks.core.BaseOptions
 import com.google.mediapipe.tasks.core.Delegate
 import com.google.mediapipe.tasks.vision.core.RunningMode
 import com.google.mediapipe.tasks.vision.facelandmarker.FaceLandmarker
 import com.google.mediapipe.tasks.vision.facelandmarker.FaceLandmarkerResult
+import com.its.nunkkam.android.utils.AppConstants
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import kotlin.jvm.optionals.toList

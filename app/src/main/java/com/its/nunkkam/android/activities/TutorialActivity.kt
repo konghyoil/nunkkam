@@ -1,4 +1,4 @@
-package com.its.nunkkam.android
+package com.its.nunkkam.android.activities
 
 import android.Manifest
 import android.content.Intent
@@ -17,6 +17,8 @@ import androidx.core.content.ContextCompat
 import androidx.viewpager2.widget.ViewPager2
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.its.nunkkam.android.R
+import com.its.nunkkam.android.adapters.TutorialPagerAdapter
 
 class TutorialActivity : AppCompatActivity() {
 

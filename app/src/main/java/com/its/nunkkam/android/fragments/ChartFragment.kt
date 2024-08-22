@@ -1,4 +1,4 @@
-package com.its.nunkkam.android
+package com.its.nunkkam.android.fragments
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -16,6 +16,8 @@ import com.google.firebase.firestore.FirebaseFirestore
 import java.util.*
 import kotlin.math.roundToInt
 import android.util.Log // 수정: Log import 추가
+import com.its.nunkkam.android.R
+import com.its.nunkkam.android.managers.UserManager
 
 class ChartFragment : Fragment() {
     private lateinit var firestore: FirebaseFirestore
@@ -208,7 +210,8 @@ class ChartFragment : Fragment() {
                     text = value.toString()
                     textSize = 12f
                     setTextColor(ContextCompat.getColor(requireContext(),
-                        if (isRecent) R.color.dark_darkbar else R.color.dark_lightbar))
+                        if (isRecent) R.color.dark_darkbar else R.color.dark_lightbar
+                    ))
                     gravity = Gravity.CENTER
                     layoutParams = LinearLayout.LayoutParams(
                         LinearLayout.LayoutParams.WRAP_CONTENT,
@@ -222,7 +225,8 @@ class ChartFragment : Fragment() {
                     val barHeight = (value.toFloat() / maxValue * maxBarHeight).toInt().coerceAtMost(maxBarHeight)
                     layoutParams = LinearLayout.LayoutParams(barWidth, barHeight)
                     setBackgroundColor(ContextCompat.getColor(requireContext(),
-                        if (isRecent) R.color.dark_darkbar else R.color.dark_lightbar))
+                        if (isRecent) R.color.dark_darkbar else R.color.dark_lightbar
+                    ))
                 }
                 barAndLabelLayout.addView(barView)
 
@@ -249,7 +253,8 @@ class ChartFragment : Fragment() {
                     text = if (index % 2 == 0 || isRecent) label else ""
                     textSize = 11f
                     setTextColor(ContextCompat.getColor(requireContext(),
-                        if (isRecent) R.color.dark_darkbar else R.color.dark_lightbar))
+                        if (isRecent) R.color.dark_darkbar else R.color.dark_lightbar
+                    ))
                     gravity = Gravity.CENTER
                     layoutParams = LinearLayout.LayoutParams(barWidth + barSpacing, LinearLayout.LayoutParams.WRAP_CONTENT)
                     maxLines = 1

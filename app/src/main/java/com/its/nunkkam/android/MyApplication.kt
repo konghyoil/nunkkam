@@ -5,6 +5,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn           // Google �
 import com.google.android.gms.auth.api.signin.GoogleSignInClient     // Google 로그인 클라이언트 클래스 임포트
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions    // Google 로그인 옵션 클래스 임포트
 import com.google.firebase.auth.FirebaseAuth                         // Firebase 인증 클래스 임포트
+import com.its.nunkkam.android.managers.UserManager
 
 class MyApplication : Application() {                                // Application 클래스를 상속받는 MyApplication 클래스 정의
 
