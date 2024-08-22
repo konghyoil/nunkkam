@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp"
-    android:background="@color/dark_grey">
+    android:background="#2E2E2E">
 
     <!-- 상단 카메라 아이콘 -->
     <ImageView
