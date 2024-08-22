@@ -245,44 +245,43 @@ class TimerActivity : AppCompatActivity() {
 
     private fun deleteUserAccount() {
         val user = auth.currentUser
-
-        user?.let {
-            val userId = it.uid
-
-            // 회원탈퇴 시 로그 기록
-            Log.i("TimerActivity", "User requested account deletion")
-
-            // Firestore에서 사용자 데이터 삭제
-            db.collection("USERS").document(userId).delete().addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    // Firebase Auth에서 사용자 삭제
-                    it.delete().addOnCompleteListener { deleteTask ->
-                        if (deleteTask.isSuccessful) {
-                            UserManager.deleteUserData(this)
-
-                            // 회원탈퇴 성공 시 로그 기록
-                            Log.i("TimerActivity", "User account successfully deleted")
-
-                            // 메인 액티비티로 전환
-                            navigateToMainActivity()
-                        } else {
-                            // 에러 로그 유지
-                            Log.e("TimerActivity", "Error deleting user from Firebase Auth", deleteTask.exception)
-                            Toast.makeText(this, "계정 삭제에 실패했습니다.", Toast.LENGTH_SHORT).show()
-                        }
-                    }
-                } else {
-                    // 에러 로그 유지
-                    Log.e("TimerActivity", "Error deleting user data from Firestore", task.exception)
-                    Toast.makeText(this, "계정 삭제에 실패했습니다.", Toast.LENGTH_SHORT).show()
-                }
-            }
-        } ?: run {
-            // 에러 로그 유지
+        if (user == null) {
             Log.e("TimerActivity", "User is null")
             Toast.makeText(this, "사용자 정보가 없습니다.", Toast.LENGTH_SHORT).show()
+            return
         }
+
+        val userId = user.uid
+
+        // 회원탈퇴 시작 로그 기록
+        Log.i("TimerActivity", "User requested account deletion")
+
+        // 먼저 Firestore에서 사용자 데이터 삭제
+        db.collection("USERS").document(userId).delete()
+            .addOnSuccessListener {
+                Log.i("TimerActivity", "User data deleted from Firestore")
+
+                // Firestore 데이터 삭제 성공 후 Firebase Auth에서 사용자 삭제
+                user.delete()
+                    .addOnSuccessListener {
+                        Log.i("TimerActivity", "User account successfully deleted from Firebase Auth")
+                        UserManager.deleteUserData(this)
+
+                        // 회원탈퇴 완료 후 MainActivity로 이동
+                        Toast.makeText(this, "회원탈퇴가 완료되었습니다.", Toast.LENGTH_SHORT).show()
+                        navigateToMainActivity()
+                    }
+                    .addOnFailureListener { e ->
+                        Log.e("TimerActivity", "Error deleting user from Firebase Auth", e)
+                        Toast.makeText(this, "계정 삭제에 실패했습니다. 다시 시도해주세요.", Toast.LENGTH_SHORT).show()
+                    }
+            }
+            .addOnFailureListener { e ->
+                Log.e("TimerActivity", "Error deleting user data from Firestore", e)
+                Toast.makeText(this, "사용자 데이터 삭제에 실패했습니다. 다시 시도해주세요.", Toast.LENGTH_SHORT).show()
+            }
     }
+
 
     // 메인 액티비티로 이동하는 함수
     private fun navigateToMainActivity() {
