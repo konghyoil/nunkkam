@@ -254,7 +254,7 @@ class BlinkActivity : AppCompatActivity() {
                 saveMeasurementData()
 
                 // 타이머가 끝나면 ResultActivity로 이동
-                val resultIntent = Intent(this@BlinkActivity, ResultActivity::class.java)
+                val resultIntent = Intent(this@BlinkActivity, TimerActivity::class.java)
                 resultIntent.putExtra("blinkCount", blinkDetectionUtil.getBlinkCount())
                 resultIntent.putExtra("blinkRate", blinkDetectionUtil.getBlinkRate())
                 resultIntent.putExtra("measurementTime", blinkDetectionUtil.getEndTime() - blinkDetectionUtil.getStartTime())
