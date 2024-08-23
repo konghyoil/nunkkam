@@ -11,11 +11,7 @@ import android.util.Log
 import android.view.Menu
 import android.view.View
 import android.webkit.WebView
-import android.widget.Button
-import android.widget.ImageView
-import android.widget.NumberPicker
-import android.widget.PopupMenu
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -26,6 +22,7 @@ import com.bumptech.glide.request.RequestOptions
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.its.nunkkam.android.MyApplication
@@ -52,51 +49,48 @@ class TimerActivity : AppCompatActivity() {
 
         Log.d("TimerActivity", "TimerActivity created")
 
+        initializeViews()
+        setupAuth()
+        setupListeners()
+        addAlarmFragment()
+        checkNotificationPermission()
+        checkUserSession() // 사용자 세션 확인 추가
+    }
+
+    private fun initializeViews() {
         startButton = findViewById(R.id.start_button)
         resultButton = findViewById(R.id.result_button)
         minutePicker = findViewById(R.id.minute_picker)
         secondPicker = findViewById(R.id.second_picker)
+        profileImageView = findViewById(R.id.profile_image_view)
 
         setupTimePickers()
+    }
 
+    private fun setupAuth() {
         val app = application as MyApplication
         auth = app.auth
         googleSignInClient = app.googleSignInClient
 
-        profileImageView = findViewById(R.id.profile_image_view)
-
         loadUserProfileImage()
+    }
 
-        profileImageView.setOnClickListener { view ->
-            showPopupMenu(view)
-        }
-
-        startButton.setOnClickListener {
-            startBlinkActivity()
-        }
-
-        resultButton.setOnClickListener {
-            goToResultScreen()
-        }
-
-        addAlarmFragment()
-        checkNotificationPermission()
+    private fun setupListeners() {
+        profileImageView.setOnClickListener { view -> showPopupMenu(view) }
+        startButton.setOnClickListener { startBlinkActivity() }
+        resultButton.setOnClickListener { goToResultScreen() }
     }
 
     private fun setupTimePickers() {
         minutePicker.minValue = 0
         minutePicker.maxValue = 59
-
         secondPicker.minValue = 0
         secondPicker.maxValue = 59
 
-        // 초기 시간 설정 (예: 20분)
-        minutePicker.value = 20
+        minutePicker.value = 20 // 초기 시간 설정 (20분)
         secondPicker.value = 0
 
-        val timeChangeListener = NumberPicker.OnValueChangeListener { _, _, _ ->
-            updateTimeDisplay()
-        }
+        val timeChangeListener = NumberPicker.OnValueChangeListener { _, _, _ -> updateTimeDisplay() }
         minutePicker.setOnValueChangedListener(timeChangeListener)
         secondPicker.setOnValueChangedListener(timeChangeListener)
 
@@ -104,17 +98,80 @@ class TimerActivity : AppCompatActivity() {
     }
 
     private fun updateTimeDisplay() {
-        val minutes = minutePicker.value
-        val seconds = secondPicker.value
-        // 여기서 시간 표시를 업데이트합니다 (필요한 경우)
-        // 예: timerTextView.text = String.format("%02d:%02d", minutes, seconds)
+        // 시간 표시 업데이트 로직
+    }
+
+    private fun checkUserSession() {
+        val user = auth.currentUser
+        if (user == null) {
+            navigateToLoginScreen()
+            return
+        }
+
+        user.getIdToken(true)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    Log.d("TimerActivity", "Token refreshed successfully")
+                } else {
+                    Log.e("TimerActivity", "Token refresh failed", task.exception)
+                    requestReauthentication()
+                }
+            }
+    }
+
+    private fun requestReauthentication() {
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("재인증 필요")
+        builder.setMessage("세션이 만료되었습니다. 다시 로그인해 주세요.")
+
+        // 동적으로 레이아웃 생성
+        val layout = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(50, 30, 50, 30)
+        }
+
+        val emailInput = EditText(this).apply {
+            hint = "이메일"
+            inputType = android.text.InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
+        }
+
+        val passwordInput = EditText(this).apply {
+            hint = "비밀번호"
+            inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD
+        }
+
+        layout.addView(emailInput)
+        layout.addView(passwordInput)
+
+        builder.setView(layout)
+
+        builder.setPositiveButton("로그인") { _, _ ->
+            val email = emailInput.text.toString()
+            val password = passwordInput.text.toString()
+            reauthenticateUser(email, password)
+        }
+
+        builder.setNegativeButton("취소") { _, _ -> navigateToLoginScreen() }
+
+        builder.setCancelable(false)
+        builder.show()
+    }
+
+    private fun reauthenticateUser(email: String, password: String) {
+        val credential = EmailAuthProvider.getCredential(email, password)
+        auth.currentUser?.reauthenticate(credential)
+            ?.addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    Toast.makeText(this, "재인증 성공", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this, "재인증 실패. 다시 시도해주세요.", Toast.LENGTH_SHORT).show()
+                    requestReauthentication()
+                }
+            }
     }
 
     private fun startBlinkActivity() {
-        val minutes = minutePicker.value
-        val seconds = secondPicker.value
-        val totalTimeInSeconds = minutes * 60 + seconds
-
+        val totalTimeInSeconds = minutePicker.value * 60 + secondPicker.value
         val intent = Intent(this, BlinkActivity::class.java)
         intent.putExtra("TIMER_DURATION", totalTimeInSeconds)
         startActivity(intent)
@@ -130,7 +187,6 @@ class TimerActivity : AppCompatActivity() {
                     .apply(RequestOptions.bitmapTransform(CircleCrop()))
                     .into(profileImageView)
             } else {
-                // 프로필 사진이 없는 경우 기본 아이콘 사용
                 profileImageView.setImageResource(R.drawable.ic_account)
             }
         }
@@ -160,20 +216,11 @@ class TimerActivity : AppCompatActivity() {
     }
 
     private fun showDeleteAccountWarning() {
-        val builder = AlertDialog.Builder(this)
-        builder.setMessage("회원 탈퇴를 하면 모든 회원 정보가 삭제됩니다.\n회원을 탈퇴하시겠습니까?")
-            .setPositiveButton("예") { dialog, id ->
-                deleteUserAccount()
-            }
-            .setNegativeButton("아니요") { dialog, id ->
-                dialog.dismiss()
-            }
-        builder.create().show()
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.menu_main, menu)
-        return true
+        AlertDialog.Builder(this)
+            .setMessage("회원 탈퇴를 하면 모든 회원 정보가 삭제됩니다.\n회원을 탈퇴하시겠습니까?")
+            .setPositiveButton("예") { _, _ -> deleteUserAccount() }
+            .setNegativeButton("아니요") { dialog, _ -> dialog.dismiss() }
+            .create().show()
     }
 
     private fun checkNotificationPermission() {
@@ -194,52 +241,22 @@ class TimerActivity : AppCompatActivity() {
                 intent.data = uri
                 startActivity(intent)
             }
-            .setNegativeButton("취소") { dialog, _ ->
-                dialog.dismiss()
-            }
+            .setNegativeButton("취소") { dialog, _ -> dialog.dismiss() }
             .show()
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == PERMISSION_REQUEST_CODE) {
-            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Log.d("PermissionDebug", "Notification permission granted")
-                Toast.makeText(this, "알림 권한이 승인되었습니다.", Toast.LENGTH_SHORT).show()
-            } else {
-                Log.d("PermissionDebug", "Notification permission denied")
-                Toast.makeText(this, "알림 권한이 거부되었습니다. 일부 기능이 제한될 수 있습니다.", Toast.LENGTH_LONG).show()
-            }
-        }
-    }
-
-    private fun checkCurrentUser() {
-        val currentUser = auth.currentUser
-        // 테스트 로그 제거됨
     }
 
     private fun goToResultScreen() {
         val intent = Intent(this, ResultActivity::class.java)
         startActivity(intent)
-        checkCurrentUser()
     }
 
     private fun logoutUser() {
-        // 로그아웃 시 로그 기록
         Log.i("TimerActivity", "User requested logout")
-
         auth.signOut()
-
         googleSignInClient.signOut().addOnCompleteListener(this) {
             UserManager.clearUserData()
-
-            // 로그아웃 성공 시 로그 기록
             Log.i("TimerActivity", "User successfully logged out")
-
-            val intent = Intent(this, MainActivity::class.java)
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
-            startActivity(intent)
-            finish()
+            navigateToLoginScreen()
         }
     }
 
@@ -253,22 +270,15 @@ class TimerActivity : AppCompatActivity() {
         }
 
         val userId = user.uid
-
-        // 회원탈퇴 시작 로그 기록
         Log.i("TimerActivity", "User requested account deletion")
 
-        // 먼저 Firestore에서 사용자 데이터 삭제
         db.collection("USERS").document(userId).delete()
             .addOnSuccessListener {
                 Log.i("TimerActivity", "User data deleted from Firestore")
-
-                // Firestore 데이터 삭제 성공 후 Firebase Auth에서 사용자 삭제
                 user.delete()
                     .addOnSuccessListener {
                         Log.i("TimerActivity", "User account successfully deleted from Firebase Auth")
                         UserManager.deleteUserData(this)
-
-                        // 회원탈퇴 완료 후 로그인 화면으로 이동
                         Toast.makeText(this, "회원탈퇴가 완료되었습니다.", Toast.LENGTH_SHORT).show()
                         navigateToLoginScreen()
                     }
@@ -287,22 +297,20 @@ class TimerActivity : AppCompatActivity() {
         val intent = Intent(this, MainActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
         startActivity(intent)
-        finish() // 현재 Activity 종료
+        finish()
     }
 
-
-    private fun showPrivacyPolicy(){
+    private fun showPrivacyPolicy() {
         val webView = WebView(this)
         webView.settings.javaScriptEnabled = true
         webView.loadUrl("https://sites.google.com/view/nunkkam001?usp=sharing")
 
-        val dialog = AlertDialog.Builder(this)
+        AlertDialog.Builder(this)
             .setTitle("개인정보 처리방침")
             .setView(webView)
             .setNegativeButton("닫기") { dialog, _ -> dialog.dismiss() }
             .create()
-
-        dialog.show()
+            .show()
     }
 
     private fun addAlarmFragment() {
@@ -312,9 +320,10 @@ class TimerActivity : AppCompatActivity() {
             .commit()
     }
 
-    // 추가된 메서드: TimerActivity가 파괴될 때 로그 출력
     override fun onDestroy() {
         super.onDestroy()
         Log.d("TimerActivity", "TimerActivity destroyed")
     }
+
+    // 기타 필요한 메서드들...
 }
