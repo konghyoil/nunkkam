@@ -491,18 +491,7 @@ class BlinkActivity : AppCompatActivity() {
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == REQUEST_CODE_OVERLAY_PERMISSION) {
-            if (Settings.canDrawOverlays(this)) {
-                // 오버레이 권한이 허용되었을 때
-                Log.d(TAG, "Overlay permission granted.")
-            } else {
-                // 오버레이 권한이 거부되었을 때
-                Toast.makeText(this, "Overlay permission is required for this feature.", Toast.LENGTH_LONG).show()
-            }
-        }
-    }
+
 
     private fun requestPermissions() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
