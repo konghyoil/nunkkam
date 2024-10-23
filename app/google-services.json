@@ -14,11 +14,35 @@
       },
       "oauth_client": [
         {
+          "client_id": "886745816335-3a4fo6hn9p2dga1a32gfmquhrbkvpgfr.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.its.nunkkam.android",
+            "certificate_hash": "eefe7a39e3f2ea1174ca316eb31b81abc00b3b70"
+          }
+        },
+        {
           "client_id": "886745816335-6da0nn48vorlt4gq95e0pbid8l7gpvcq.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.its.nunkkam.android",
             "certificate_hash": "f938b23961f915c4f80297f9f8b3a5fe9e6f853d"
+          }
+        },
+        {
+          "client_id": "886745816335-7d7cesb4rdagk5qu18fo2atgtu8m9b2e.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.its.nunkkam.android",
+            "certificate_hash": "bc8c26446c907eff9dffe3d623d38321cf9c8004"
+          }
+        },
+        {
+          "client_id": "886745816335-8207c544s4jigti7i346762i187f3dku.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.its.nunkkam.android",
+            "certificate_hash": "6c1446b5d8ba5f3fa324e1d711ab30fda9ac276f"
           }
         },
         {
