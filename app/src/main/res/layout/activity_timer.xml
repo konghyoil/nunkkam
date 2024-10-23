@@ -80,7 +80,7 @@
             android:layout_marginTop="48dp"
             android:backgroundTint="@color/dark_button2"
             android:fontFamily="@font/roboto_medium"
-            android:text="\u측정 시작"
+            android:text="측정 시작"
             android:textColor="#000015"
             android:textStyle="bold"
             android:visibility="visible"

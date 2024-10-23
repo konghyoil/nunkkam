@@ -56,17 +56,21 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".activities.BlinkActivity"/><!-- BlinkActivity 선언 -->
+        <activity android:name=".activities.BlinkActivity"
+            android:screenOrientation="portrait"/><!-- BlinkActivity 선언 -->
 <!--        <activity android:name=".TimerFragment" /> &lt;!&ndash; TimerActivity 선언 &ndash;&gt;-->
-        <activity android:name=".activities.TimerActivity"/> <!-- TimerActivity 선언 -->
+        <activity
+            android:name=".activities.TimerActivity"
+            android:screenOrientation="portrait"
+            android:configChanges="orientation|screenSize"/><!-- TimerActivity 선언 -->
 <!--        <activity android:name=".ChartFragment" /> &lt;!&ndash; ChartActivity 선언 &ndash;&gt;-->
 <!--        <activity android:name=".CalendarFragment" /> &lt;!&ndash; CalendarActivity 선언 &ndash;&gt;-->
 <!--        <activity android:name=".CardFragment" /> &lt;!&ndash; CardActivity 선언 &ndash;&gt;-->
-        <activity android:name=".activities.ResultActivity"/><!-- ResultActivity 선언 -->
-        <activity android:name=".activities.TutorialActivity"/><!-- TutorialActivity 선언 -->
-
-
-
+        <activity android:name=".activities.ResultActivity"
+            android:screenOrientation="portrait"/><!-- ResultActivity 선언 -->
+        <activity android:name=".activities.TutorialActivity"
+            android:screenOrientation="portrait"/><!-- TutorialActivity 선언 -->
+        <!-- 모든 액티비티에 가로보기 제한 선언했음. 24.10.23 -->
 
 
 
