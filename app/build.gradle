@@ -16,7 +16,7 @@ android {
         applicationId "com.its.nunkkam.android"  // 앱의 고유 식별자
         minSdk 30  // 앱이 지원하는 최소 Android 버전
         targetSdk 34  // 앱이 목표로 하는 Android 버전
-        versionCode 10  // 앱의 버전 코드 (정수)
+        versionCode 11  // 앱의 버전 코드 (정수)
         versionName "4.1"  // 앱의 버전 이름 (문자열)
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"  // 안드로이드 테스트 러너
